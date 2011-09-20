@@ -14,4 +14,7 @@ Gem::Specification.new do |gem|
   gem.name          = "ns-options"
   gem.require_paths = ["lib"]
   gem.version       = Ns::Options::VERSION
+
+  gem.add_development_dependency("assert",  ["~>0.6.0"])
+  gem.add_development_dependency("mocha",   ["~>0.9.12"])
 end
