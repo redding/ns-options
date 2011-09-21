@@ -9,10 +9,8 @@ module NsOptions
       super(name.to_sym, value)
     end
 
-    def add(name, parent = nil, &block)
-      namespace = NsOptions::Namespace.new(name, parent)
-      namespace.configure(&block)
-      self[name] = namespace
+    def add(name, key, parent = nil, &block)
+      self[name] = NsOptions::Helper.new_namespace(key, parent, &block)
     end
 
     def get(name)

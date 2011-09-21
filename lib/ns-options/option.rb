@@ -3,12 +3,12 @@ module NsOptions
   class Option
     autoload :Boolean, 'ns-options/option/boolean'
     
-    attr_accessor :name, :value, :type_class, :options
+    attr_accessor :name, :value, :type_class, :extras
 
-    def initialize(name, type_class, options = {})
+    def initialize(name, type_class, extras = {})
       self.name = name.to_s
       self.type_class = self.usable_type_class(type_class)
-      self.options = options
+      self.extras = extras
       self.value = nil
     end
 

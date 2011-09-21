@@ -11,25 +11,22 @@ module NsOptions
 
     end
 
-
     module DSL
 
-      def configurable(method_name, group_name, &block)
+      def configurable(name, key = nil, &block)
+        key ||= name.to_s
         self.class_eval <<-DEFINE_METHOD
 
-          def #{method_name}
-            @#{method_name} ||= self.class.#{method_name}.dup
+          def #{name}(&block)
+            @#{name} ||= NsOptions::Helper.new_child_namespace(self, '#{name}', &block)
           end
 
-          def self.#{method_name}(&block)
-            unless @#{method_name}
-              @#{method_name} = NsOptions::Namespace.new(#{group_name.inspect})
-            end
-            @#{method_name}.configure(&block)
+          def self.#{name}(&block)
+            @#{name} ||= NsOptions::Helper.new_namespace('#{key}', &block)
           end
 
         DEFINE_METHOD
-        self.send(method_name, &block)
+        self.send(name, &block)
       end
 
     end

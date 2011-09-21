@@ -34,16 +34,15 @@ class User
     desc "preferences"
     setup do
       @preferences = @instance.preferences
-      puts @instance.preferences.class.public_instance_methods(false).inspect
-      #@preferences.home_url = "/home"
-      #@preferences.show_messages = false
-      #@preferences.font_size = 15
+      @preferences.home_url = "/home"
+      @preferences.show_messages = false
+      @preferences.font_size = 15
     end
     subject{ @preferences }
 
     should have_instance_methods :namespace, :option, :configure, :options, :metaclass
     should have_accessors :home_url, :show_messages, :font_size
-=begin
+
     should "have set the home_url" do
       assert_equal "/home", subject.home_url
     end
@@ -53,7 +52,6 @@ class User
     should "have set the font_size" do
       assert_equal 15, subject.font_size
     end
-=end
   end
 
 end

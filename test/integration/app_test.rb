@@ -46,8 +46,17 @@ module App
       assert_equal @logger, subject.logger
       assert_same @logger, subject.logger
     end
-    should "have set the sub namespace run_commands to true" do
-      assert_equal @run, subject.sub.run_commands
+  end
+  
+  class SubNamespaceTest < ConfigureTest
+    desc "the sub namespace"
+    subject{ @module.settings.sub }
+    
+    should "have set the run_commands option" do
+      assert_equal @run, subject.run_commands
+    end
+    should "have access to it's parent's options" do
+      assert_equal @stage, subject.stage
     end
   end
 

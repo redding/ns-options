@@ -1,11 +1,11 @@
 module NsOptions
 
   class Options < Hash
-    attr_accessor :name, :parent, :children
+    attr_accessor :key, :parent, :children
     alias :namespaces :children
 
-    def initialize(name, parent = nil)
-      self.name = name
+    def initialize(key, parent = nil)
+      self.key = key
       self.parent = parent
       self.children = NsOptions::Namespaces.new
     end
@@ -32,7 +32,7 @@ module NsOptions
       option = self[name]
       if option && !option.value.nil?
         option.value
-      elsif self.defaults
+      elsif self.parent_options
         self.parent_options.get(name)
       end
     end
@@ -40,6 +40,10 @@ module NsOptions
     def set(name, new_value)
       self[name].value = new_value
       self[name]
+    end
+
+    def fetch(name)
+      self[name] || (self.parent_options && self.parent_options.fetch(name))
     end
 
     def is_defined?(name)
