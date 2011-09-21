@@ -29,13 +29,13 @@ module NsOptions
           if !args.empty?
             self.send("#{option.name}=", *args)
           else
-            self.options.get(:#{option.key})
+            self.options.get(:#{option.name})
           end
         end
 
         def #{option.name}=(*args)
           value = args.size == 1 ? args.first : args
-          self.options.set(:#{option.key}, value)
+          self.options.set(:#{option.name}, value)
         end
 
       DEFINE_METHOD

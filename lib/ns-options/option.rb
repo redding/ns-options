@@ -2,18 +2,14 @@ module NsOptions
 
   class Option
     autoload :Boolean, 'ns-options/option/boolean'
-    
-    attr_accessor :name, :value, :type_class, :extras
 
-    def initialize(name, type_class, extras = {})
+    attr_accessor :name, :value, :type_class, :rules
+
+    def initialize(name, type_class, rules = {})
       self.name = name.to_s
       self.type_class = self.usable_type_class(type_class)
-      self.extras = extras
+      self.rules = rules
       self.value = nil
-    end
-
-    def key
-      self.name.to_sym
     end
 
     def value=(new_value)
@@ -25,7 +21,7 @@ module NsOptions
     end
 
     def ==(other)
-      [ :name, :type_class, :options, :value ].inject(true) do |bool, attribute|
+      [ :name, :type_class, :rules, :value ].inject(true) do |bool, attribute|
         bool && (self.send(attribute) == other.send(attribute))
       end
     end

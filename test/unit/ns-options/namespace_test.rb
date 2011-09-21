@@ -29,8 +29,8 @@ class NsOptions::Namespace
     setup do
       @name = :something
       @type = NsOptions::Option::Boolean
-      @extras = { :default => true }
-      @namespace.option(@name, @type, @extras)
+      @rules = { :default => true }
+      @namespace.option(@name, @type, @rules)
     end
     subject{ @namespace }
 
@@ -38,7 +38,7 @@ class NsOptions::Namespace
       assert(option = subject.options[@name])
       assert_equal @name.to_s, option.name
       assert_equal @type, option.type_class
-      assert_equal @extras, option.extras
+      assert_equal @rules, option.rules
     end
   end
 

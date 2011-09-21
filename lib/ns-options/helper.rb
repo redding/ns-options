@@ -25,7 +25,7 @@ module NsOptions
 
     def fetch_and_define_option(namespace, option_name)
       option = namespace.options.fetch(option_name)
-      namespace.option(option.name, option.type_class, option.extras)
+      namespace.option(option.name, option.type_class, option.rules)
       option
     end
 
