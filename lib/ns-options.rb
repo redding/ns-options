@@ -1,5 +1,3 @@
-require "ns-options/version"
-
 module NsOptions
   autoload :Configurable,   'ns-options/configurable'
   autoload :Helper,         'ns-options/helper'
@@ -7,4 +5,5 @@ module NsOptions
   autoload :Namespaces,     'ns-options/namespaces'
   autoload :Option,         'ns-options/option'
   autoload :Options,        'ns-options/options'
+  autoload :VERSION,        'ns-options/version'
 end

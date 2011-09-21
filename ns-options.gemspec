@@ -13,7 +13,7 @@ Gem::Specification.new do |gem|
   gem.test_files    = `git ls-files -- {test,spec,features}/*`.split("\n")
   gem.name          = "ns-options"
   gem.require_paths = ["lib"]
-  gem.version       = Ns::Options::VERSION
+  gem.version       = NsOptions::VERSION
 
   gem.add_development_dependency("assert",  ["~>0.6.0"])
   gem.add_development_dependency("mocha",   ["~>0.9.12"])

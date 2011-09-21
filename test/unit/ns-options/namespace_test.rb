@@ -35,7 +35,7 @@ class NsOptions::Namespace
     subject{ @namespace }
 
     should "have added the option to the namespace's options collection" do
-      assert (option = subject.options[@name])
+      assert(option = subject.options[@name])
       assert_equal @name.to_s, option.name
       assert_equal @type, option.type_class
       assert_equal @extras, option.extras
@@ -51,7 +51,7 @@ class NsOptions::Namespace
     subject{ @namespace }
 
     should "default the type to String" do
-      assert (option = subject.options[@name])
+      assert(option = subject.options[@name])
       assert_equal String, option.type_class
     end
   end
@@ -81,7 +81,7 @@ class NsOptions::Namespace
     subject{ @namespace }
 
     should "have added a namespace to the namespace's options collection" do
-      assert (namespace = subject.options.namespaces[:something])
+      assert(namespace = subject.options.namespaces[:something])
       assert_equal "#{subject.options.key}:something", namespace.options.key
       assert_equal subject, namespace.options.parent
       assert namespace.options[:something_else]
@@ -180,7 +180,7 @@ class NsOptions::Namespace
         @namespace.another_not_defined = true
         @namespace.even_more_not_defined = 12
       end
-      
+
       should "have defined the accessors and added the option" do
         defined_methods = subject.metaclass.public_instance_methods(false).map(&:to_sym)
         assert subject.options[:something_not_defined]
