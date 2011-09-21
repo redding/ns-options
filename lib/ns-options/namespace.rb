@@ -3,34 +3,39 @@ module NsOptions
   class Namespace
     attr_accessor :options, :metaclass
 
-    INVALID_KEYS = [ :options, :metaclass, :option, :namespace, :configure, :method_missing,
-      :respond_to ]
-
-    def initialize(name, parent = nil)
+    def initialize(key, parent = nil)
       self.metaclass = (class << self; self; end)
-      self.options = NsOptions::Options.new(name, parent)
+      self.options = NsOptions::Options.new(key, parent)
     end
 
+    # Define an option for this namespace. Add the option to the namespace's options collection
+    # and then define accessors for the option. With the following:
+    #
+    # namespace.option(:root, String, { :some_option => true })
+    #
+    # you will get accessors for root:
+    #
+    # namespace.root = "something"      # set's the root option to 'something'
+    # namespace.root                    # => "something"
+    # namespace.root("something else")  # set's the root option to `something-else`
+    #
+    # The defined option is returned as well.
     def option(*args)
-      if INVALID_KEYS.include?(args[0].to_sym)
-        raise(ArgumentError, "An option named '#{args[0]}' cannot be created.")
-      end
       option = self.options.add(*args)
 
-      # define reader/writer for option.name
       self.metaclass.class_eval <<-DEFINE_METHOD
 
         def #{option.name}(*args)
           if !args.empty?
             self.send("#{option.name}=", *args)
           else
-            self.options.get(#{option.key.inspect})
+            self.options.get(:#{option.key})
           end
         end
 
         def #{option.name}=(*args)
           value = args.size == 1 ? args.first : args
-          self.options.set(#{option.key.inspect}, value)
+          self.options.set(:#{option.key}, value)
         end
 
       DEFINE_METHOD
@@ -38,10 +43,22 @@ module NsOptions
       option
     end
 
+    # Define a namespace under this namespace. Firstly, a new key is constructured from this current
+    # namespace's key and the name for the new namespace. The namespace is then added to the
+    # options collection. Finally a reader method is defined for accessing the namespace. With the
+    # following:
+    #
+    # parent_namespace.namespace(:specific) do
+    #   option :root
+    # end
+    #
+    # you will get a reader for the namespace:
+    #
+    # parent_namespace.specific                     # => returns the namespace
+    # parent_namespace.specific.root = "something"  # => options are accessed in the same way
+    #
+    # The defined namespaces is returned as well.
     def namespace(name, &block)
-      if INVALID_KEYS.include?(name.to_sym)
-        raise(ArgumentError, "A namespace named '#{args[0]}' cannot be created.")
-      end
       key = "#{self.options.key}:#{name}"
       namespace = self.options.namespaces.add(name, key, self, &block)
 
@@ -58,6 +75,18 @@ module NsOptions
       namespace
     end
 
+    # The configure method is provided for convenience and commonization. The internal system
+    # uses it to commonly use a block with a namespace. The method can be used externally when
+    # a namespace is created separately from where options are added/set on it. For example:
+    #
+    # parent_namespace.namespace(:specific)
+    #
+    # parent_namespace.specific.configure do
+    #   option :root
+    # end
+    #
+    # Will define a new namespace under the parent namespace and then will later on add options to
+    # it.
     def configure(&block)
       if block && block.arity > 0
         yield self
@@ -87,7 +116,7 @@ module NsOptions
         option = NsOptions::Helper.fetch_and_define_option(self, option_name)
         self.send("#{option.name}=", value)
       elsif !args.empty?
-        self.option(option_name, value.class)
+        option = self.option(option_name, value.class)
         self.send("#{option.name}=", value)
       else
         super
