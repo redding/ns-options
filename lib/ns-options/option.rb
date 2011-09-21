@@ -11,6 +11,14 @@ module NsOptions
       self.rules = rules
       self.value = nil
     end
+    
+    def value
+      if self.type_class == NsOptions::Option::Boolean
+        @value and @value.actual
+      else
+        @value
+      end
+    end
 
     def value=(new_value)
       @value = if (new_value.class == self.type_class) || new_value.nil?

@@ -124,13 +124,19 @@ class NsOptions::Option
     desc "with a TrueClass/FalseClass as a type class (happens with dynamic writers)"
     setup do
       @true_option = NsOptions::Option.new(:something, TrueClass)
+      @true_option.value = true
       @false_option = NsOptions::Option.new(:else, FalseClass)
+      @false_option.value = false
     end
-    subject{ @true_ption }
+    subject{ @true_option }
     
     should "have used NsOptions::Option::Boolean for their type class" do
       assert_equal NsOptions::Option::Boolean, @true_option.type_class
       assert_equal NsOptions::Option::Boolean, @false_option.type_class
+    end
+    should "return the 'true' or 'false' value instead of the NsOptions::Option::Boolean object" do
+      assert_equal true, @true_option.value
+      assert_equal false, @false_option.value
     end
   end
   

@@ -5,7 +5,7 @@ module NsOptions
     alias :namespaces :children
 
     def initialize(key, parent = nil)
-      self.key = key
+      self.key = key.to_s
       self.parent = parent
       self.children = NsOptions::Namespaces.new
     end
@@ -26,7 +26,7 @@ module NsOptions
     def del(name)
       self[name] = nil
     end
-    alias :del :remove
+    alias :remove :del
 
     def get(name)
       option = self[name]
