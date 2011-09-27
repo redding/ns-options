@@ -15,6 +15,6 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = NsOptions::VERSION
 
-  gem.add_development_dependency("assert",  ["~>0.6.0"])
-  gem.add_development_dependency("mocha",   ["~>0.9.12"])
+  gem.add_development_dependency("assert",        ["~>0.6.0"])
+  gem.add_development_dependency("assert-mocha",  ["~>0.1.0"])
 end
