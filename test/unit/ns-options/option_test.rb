@@ -20,6 +20,9 @@ class NsOptions::Option
     should "have set the rules" do
       assert_equal({ :default => "development" }, subject.rules)
     end
+    should "have defaulted value based on the rules" do
+      assert_equal subject.rules[:default], subject.value
+    end
   end
 
   class EqualityOperatorTest < BaseTest

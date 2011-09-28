@@ -9,7 +9,7 @@ module NsOptions
       self.name = name.to_s
       self.type_class = self.usable_type_class(type_class)
       self.rules = rules
-      self.value = nil
+      self.value = rules[:default]
     end
     
     def value
