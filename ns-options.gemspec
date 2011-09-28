@@ -2,10 +2,10 @@
 require File.expand_path('../lib/ns-options/version', __FILE__)
 
 Gem::Specification.new do |gem|
-  gem.authors       = ["jcredding"]
-  gem.email         = ["TempestTTU@gmail.com"]
-  gem.description   = %q{TODO: Write a gem description}
-  gem.summary       = %q{TODO: Write a gem summary}
+  gem.authors       = ["Collin Redding"]
+  gem.email         = ["collin.redding@reelfx.com"]
+  gem.description   = %q{Define and use namespaced options with a clean interface.}
+  gem.summary       = %q{Define and use namespaced options with a clean interface.}
   gem.homepage      = ""
 
   gem.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
