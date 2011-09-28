@@ -60,7 +60,7 @@ class NsOptions::Options
       assert_equal({ :default => 1.0 }, option.rules)
     end
   end
-  
+
   class DelTest < BaseTest
     desc "add method"
     setup do
@@ -73,7 +73,7 @@ class NsOptions::Options
       assert_nil subject[:my_string]
     end
   end
-  
+
   class GetTest < BaseTest
     desc "get method"
     setup do
@@ -82,11 +82,11 @@ class NsOptions::Options
       @result = @options.get(:my_string)
     end
     subject{ @result }
-    
+
     should "have returned the option's value" do
       assert_equal @value, subject
     end
-    
+
     class WithParentTest < GetTest
       desc "with a parent"
       setup do
@@ -96,13 +96,13 @@ class NsOptions::Options
         @result = @options.get(:my_string)
       end
       subject{ @result }
-      
+
       should "have returned the parent's option's value" do
         assert_equal @value, subject
       end
     end
   end
-  
+
   class SetTest < BaseTest
     desc "set method"
     setup do
@@ -110,12 +110,12 @@ class NsOptions::Options
       @options.set(:my_string, "something")
     end
     subject{ @options }
-    
+
     should "have set the option's value" do
       assert_equal "something", subject.get(:my_string)
     end
   end
-  
+
   class FetchTest < BaseTest
     desc "fetch method"
     setup do
@@ -123,12 +123,12 @@ class NsOptions::Options
       @result = @options.fetch(:my_string)
     end
     subject{ @result }
-    
+
     should "return the option definition for my_string" do
       assert_kind_of NsOptions::Option, subject
       assert_equal "my_string", subject.name
     end
-    
+
     class WithAParentTest < FetchTest
       desc "with a parent"
       setup do
@@ -138,28 +138,28 @@ class NsOptions::Options
         @result = @options.fetch(:my_string)
       end
       subject{ @result }
-      
+
       should "return the option definition for my_string from it's parent" do
         assert_kind_of NsOptions::Option, subject
         assert_equal "my_string", subject.name
       end
     end
   end
-  
+
   class IsDefinedTest < BaseTest
     desc "fetch method"
     setup do
       option = @options.add(:my_string)
     end
     subject{ @options }
-    
+
     should "return true for a defined option" do
       assert_equal true, subject.is_defined?(:my_string)
     end
     should "return false for an undefined option" do
       assert_equal false, subject.is_defined?(:undefined)
     end
-    
+
     class WithAParentTest < IsDefinedTest
       desc "with a parent"
       setup do
@@ -167,21 +167,21 @@ class NsOptions::Options
         @parent.options = @options
         @options = NsOptions::Options.new(:child, @parent)
       end
-      
+
       should "return true for an option defined on it's parent" do
         assert_equal true, subject.is_defined?(:my_string)
       end
     end
   end
-  
+
   class ParentOptionsTest < BaseTest
     desc "parent_options method"
     subject{ @options }
-    
+
     should "return nil" do
       assert_nil subject.parent_options
     end
-    
+
     class WithAParentTest < ParentOptionsTest
       desc "with a parent"
       setup do
@@ -189,10 +189,38 @@ class NsOptions::Options
         @parent.options = @options
         @options = NsOptions::Options.new(:child, @parent)
       end
-      
+
       should "return it's parent's options" do
         assert_equal @parent.options, subject.parent_options
       end
+    end
+  end
+
+  class ConfiguredTest < BaseTest
+    desc "configured? method"
+    setup do
+      @options.add(:first, String, { :require => true })
+      @options.add(:second, String, { :required => true })
+      @options.add(:third, String)
+    end
+
+    should "return true when all required options are set" do
+      @options.set(:first, "first")
+      @options.set(:second, "second")
+      assert_equal true, subject.configured?
+    end
+    should "return false if one required option is not set" do
+      @options.set(:first, "first")
+      @options.set(:third, "third")
+      assert_equal false, subject.configured?
+    end
+    should "not change because of options that aren't required" do
+      @options.set(:first, "first")
+      @options.set(:second, "second")
+      @options.set(:third, "third")
+      assert_equal true, subject.configured?
+      @options.set(:third, nil)
+      assert_equal true, subject.configured?
     end
   end
 

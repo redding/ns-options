@@ -54,6 +54,12 @@ module NsOptions
       self.parent and self.parent.options
     end
 
+    def configured?
+      self.values.reject{|option| !option.required? }.inject(true) do |bool, option|
+        bool && option.is_set?
+      end
+    end
+
   end
 
 end

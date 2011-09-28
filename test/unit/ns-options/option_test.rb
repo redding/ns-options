@@ -5,7 +5,8 @@ class NsOptions::Option
   class BaseTest < Assert::Context
     desc "NsOptions::Option"
     setup do
-      @option = NsOptions::Option.new(:stage, String, { :default => "development" })
+      @rules = { :default => "development", :require => true }
+      @option = NsOptions::Option.new(:stage, String, @rules)
     end
     subject{ @option }
 
@@ -18,10 +19,42 @@ class NsOptions::Option
       assert_equal String, subject.type_class
     end
     should "have set the rules" do
-      assert_equal({ :default => "development" }, subject.rules)
+      assert_equal(@rules, subject.rules)
     end
     should "have defaulted value based on the rules" do
       assert_equal subject.rules[:default], subject.value
+    end
+    should "return true with a call to #required?" do
+      assert_equal true, subject.required?
+    end
+  end
+
+  class IsSetTest < BaseTest
+    desc "is_set method"
+    setup do
+      @type_class = Class.new(String) do
+
+        def is_set?
+          self.gsub(/\s+/, '').size != 0
+        end
+
+      end
+      @special = NsOptions::Option.new(:no_blank, @type_class)
+    end
+
+    should "return true/false appropriately for a boolean option with true or false" do
+      @option.value = true
+      assert_equal true, @option.is_set?
+      @option.value = false
+      assert_equal true, @option.is_set?
+      @option.value = nil
+      assert_equal false, @option.is_set?
+    end
+    should "return true/false based on type class's is_set method" do
+      @special.value = "not blank"
+      assert_equal true, @special.is_set?
+      @special.value = " "
+      assert_equal false, @special.is_set?
     end
   end
 
@@ -43,14 +76,14 @@ class NsOptions::Option
       assert_not_equal @first, @second
     end
   end
-  
+
   class WithNativeTypeClassTest < BaseTest
     desc "with a native type class (Float)"
     setup do
       @option = NsOptions::Option.new(:something, Float)
     end
     subject{ @option }
-    
+
     should "allow setting it's value with a float" do
       new_value = 12.5
       subject.value = new_value
@@ -67,14 +100,14 @@ class NsOptions::Option
       assert_equal new_value.to_f, subject.value
     end
   end
-  
+
   class WithTypeClassFixnumTest < BaseTest
     desc "with the Fixnum as a type class (happens through dynamic writers)"
     setup do
       @option = NsOptions::Option.new(:something, Fixnum)
     end
     subject{ @option }
-    
+
     should "have used Integer for it's type class" do
       assert_equal Integer, subject.type_class
     end
@@ -94,35 +127,35 @@ class NsOptions::Option
       assert_equal new_value.to_i, subject.value
     end
   end
-  
+
   class WithHashTypeClassTest < BaseTest
     desc "with a Hash as a type class"
     setup do
       @option = NsOptions::Option.new(:something, Hash)
     end
     subject{ @option }
-    
+
     should "allow setting it with a hash" do
       new_value = { :another => true }
       subject.value = new_value
       assert_equal new_value, subject.value
     end
   end
-  
+
   class WithArrayTypeClassTest < BaseTest
     desc "with an Array as a type class"
     setup do
       @option = NsOptions::Option.new(:something, Array)
     end
     subject{ @option }
-    
+
     should "allow setting it with a array" do
       new_value = [ :something, :else, :another ]
       subject.value = new_value
       assert_equal new_value, subject.value
     end
   end
-  
+
   class WithTrueFalseClassTest < BaseTest
     desc "with a TrueClass/FalseClass as a type class (happens with dynamic writers)"
     setup do
@@ -132,7 +165,7 @@ class NsOptions::Option
       @false_option.value = false
     end
     subject{ @true_option }
-    
+
     should "have used NsOptions::Option::Boolean for their type class" do
       assert_equal NsOptions::Option::Boolean, @true_option.type_class
       assert_equal NsOptions::Option::Boolean, @false_option.type_class
@@ -142,14 +175,14 @@ class NsOptions::Option
       assert_equal false, @false_option.value
     end
   end
-  
+
   class WithoutTypeClassTest < BaseTest
     desc "without a type class provided"
     setup do
       @option = NsOptions::Option.new(:something, nil)
     end
     subject{ @option }
-    
+
     should "have default it to String" do
       assert_equal String, subject.type_class
     end

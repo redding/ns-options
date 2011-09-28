@@ -8,6 +8,10 @@ module NsOptions
       self.options = NsOptions::Options.new(key, parent)
     end
 
+    def configured?
+      self.options.configured?
+    end
+
     # Define an option for this namespace. Add the option to the namespace's options collection
     # and then define accessors for the option. With the following:
     #

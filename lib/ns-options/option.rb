@@ -27,6 +27,14 @@ module NsOptions
         self.coerce(new_value)
       end
     end
+    
+    def is_set?
+      self.value.respond_to?(:is_set?) ? self.value.is_set? : !self.value.nil?
+    end
+    
+    def required?
+      !!self.rules[:required] || !!self.rules[:require]
+    end
 
     def ==(other)
       [ :name, :type_class, :rules, :value ].inject(true) do |bool, attribute|
