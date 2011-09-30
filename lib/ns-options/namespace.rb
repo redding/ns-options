@@ -62,14 +62,14 @@ module NsOptions
     # parent_namespace.specific.root = "something"  # => options are accessed in the same way
     #
     # The defined namespaces is returned as well.
-    def namespace(name, &block)
-      key = "#{self.options.key}:#{name}"
+    def namespace(name, key = nil, &block)
+      key = "#{self.options.key}:#{(key || name)}"
       namespace = self.options.namespaces.add(name, key, self, &block)
 
       self.metaclass.class_eval <<-DEFINE_METHOD
 
         def #{name}(&block)
-          namespace = self.options.namespaces.get(#{name.to_sym.inspect})
+          namespace = self.options.namespaces.get("#{name}")
           namespace.configure(&block) if block
           namespace
         end

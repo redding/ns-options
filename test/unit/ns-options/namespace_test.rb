@@ -77,6 +77,7 @@ class NsOptions::Namespace
       @namespace.namespace(:something) do
         option :something_else
       end
+      @namespace.namespace(:another, "special_key")
     end
     subject{ @namespace }
 
@@ -85,6 +86,10 @@ class NsOptions::Namespace
       assert_equal "#{subject.options.key}:something", namespace.options.key
       assert_equal subject, namespace.options.parent
       assert namespace.options[:something_else]
+    end
+    should "allow passing a special key to the namespace" do
+      assert(namespace = subject.options.namespaces[:another])
+      assert_equal "#{subject.options.key}:special_key", namespace.options.key
     end
   end
 

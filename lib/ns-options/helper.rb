@@ -17,9 +17,9 @@ module NsOptions
       key = if owner.respond_to?(method)
         owner.send(method)
       else
-        "#{owner.class.to_s.downcase}_#{self.object_id}"
+        "#{owner.class.to_s.split('::').last.downcase}_#{owner.object_id}"
       end
-      namespace = parent.namespace(key)
+      namespace = parent.namespace(name, key)
       namespace.configure(&block)
     end
 
