@@ -1,5 +1,3 @@
-module Ns
-  module Options
-    VERSION = "0.0.1"
-  end
+module NsOptions
+  VERSION = "0.0.1"
 end
