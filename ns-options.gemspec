@@ -6,7 +6,6 @@ Gem::Specification.new do |gem|
   gem.email         = ["collin.redding@reelfx.com"]
   gem.description   = %q{Define and use namespaced options with a clean interface.}
   gem.summary       = %q{Define and use namespaced options with a clean interface.}
-  gem.homepage      = ""
 
   gem.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   gem.files         = `git ls-files`.split("\n")
@@ -16,5 +15,5 @@ Gem::Specification.new do |gem|
   gem.version       = NsOptions::VERSION
 
   gem.add_development_dependency("assert",        ["~>0.6.0"])
-  gem.add_development_dependency("assert-mocha",  ["~>0.1.0"])
+  #gem.add_development_dependency("assert-mocha",  ["~>0.1.0"])
 end
