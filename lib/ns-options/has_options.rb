@@ -1,11 +1,11 @@
 module NsOptions
 
-  module Configurable
+  module HasOptions
     class << self
 
       def included(klass)
         klass.class_eval do
-          extend NsOptions::Configurable::DSL
+          extend NsOptions::HasOptions::DSL
         end
       end
 
@@ -13,7 +13,7 @@ module NsOptions
 
     module DSL
 
-      def configurable(name, key = nil, &block)
+      def options(name, key = nil, &block)
         key ||= name.to_s
         self.class_eval <<-DEFINE_METHOD
 

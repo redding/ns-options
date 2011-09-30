@@ -1,5 +1,5 @@
 module NsOptions
-  autoload :Configurable,   'ns-options/configurable'
+  autoload :HasOptions,     'ns-options/has_options'
   autoload :Helper,         'ns-options/helper'
   autoload :Namespace,      'ns-options/namespace'
   autoload :Namespaces,     'ns-options/namespaces'

@@ -9,30 +9,30 @@ module App
     end
     subject{ @module }
 
-    should have_instance_methods :configurable, :settings
+    should have_instance_methods :options, :settings
 
   end
 
-  class ConfigureTest < BaseTest
-    desc "configured"
+  class DefineTest < BaseTest
+    desc "defined"
     setup do
       stage = @stage = "test"
       root_path = @root_path = File.expand_path("../../..", __FILE__)
       logger = @logger = Logger.new(File.join(@root_path, "log", "test.log"))
       run = @run = true
-      @module.settings.configure do |config|
-        config.stage stage
-        config.root = root_path
-        config.logger = logger
+      @module.settings.define do |namespace|
+        namespace.stage stage
+        namespace.root = root_path
+        namespace.logger = logger
 
-        config.sub do
+        namespace.sub do
           run_commands run
         end
       end
     end
     subject{ @module.settings }
 
-    should have_instance_methods :namespace, :option, :configure, :options, :metaclass
+    should have_instance_methods :namespace, :option, :define, :options, :metaclass
     should have_accessors :stage, :root, :logger
     should have_instance_methods :sub
 
@@ -48,7 +48,7 @@ module App
     end
   end
   
-  class SubNamespaceTest < ConfigureTest
+  class SubNamespaceTest < DefineTest
     desc "the sub namespace"
     subject{ @module.settings.sub }
     

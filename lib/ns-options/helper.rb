@@ -6,7 +6,7 @@ module NsOptions
     # Common method for creating a new namespace
     def new_namespace(key, parent = nil, &block)
       namespace = NsOptions::Namespace.new(key, parent)
-      namespace.configure(&block)
+      namespace.define(&block)
     end
 
     # Common method for creating a new child namespace, using the owner's class's options as the
@@ -20,7 +20,7 @@ module NsOptions
         "#{owner.class.to_s.split('::').last.downcase}_#{owner.object_id}"
       end
       namespace = parent.namespace(name, key)
-      namespace.configure(&block)
+      namespace.define(&block)
     end
 
     def fetch_and_define_option(namespace, option_name)

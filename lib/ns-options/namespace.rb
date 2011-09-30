@@ -8,8 +8,8 @@ module NsOptions
       self.options = NsOptions::Options.new(key, parent)
     end
 
-    def configured?
-      self.options.configured?
+    def required_set?
+      self.options.required_set?
     end
 
     # Define an option for this namespace. Add the option to the namespace's options collection
@@ -70,7 +70,7 @@ module NsOptions
 
         def #{name}(&block)
           namespace = self.options.namespaces.get("#{name}")
-          namespace.configure(&block) if block
+          namespace.define(&block) if block
           namespace
         end
 
@@ -79,19 +79,19 @@ module NsOptions
       namespace
     end
 
-    # The configure method is provided for convenience and commonization. The internal system
+    # The define method is provided for convenience and commonization. The internal system
     # uses it to commonly use a block with a namespace. The method can be used externally when
     # a namespace is created separately from where options are added/set on it. For example:
     #
     # parent_namespace.namespace(:specific)
     #
-    # parent_namespace.specific.configure do
+    # parent_namespace.specific.define do
     #   option :root
     # end
     #
     # Will define a new namespace under the parent namespace and then will later on add options to
     # it.
-    def configure(&block)
+    def define(&block)
       if block && block.arity > 0
         yield self
       elsif block

@@ -196,8 +196,8 @@ class NsOptions::Options
     end
   end
 
-  class ConfiguredTest < BaseTest
-    desc "configured? method"
+  class RequiredSetTest < BaseTest
+    desc "required_set? method"
     setup do
       @options.add(:first, String, { :require => true })
       @options.add(:second, String, { :required => true })
@@ -207,20 +207,20 @@ class NsOptions::Options
     should "return true when all required options are set" do
       @options.set(:first, "first")
       @options.set(:second, "second")
-      assert_equal true, subject.configured?
+      assert_equal true, subject.required_set?
     end
     should "return false if one required option is not set" do
       @options.set(:first, "first")
       @options.set(:third, "third")
-      assert_equal false, subject.configured?
+      assert_equal false, subject.required_set?
     end
     should "not change because of options that aren't required" do
       @options.set(:first, "first")
       @options.set(:second, "second")
       @options.set(:third, "third")
-      assert_equal true, subject.configured?
+      assert_equal true, subject.required_set?
       @options.set(:third, nil)
-      assert_equal true, subject.configured?
+      assert_equal true, subject.required_set?
     end
   end
 

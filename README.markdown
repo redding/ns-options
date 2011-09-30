@@ -1,6 +1,6 @@
 # Namespace Options
 
-Namespace Options provides a clean interface for defining, organizing and using configuration options. Options are defined through a clean syntax that clearly shows what can be configured. Options can be organized into namespaces as well. This allows multiple libraries to share common configuration options but still have their own specific options separated. Reading and writing options is as simple as if they were accessors. Furthermore, you can provide your own _type_ class that allows you to provide extended functionality to a simple option.
+Namespace Options provides a clean interface for defining, organizing and using options. Options are defined through a clean syntax that clearly shows what can be set and read. Options can be organized into namespaces as well. This allows multiple libraries to share common options but still have their own specific options separated. Reading and writing options is as simple as if they were accessors. Furthermore, you can provide your own _type_ class that allows you to provide extended functionality to a simple option.
 
 ## Installation
 
@@ -12,19 +12,19 @@ Add the following to your Gemfile and `bundle install`:
 
 ### Defining Options
 
-The basic usage of Namespace Options is to make a module/class configurable and define some options:
+The basic usage of Namespace Options is to be able to define options for a module or class:
 
 ```ruby
 module App
-  include NsOptions::Configurable
-  configurable(:settings, 'app') do
+  include NsOptions::HasOptions
+  options(:settings) do
     option :root, Pathname
     option :stage
   end
 end
 ```
 
-The code above makes the `App` module now be configurable through a settings accessor. This means the `App` module can access it's configuration options through the `#settings` method and treat them like a normal accessor:
+The code above makes the `App` module now have options, accessible through the settings method. The options can be read and written to like a normal accessor:
 
 ```ruby
 App.settings.root = "/a/path/to/the/root"
@@ -50,7 +50,7 @@ class Stage < String
 end
 
 
-App.settings.configure do
+App.settings.define do
   option :stage, Stage
 end
 
@@ -64,7 +64,7 @@ This allows you to add extended functionality to your options. The only conditio
 
 ### Namespaces
 
-Namespaces allow you to organize and share configuration options. With the previously mentioned `App` module and it's configuration you could create a namespace for another library:
+Namespaces allow you to organize and share options. With the previously mentioned `App` module and it's options you could create a namespace for another library:
 
 ```ruby
 module Data # data is a library for retrieving persisted data from some resource
@@ -80,7 +80,7 @@ module Data # data is a library for retrieving persisted data from some resource
 end
 ```
 
-Now I can configure a server for data that is separate from the main `App` settings:
+Now I can set a server option for data that is separate from the main `App` settings:
 
 ```ruby
 Data.config.server = "127.0.0.1:1234"
@@ -94,19 +94,19 @@ Since the data namespace was created from the `App` settings (which is also a na
 Data.config.stage # => "test", or whatever App.settings.stage would return
 ```
 
-Namespaces and their ability to read their parent's options is internally used by Namespace Options. When you make a class configurable like so:
+Namespaces and their ability to read their parent's options is internally used by Namespace Options. When you add options to a class like so:
 
 ```ruby
 class User
-  include NsOptions::Configurable
-  configurable(:preferences, 'users') do
+  include NsOptions::HasOptions
+  options(:preferences) do
     option :home_page
   end
 
 end
 ```
 
-A namespace will be created for the `User` class itself. Which can have options added and even set. Once a user instance is created, it will create a child namespace from the classes. Thus, it will be able to access and use any options configured on the class:
+A namespace will be created for the `User` class itself. Which can have options added and even set. Once a user instance is created, it will create a child namespace from the classes. Thus, it will be able to access and use any options on the class:
 
 ```ruby
 user = User.new
@@ -115,7 +115,7 @@ user.preferences.home_page = "/home"
 
 ### Dynamically Defined Options
 
-Not all options have to be defined formally. Though defining an option through the `option` method allows the most functionality and allows for quickly seeing what can be configured, Namespace Options allows you to write options that have not been defined:
+Not all options have to be defined formally. Though defining an option through the `option` method allows the most functionality and allows for quickly seeing what can be used, Namespace Options allows you to write options that have not been defined:
 
 ```ruby
 App.settings.logger = Logger.new(App.settings.root.join("log", "test.log"))

@@ -9,14 +9,14 @@ class User
     end
     subject{ @class }
 
-    should have_instance_methods :configurable, :preferences
+    should have_instance_methods :options, :preferences
   end
 
   class ClassPreferencesTest < BaseTest
     desc "preferences"
     subject{ @class.preferences }
 
-    should have_instance_methods :namespace, :option, :configure, :options, :metaclass
+    should have_instance_methods :namespace, :option, :define, :options, :metaclass
     should have_accessors :home_url, :show_messages, :font_size
   end
 
@@ -40,7 +40,7 @@ class User
     end
     subject{ @preferences }
 
-    should have_instance_methods :namespace, :option, :configure, :options, :metaclass
+    should have_instance_methods :namespace, :option, :define, :options, :metaclass
     should have_accessors :home_url, :show_messages, :font_size
 
     should "have set the home_url" do

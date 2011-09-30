@@ -11,7 +11,7 @@ class NsOptions::Namespace
     subject{ @namespace }
 
     should have_accessors :metaclass, :options
-    should have_instance_methods :option, :namespace, :configured?, :configure
+    should have_instance_methods :option, :namespace, :required_set?, :define
 
     should "have set it's metaclass accessor" do
       assert subject.metaclass
@@ -101,7 +101,7 @@ class NsOptions::Namespace
     should "be return the namespace using the reader" do
       assert_equal subject.options.namespaces[:something], subject.something
     end
-    should "configure the namespace with the reader and a block" do
+    should "define the namespace with the reader and a block" do
       subject.something do
         option :another
       end
@@ -109,15 +109,15 @@ class NsOptions::Namespace
     end
   end
 
-  class ConfigureTest < BaseTest
-    desc "configure method"
+  class DefineTest < BaseTest
+    desc "define method"
 
     class BlockWithoutArityTest < BaseTest
       desc "with a block with no arity"
 
       should "instance eval the block in the scope of the namespace" do
         scope = nil
-        subject.configure do
+        subject.define do
           scope = self
         end
         assert_equal subject, scope
@@ -128,8 +128,8 @@ class NsOptions::Namespace
 
       should "yield the namespace to the block" do
         yielded = nil
-        subject.configure do |config|
-          yielded = config
+        subject.define do |namespace|
+          yielded = namespace
         end
         assert_equal subject, yielded
       end
@@ -138,7 +138,7 @@ class NsOptions::Namespace
       desc "with no block"
 
       should "return the namespace" do
-        assert_equal subject, subject.configure
+        assert_equal subject, subject.define
       end
     end
   end

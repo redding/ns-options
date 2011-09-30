@@ -1,6 +1,6 @@
 module App
-  include NsOptions::Configurable
-  configurable(:settings, "settings:app") do
+  include NsOptions::HasOptions
+  options(:settings, "settings:app") do
     option :root,   Pathname
     option :stage
     option :logger, Logger
