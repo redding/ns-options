@@ -187,5 +187,34 @@ class NsOptions::Option
       assert_equal String, subject.type_class
     end
   end
+  
+  class WithAValueOfTheSameClassTest < BaseTest
+    desc "with a value of the same class"
+    setup do
+      @class = Class.new
+      @option = NsOptions::Option.new(:something, @class)
+    end
+    
+    should "use the object passed to it instead of creating a new one" do
+      value = @class.new
+      @option.value = value
+      assert_same value, @option.value
+    end
+  end
+  
+  class WithAValueKindOfTest < BaseTest
+    desc "with a value is a kind of the class"
+    setup do
+      @class = Class.new
+      @child_class = Class.new(@class)
+      @option = NsOptions::Option.new(:something, @class)
+    end
+    
+    should "use the object passed to it instead of creating a new one" do
+      value = @child_class.new
+      @option.value = value
+      assert_same value, @option.value
+    end
+  end
 
 end
