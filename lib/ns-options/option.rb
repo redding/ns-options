@@ -11,7 +11,7 @@ module NsOptions
       self.rules = rules
       self.value = rules[:default]
     end
-    
+
     def value
       if self.type_class == NsOptions::Option::Boolean
         @value and @value.actual
@@ -21,17 +21,17 @@ module NsOptions
     end
 
     def value=(new_value)
-      @value = if (new_value.class == self.type_class) || new_value.nil?
+      @value = if (new_value.kind_of?(self.type_class)) || new_value.nil?
         new_value
       else
         self.coerce(new_value)
       end
     end
-    
+
     def is_set?
       self.value.respond_to?(:is_set?) ? self.value.is_set? : !self.value.nil?
     end
-    
+
     def required?
       !!self.rules[:required] || !!self.rules[:require]
     end
