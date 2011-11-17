@@ -26,6 +26,14 @@ class NsOptions::Option::Boolean
       subject.actual = 'true'
       assert_equal true, subject.actual
     end
+    should "have set actual to true with 't'" do
+      subject.actual = 't'
+      assert_equal true, subject.actual
+    end
+    should "have set actual to true with 'T'" do
+      subject.actual = 'T'
+      assert_equal true, subject.actual
+    end
     should "have set actual to true with 1" do
       subject.actual = 1
       assert_equal true, subject.actual
@@ -48,6 +56,14 @@ class NsOptions::Option::Boolean
     end
     should "have set actual to false with 'false'" do
       subject.actual = 'false'
+      assert_equal false, subject.actual
+    end
+    should "have set actual to false with 'f'" do
+      subject.actual = 'f'
+      assert_equal false, subject.actual
+    end
+    should "have set actual to false with 'F'" do
+      subject.actual = 'F'
       assert_equal false, subject.actual
     end
     should "have set actual to false with 0" do
