@@ -60,6 +60,8 @@ module NsOptions
         Integer
       elsif [ TrueClass, FalseClass ].include?(type_class)
         NsOptions::Option::Boolean
+      elsif type_class == NilClass
+        Object
       else
         (type_class || String)
       end

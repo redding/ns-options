@@ -184,6 +184,7 @@ class NsOptions::Namespace
         @namespace.something_not_defined = "you know it"
         @namespace.another_not_defined = true
         @namespace.even_more_not_defined = 12
+        @namespace.just_one_more_not_defined = nil
       end
 
       should "have defined the accessors and added the option" do
@@ -197,6 +198,9 @@ class NsOptions::Namespace
         assert_equal String, subject.options[:something_not_defined].type_class
         assert_equal Integer, subject.options[:even_more_not_defined].type_class
         assert_equal NsOptions::Option::Boolean, subject.options[:another_not_defined].type_class
+      end
+      should "use Object for the type class when the value is nil" do
+        assert_equal Object, subject.options[:just_one_more_not_defined].type_class
       end
     end
   end
