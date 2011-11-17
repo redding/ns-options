@@ -81,10 +81,10 @@ module NsOptions
 
     def apply(option_values = {})
       option_values.each do |name, value|
-        is_namespace = (namespace = self.options.namespaces[name]) && value.kind_of?(Hash)
-        if self.options[name] || !is_namespace
+        namespace = self.options.namespaces[name]
+        if self.options[name] || !namespace
           self.send("#{name}=", value)
-        elsif is_namespace
+        elsif namespace && value.kind_of?(Hash)
           namespace.apply(value)
         end
       end
