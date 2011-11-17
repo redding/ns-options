@@ -154,13 +154,14 @@ project.settings.movie_resolution.height  # => 800
 project.settings.movie_resolution.width   # => 600
 ```
 
-As the example shows, if you have a namespace and have a matching hash, it will automatically apply those values to that namespace. Also, if you include keys that are not defined options for your class, new options will be created for the values:
+As the example shows, if you have a namespace and have a matching hash, it will automatically apply those values to that namespace. Also, if you include keys that are not defined options for your namespace, new options will be created for the values:
 
 ```ruby
 project = Project.new
-project.settings.apply({ :stereoscopic => true })
+project.settings.apply({ :stereoscopic => true, :not_a_namespace => { :yes => true } })
 
-project.settings.stereoscopic   # => true
+project.settings.stereoscopic     # => true
+project.settings.not_a_namespace  # => { :yes => true }
 ```
 
 ## License
