@@ -15,7 +15,7 @@ module NsOptions
       protected
 
       def convert(value)
-        if [ nil, 0, '0', false, 'false' ].include?(value)
+        if [ nil, 0, '0', false, 'false', 'f', 'F' ].include?(value)
           false
         elsif value
           true
