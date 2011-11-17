@@ -11,7 +11,7 @@ class NsOptions::Namespace
     subject{ @namespace }
 
     should have_accessors :metaclass, :options
-    should have_instance_methods :option, :namespace, :required_set?, :define
+    should have_instance_methods :option, :namespace, :required_set?, :define, :apply
 
     should "have set it's metaclass accessor" do
       assert subject.metaclass
@@ -226,6 +226,46 @@ class NsOptions::Namespace
     should "have set it's options accessor and stored it's parent on it" do
       assert subject.options
       assert_equal @parent, subject.options.parent
+    end
+  end
+
+  class ApplyTest < BaseTest
+    desc "apply method"
+    setup do
+      @namespace.define do
+        option :first
+        option :second
+        option :third
+        namespace(:child_a) do
+          option(:fourth)
+          option(:fifth)
+          namespace(:child_b) do
+            option(:sixth)
+          end
+        end
+      end
+      @named_values = {
+        :first => "1", :second => "2", :third => "3", :twenty_one => "21",
+        :child_a => {
+          :fourth => "4", :fifth => "5",
+          :child_b => { :six => "6" }
+        },
+        :child_c => { :what => "?" }
+      }
+      @namespace.apply(@named_values)
+    end
+
+    should "have mass set all the defined options" do
+      assert_equal @named_values[:first], subject.first
+      assert_equal @named_values[:second], subject.second
+      assert_equal @named_values[:third], subject.third
+      assert_equal @named_values[:child_a][:fourth], subject.child_a.fourth
+      assert_equal @named_values[:child_a][:fifth], subject.child_a.fifth
+      assert_equal @named_values[:child_a][:child_b][:sixth], subject.child_a.child_b.sixth
+    end
+    should "have dynamically added options for the undefined keys" do
+      assert_equal @named_values[:twenty_one], subject.twenty_one
+      assert_equal @named_values[:child_c], subject.child_c
     end
   end
 

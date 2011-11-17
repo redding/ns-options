@@ -79,6 +79,17 @@ module NsOptions
       namespace
     end
 
+    def apply(option_values = {})
+      option_values.each do |name, value|
+        is_namespace = (namespace = self.options.namespaces[name]) && value.kind_of?(Hash)
+        if self.options[name] || !is_namespace
+          self.send("#{name}=", value)
+        elsif is_namespace
+          namespace.apply(value)
+        end
+      end
+    end
+
     # The define method is provided for convenience and commonization. The internal system
     # uses it to commonly use a block with a namespace. The method can be used externally when
     # a namespace is created separately from where options are added/set on it. For example:
