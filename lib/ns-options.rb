@@ -6,4 +6,9 @@ module NsOptions
   autoload :Option,         'ns-options/option'
   autoload :Options,        'ns-options/options'
   autoload :VERSION,        'ns-options/version'
+
+  def self.included(receiver)
+    receiver.send(:include, HasOptions)
+  end
+
 end

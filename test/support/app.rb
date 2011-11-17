@@ -1,5 +1,8 @@
 module App
-  include NsOptions::HasOptions
+
+  # mixin on just the top-level NsOptions variant
+  include NsOptions
+
   options(:settings, "settings:app") do
     option :root,   Pathname
     option :stage
