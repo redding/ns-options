@@ -5,7 +5,7 @@ module NsOptions
 
     attr_accessor :name, :value, :type_class, :rules
 
-    def initialize(name, type_class, rules = {})
+    def initialize(name, type_class = nil, rules = {})
       self.name = name.to_s
       self.type_class = self.usable_type_class(type_class)
       self.rules = rules
@@ -61,7 +61,7 @@ module NsOptions
       elsif [ TrueClass, FalseClass ].include?(type_class)
         NsOptions::Option::Boolean
       else
-        (type_class || String)
+        (type_class || Object)
       end
     end
 
