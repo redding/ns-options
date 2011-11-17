@@ -1,14 +1,9 @@
-require 'logger'
+$LOAD_PATH.unshift(File.expand_path("../..", __FILE__))
 
-root_path = File.expand_path("../..", __FILE__)
-if !$LOAD_PATH.include?(root_path)
-  $LOAD_PATH.unshift(root_path)
-end
+require 'logger'
 require 'ns-options'
 
 require 'test/support/app'
 require 'test/support/user'
 
-if defined?(Assert)
-  require 'assert-mocha'
-end
+require 'assert-mocha'
