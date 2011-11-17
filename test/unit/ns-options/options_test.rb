@@ -44,9 +44,9 @@ class NsOptions::Options
     end
     subject{ @options }
 
-    should "have added a string option on itself when adding :my_string" do
+    should "have added a object option on itself when adding :my_string" do
       assert(option = subject[:my_string])
-      assert_equal String, option.type_class
+      assert_equal Object, option.type_class
       assert_equal({}, option.rules)
     end
     should "have added an integer option on itself when adding :my_integer" do

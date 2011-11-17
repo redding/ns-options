@@ -183,8 +183,8 @@ class NsOptions::Option
     end
     subject{ @option }
 
-    should "have default it to String" do
-      assert_equal String, subject.type_class
+    should "have default it to Object" do
+      assert_equal Object, subject.type_class
     end
   end
   

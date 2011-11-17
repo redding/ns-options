@@ -50,9 +50,9 @@ class NsOptions::Namespace
     end
     subject{ @namespace }
 
-    should "default the type to String" do
+    should "default the type to Object" do
       assert(option = subject.options[@name])
-      assert_equal String, option.type_class
+      assert_equal Object, option.type_class
     end
   end
 
