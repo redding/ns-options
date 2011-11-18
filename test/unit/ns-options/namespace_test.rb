@@ -12,6 +12,7 @@ class NsOptions::Namespace
 
     should have_accessors :metaclass, :options
     should have_instance_methods :option, :namespace, :required_set?, :define, :apply
+    should have_instance_methods :to_hash, :each
 
     should "have set it's metaclass accessor" do
       assert subject.metaclass
@@ -233,8 +234,9 @@ class NsOptions::Namespace
     end
   end
 
-  class ApplyTest < BaseTest
-    desc "apply method"
+
+
+  class HandlingTests < BaseTest
     setup do
       @namespace.define do
         option :first
@@ -248,14 +250,24 @@ class NsOptions::Namespace
           end
         end
       end
+
       @named_values = {
         :first => "1", :second => "2", :third => "3", :twenty_one => "21",
         :child_a => {
           :fourth => "4", :fifth => "5",
-          :child_b => { :six => "6" }
+          :child_b => { :sixth => "6" }
         },
         :child_c => { :what => "?" }
       }
+    end
+
+  end
+
+
+
+  class ApplyTest < HandlingTests
+    desc "apply method"
+    setup do
       @namespace.apply(@named_values)
     end
 
@@ -271,6 +283,69 @@ class NsOptions::Namespace
       assert_equal @named_values[:twenty_one], subject.twenty_one
       assert_equal @named_values[:child_c], subject.child_c
     end
+  end
+
+
+
+  class ToHashTests < HandlingTests
+    desc "when to_hash"
+    subject { @namespace.to_hash }
+
+    should "return a Hash representation for the namespace" do
+      assert_equal({
+        :first => nil,
+        :second => nil,
+        :third => nil,
+        :child_a => {
+          :fourth => nil,
+          :fifth => nil,
+          :child_b => {
+            :sixth => nil
+          }
+        }
+      }, subject)
+
+      @namespace.first = "first"
+      assert_equal({
+        :first => "first",
+        :second => nil,
+        :third => nil,
+        :child_a => {
+          :fourth => nil,
+          :fifth => nil,
+          :child_b => {
+            :sixth => nil
+          }
+        }
+      }, subject)
+
+      @namespace.apply(@named_values)
+      assert_equal @named_values, subject
+    end
+
+
+
+    class EachTests < HandlingTests
+      desc "iterated with the each method"
+      setup do
+        @namespace.apply(@named_values)
+        @exp = "".tap do |exp|
+          @namespace.to_hash.each do |k,v|
+            exp << "#{k}=#{v};"
+          end
+        end
+        @act = "".tap do |exp|
+          @namespace.each do |k,v|
+            exp << "#{k}=#{v};"
+          end
+        end
+      end
+
+      should "yield k/v pairs by iterating over the #to_hash" do
+        assert_equal @exp, @act
+      end
+    end
+
   end
 
 end
