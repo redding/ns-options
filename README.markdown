@@ -16,7 +16,7 @@ The basic usage of Namespace Options is to be able to define options for a modul
 
 ```ruby
 module App
-  include NsOptions::HasOptions
+  include NsOptions
   options(:settings) do
     option :root, Pathname
     option :stage
@@ -98,7 +98,7 @@ Namespaces and their ability to read their parent's options is internally used b
 
 ```ruby
 class User
-  include NsOptions::HasOptions
+  include NsOptions
   options(:preferences) do
     option :home_page
   end
@@ -124,6 +124,45 @@ App.settings.logger.info("Hello World")
 ```
 
 Writing to a namespace with a previously undefined option will create a new option. The type class will be pulled from whatever object you write with. In the above case, the option defined would have it's type class set to `Logger` and would try to convert any new values to an instance of `Logger`.
+
+### Mass Assigning Options
+
+Sometimes, it's convenient to be able to set many options at once. This can be done by calling the `apply` method and giving it a hash of option names with values:
+
+```ruby
+class Project
+  include NsOptions
+  options(:settings) do
+    option :file_path
+    option :home_page
+
+    namespace(:movie_resolution) do
+      option :height, Integer
+      option :width, Integer
+    end
+  end
+end
+
+project = Project.new
+project.settings.apply({
+  :file_path => "/path/to/project",
+  :movie_resolution => { :height => 800, :width => 600 }
+})
+
+project.settings.file_path                # => "/path/to/project"
+project.settings.movie_resolution.height  # => 800
+project.settings.movie_resolution.width   # => 600
+```
+
+As the example shows, if you have a namespace and have a matching hash, it will automatically apply those values to that namespace. Also, if you include keys that are not defined options for your namespace, new options will be created for the values:
+
+```ruby
+project = Project.new
+project.settings.apply({ :stereoscopic => true, :not_a_namespace => { :yes => true } })
+
+project.settings.stereoscopic     # => true
+project.settings.not_a_namespace  # => { :yes => true }
+```
 
 ## License
 
