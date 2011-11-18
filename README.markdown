@@ -34,7 +34,7 @@ App.settings.stage = "development"
 App.settings.stage # => "development"
 ```
 
-Because the `root` option specified `Pathname` as it's type, the option will always return an instance of `Pathname`. Since the `stage` option did not specify a type, it defaulted to a `String`. You can define you're own type classes as well and use them:
+Because the `root` option specified `Pathname` as it's type, the option will always return an instance of `Pathname`. Since the `stage` option did not specify a type, it defaulted to an `Object` which allows it to accept any value. You can define you're own type classes as well and use them:
 
 ```ruby
 class Stage < String
