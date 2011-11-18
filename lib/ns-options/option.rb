@@ -9,6 +9,7 @@ module NsOptions
       self.name = name.to_s
       self.type_class = self.usable_type_class(type_class)
       self.rules = rules
+      self.rules[:args] = (self.rules[:args] ? [*self.rules[:args]] : [])
       self.value = rules[:default]
     end
 
@@ -51,7 +52,7 @@ module NsOptions
       elsif self.type_class == Hash
         {}.merge(new_value)
       else
-        self.type_class.new(new_value)
+        self.type_class.new(new_value, *self.rules[:args])
       end
     end
 
