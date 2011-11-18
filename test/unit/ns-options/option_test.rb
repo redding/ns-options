@@ -27,6 +27,10 @@ class NsOptions::Option
     should "return true with a call to #required?" do
       assert_equal true, subject.required?
     end
+    should "allow setting the value to nil" do
+      subject.value = nil
+      assert_nil subject.value
+    end
   end
 
   class IsSetTest < BaseTest
@@ -176,6 +180,18 @@ class NsOptions::Option
     end
   end
 
+  class WithNilClassTest < BaseTest
+    desc "with a NilClass as a type class (happens with dynamic writers)"
+    setup do
+      @nil_option = NsOptions::Option.new(:something, NilClass)
+    end
+    subject{ @nil_option }
+
+    should "have used Object for their type class" do
+      assert_equal Object, @nil_option.type_class
+    end
+  end
+
   class WithoutTypeClassTest < BaseTest
     desc "without a type class provided"
     setup do
@@ -187,21 +203,21 @@ class NsOptions::Option
       assert_equal Object, subject.type_class
     end
   end
-  
+
   class WithAValueOfTheSameClassTest < BaseTest
     desc "with a value of the same class"
     setup do
       @class = Class.new
       @option = NsOptions::Option.new(:something, @class)
     end
-    
+
     should "use the object passed to it instead of creating a new one" do
       value = @class.new
       @option.value = value
       assert_same value, @option.value
     end
   end
-  
+
   class WithAValueKindOfTest < BaseTest
     desc "with a value is a kind of the class"
     setup do
@@ -209,7 +225,7 @@ class NsOptions::Option
       @child_class = Class.new(@class)
       @option = NsOptions::Option.new(:something, @class)
     end
-    
+
     should "use the object passed to it instead of creating a new one" do
       value = @child_class.new
       @option.value = value
