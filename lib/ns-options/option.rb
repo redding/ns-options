@@ -49,6 +49,8 @@ module NsOptions
       if [ Integer, Float, String ].include?(self.type_class)
         # ruby type conversion, i.e. String(1)
         Object.send(self.type_class.to_s.to_sym, new_value)
+      elsif self.type_class == Symbol
+        new_value.to_sym
       elsif self.type_class == Hash
         {}.merge(new_value)
       else

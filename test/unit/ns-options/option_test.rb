@@ -132,6 +132,33 @@ class NsOptions::Option
     end
   end
 
+  class WithSymbolTypeClasstest < BaseTest
+    desc "with a Symbol as a type class"
+    setup do
+      @option = NsOptions::Option.new(:something, Symbol)
+    end
+
+    should "allow setting it with any object that responds to #to_sym" do
+      value = "amazing"
+      subject.value = value
+      assert_equal value.to_sym, subject.value
+      value = :another
+      subject.value = value
+      assert_equal value, subject.value
+      object_class = Class.new do
+        def to_sym; :object_sym; end
+      end
+      value = object_class.new
+      subject.value = value
+      assert_equal object_class.new.to_sym, subject.value
+    end
+    should "error on anything that doesn't define #to_sym" do
+      assert_raises(NoMethodError) do
+        subject.value = true
+      end
+    end
+  end
+
   class WithHashTypeClassTest < BaseTest
     desc "with a Hash as a type class"
     setup do
@@ -265,7 +292,7 @@ class NsOptions::Option
         @option = NsOptions::Option.new(:something, @class, { :args => @args })
         @option.value = @value
       end
-      
+
       should "pass the single value to the type class with the value" do
         expected = [*@args].insert(0, @value)
         assert_equal expected, subject.value.args
@@ -278,7 +305,7 @@ class NsOptions::Option
         @option = NsOptions::Option.new(:something, @class, { :args => @args })
         @option.value = @value
       end
-      
+
       should "just pass the value to the type class" do
         expected = [@value]
         assert_equal expected, subject.value.args
