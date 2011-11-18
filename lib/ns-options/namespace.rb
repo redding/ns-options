@@ -103,6 +103,12 @@ module NsOptions
       end
     end
 
+    # allow for iterating over the key/values of a namespace
+    # this uses #to_hash so you won't get option/namespace objs for the values
+    def each
+      self.to_hash.each { |k,v| yield k,v if block_given? }
+    end
+
     # The define method is provided for convenience and commonization. The internal system
     # uses it to commonly use a block with a namespace. The method can be used externally when
     # a namespace is created separately from where options are added/set on it. For example:

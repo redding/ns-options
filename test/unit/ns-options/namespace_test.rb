@@ -12,6 +12,7 @@ class NsOptions::Namespace
 
     should have_accessors :metaclass, :options
     should have_instance_methods :option, :namespace, :required_set?, :define, :apply
+    should have_instance_methods :to_hash, :each
 
     should "have set it's metaclass accessor" do
       assert subject.metaclass
@@ -322,6 +323,28 @@ class NsOptions::Namespace
       assert_equal @named_values, subject
     end
 
+
+
+    class EachTests < HandlingTests
+      desc "iterated with the each method"
+      setup do
+        @namespace.apply(@named_values)
+        @exp = "".tap do |exp|
+          @namespace.to_hash.each do |k,v|
+            exp << "#{k}=#{v};"
+          end
+        end
+        @act = "".tap do |exp|
+          @namespace.each do |k,v|
+            exp << "#{k}=#{v};"
+          end
+        end
+      end
+
+      should "yield k/v pairs by iterating over the #to_hash" do
+        assert_equal @exp, @act
+      end
+    end
 
   end
 
