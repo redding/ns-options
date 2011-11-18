@@ -233,8 +233,9 @@ class NsOptions::Namespace
     end
   end
 
-  class ApplyTest < BaseTest
-    desc "apply method"
+
+
+  class HandlingTests < BaseTest
     setup do
       @namespace.define do
         option :first
@@ -248,14 +249,24 @@ class NsOptions::Namespace
           end
         end
       end
+
       @named_values = {
         :first => "1", :second => "2", :third => "3", :twenty_one => "21",
         :child_a => {
           :fourth => "4", :fifth => "5",
-          :child_b => { :six => "6" }
+          :child_b => { :sixth => "6" }
         },
         :child_c => { :what => "?" }
       }
+    end
+
+  end
+
+
+
+  class ApplyTest < HandlingTests
+    desc "apply method"
+    setup do
       @namespace.apply(@named_values)
     end
 
@@ -271,6 +282,47 @@ class NsOptions::Namespace
       assert_equal @named_values[:twenty_one], subject.twenty_one
       assert_equal @named_values[:child_c], subject.child_c
     end
+  end
+
+
+
+  class ToHashTests < HandlingTests
+    desc "when to_hash"
+    subject { @namespace.to_hash }
+
+    should "return a Hash representation for the namespace" do
+      assert_equal({
+        :first => nil,
+        :second => nil,
+        :third => nil,
+        :child_a => {
+          :fourth => nil,
+          :fifth => nil,
+          :child_b => {
+            :sixth => nil
+          }
+        }
+      }, subject)
+
+      @namespace.first = "first"
+      assert_equal({
+        :first => "first",
+        :second => nil,
+        :third => nil,
+        :child_a => {
+          :fourth => nil,
+          :fifth => nil,
+          :child_b => {
+            :sixth => nil
+          }
+        }
+      }, subject)
+
+      @namespace.apply(@named_values)
+      assert_equal @named_values, subject
+    end
+
+
   end
 
 end

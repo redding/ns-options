@@ -90,6 +90,19 @@ module NsOptions
       end
     end
 
+    # return a hash representation of the namespace
+    # use symbols for the hash
+    def to_hash
+      Hash.new.tap do |out|
+        self.options.each do |name, opt|
+          out[name.to_sym] = opt.value
+        end
+        self.options.namespaces.each do |name, value|
+          out[name.to_sym] = value.to_hash
+        end
+      end
+    end
+
     # The define method is provided for convenience and commonization. The internal system
     # uses it to commonly use a block with a namespace. The method can be used externally when
     # a namespace is created separately from where options are added/set on it. For example:
