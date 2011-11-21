@@ -9,6 +9,7 @@ module NsOptions
       self.name = name.to_s
       self.type_class = self.usable_type_class(type_class)
       self.rules = rules
+      self.rules[:args] = (self.rules[:args] ? [*self.rules[:args]] : [])
       self.value = rules[:default]
     end
 
@@ -48,10 +49,12 @@ module NsOptions
       if [ Integer, Float, String ].include?(self.type_class)
         # ruby type conversion, i.e. String(1)
         Object.send(self.type_class.to_s.to_sym, new_value)
+      elsif self.type_class == Symbol
+        new_value.to_sym
       elsif self.type_class == Hash
         {}.merge(new_value)
       else
-        self.type_class.new(new_value)
+        self.type_class.new(new_value, *self.rules[:args])
       end
     end
 

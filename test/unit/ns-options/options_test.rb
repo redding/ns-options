@@ -47,17 +47,17 @@ class NsOptions::Options
     should "have added a object option on itself when adding :my_string" do
       assert(option = subject[:my_string])
       assert_equal Object, option.type_class
-      assert_equal({}, option.rules)
+      assert_equal({ :args => [] }, option.rules)
     end
     should "have added an integer option on itself when adding :my_integer" do
       assert(option = subject[:my_integer])
       assert_equal Integer, option.type_class
-      assert_equal({}, option.rules)
+      assert_equal({ :args => [] }, option.rules)
     end
     should "have added a float option on itself when adding :my_float" do
       assert(option = subject[:my_float])
       assert_equal Float, option.type_class
-      assert_equal({ :default => 1.0 }, option.rules)
+      assert_equal(1.0, option.rules[:default])
     end
   end
 
