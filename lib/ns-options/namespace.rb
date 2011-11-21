@@ -11,6 +11,7 @@ module NsOptions
     def required_set?
       self.options.required_set?
     end
+    alias :valid? :required_set?
 
     # Define an option for this namespace. Add the option to the namespace's options collection
     # and then define accessors for the option. With the following:

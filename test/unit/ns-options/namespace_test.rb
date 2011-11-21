@@ -11,7 +11,7 @@ class NsOptions::Namespace
     subject{ @namespace }
 
     should have_accessors :metaclass, :options
-    should have_instance_methods :option, :namespace, :required_set?, :define, :apply
+    should have_instance_methods :option, :namespace, :required_set?, :define, :apply, :valid?
 
     should "have set it's metaclass accessor" do
       assert subject.metaclass

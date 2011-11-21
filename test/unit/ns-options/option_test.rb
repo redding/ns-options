@@ -132,6 +132,33 @@ class NsOptions::Option
     end
   end
 
+  class WithSymbolTypeClasstest < BaseTest
+    desc "with a Symbol as a type class"
+    setup do
+      @option = NsOptions::Option.new(:something, Symbol)
+    end
+
+    should "allow setting it with any object that responds to #to_sym" do
+      value = "amazing"
+      subject.value = value
+      assert_equal value.to_sym, subject.value
+      value = :another
+      subject.value = value
+      assert_equal value, subject.value
+      object_class = Class.new do
+        def to_sym; :object_sym; end
+      end
+      value = object_class.new
+      subject.value = value
+      assert_equal object_class.new.to_sym, subject.value
+    end
+    should "error on anything that doesn't define #to_sym" do
+      assert_raises(NoMethodError) do
+        subject.value = true
+      end
+    end
+  end
+
   class WithHashTypeClassTest < BaseTest
     desc "with a Hash as a type class"
     setup do
@@ -230,6 +257,59 @@ class NsOptions::Option
       value = @child_class.new
       @option.value = value
       assert_same value, @option.value
+    end
+  end
+
+  class WithArgsTest < BaseTest
+    desc "with args rule"
+    setup do
+      @class = Class.new do
+        attr_accessor :args
+        def initialize(*args)
+          self.args = args
+        end
+      end
+      @value = "amazing"
+    end
+
+    class AsArrayTest < WithArgsTest
+      desc "as an array"
+      setup do
+        @args = [ true, false, { :hash => "yes" } ]
+        @option = NsOptions::Option.new(:something, @class, { :args => @args })
+        @option.value = @value
+      end
+
+      should "pass the args to the type class with the value" do
+        expected = @args.dup.insert(0, @value)
+        assert_equal expected, subject.value.args
+      end
+    end
+    class AsSingleValueTest < WithArgsTest
+      desc "as a single value"
+      setup do
+        @args = lambda{ "something" }
+        @option = NsOptions::Option.new(:something, @class, { :args => @args })
+        @option.value = @value
+      end
+
+      should "pass the single value to the type class with the value" do
+        expected = [*@args].insert(0, @value)
+        assert_equal expected, subject.value.args
+      end
+    end
+    class AsNilValueTest < WithArgsTest
+      desc "as a nil value"
+      setup do
+        @args = nil
+        @option = NsOptions::Option.new(:something, @class, { :args => @args })
+        @option.value = @value
+      end
+
+      should "just pass the value to the type class" do
+        expected = [@value]
+        assert_equal expected, subject.value.args
+      end
     end
   end
 
