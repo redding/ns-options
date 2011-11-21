@@ -5,7 +5,7 @@ class NsOptions::Namespace
   class BaseTest < Assert::Context
     desc "NsOptions::Namespace"
     setup do
-      @key = "options"
+      @key = "something"
       @namespace = NsOptions::Namespace.new(@key)
     end
     subject{ @namespace }
@@ -17,12 +17,18 @@ class NsOptions::Namespace
     should "have set it's metaclass accessor" do
       assert subject.metaclass
     end
+
     should "have created a new options collection and set it's options accessor" do
       assert subject.options
       assert_kind_of NsOptions::Options, subject.options
       assert_equal @key, subject.options.key
       assert_nil subject.options.parent
     end
+
+    should "contain its options key in its inspect output" do
+      assert_included ":#{subject.options.key.inspect}", subject.inspect
+    end
+
   end
 
   class OptionTest < BaseTest
@@ -283,6 +289,7 @@ class NsOptions::Namespace
       assert_equal @named_values[:twenty_one], subject.twenty_one
       assert_equal @named_values[:child_c], subject.child_c
     end
+
   end
 
 
@@ -323,29 +330,35 @@ class NsOptions::Namespace
       assert_equal @named_values, subject
     end
 
-
-
-    class EachTests < HandlingTests
-      desc "iterated with the each method"
-      setup do
-        @namespace.apply(@named_values)
-        @exp = "".tap do |exp|
-          @namespace.to_hash.each do |k,v|
-            exp << "#{k}=#{v};"
-          end
-        end
-        @act = "".tap do |exp|
-          @namespace.each do |k,v|
-            exp << "#{k}=#{v};"
-          end
-        end
-      end
-
-      should "yield k/v pairs by iterating over the #to_hash" do
-        assert_equal @exp, @act
-      end
+    should "contain its to_hash representation in its inspect output" do
+      assert_included subject.inspect, @namespace.inspect
     end
 
   end
+
+
+  class EachTests < HandlingTests
+    desc "iterated with the each method"
+    setup do
+      @namespace.apply(@named_values)
+      @exp = "".tap do |exp|
+        @namespace.to_hash.each do |k,v|
+          exp << "#{k}=#{v};"
+        end
+      end
+      @act = "".tap do |exp|
+        @namespace.each do |k,v|
+          exp << "#{k}=#{v};"
+        end
+      end
+    end
+
+    should "yield k/v pairs by iterating over the #to_hash" do
+      assert_equal @exp, @act
+    end
+
+  end
+
+
 
 end

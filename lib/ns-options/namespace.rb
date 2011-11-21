@@ -162,6 +162,10 @@ module NsOptions
       super || self.options.is_defined?(method.to_s.gsub("=", ""))
     end
 
+    def inspect(*args)
+      "#<#{self.class}:#{'0x%x' % (self.object_id << 1)}:#{self.options.key.inspect} #{self.to_hash.inspect}>"
+    end
+
   end
 
 end
