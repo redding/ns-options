@@ -163,7 +163,7 @@ module NsOptions
     end
 
     def inspect(*args)
-      "#<#{self.class}:#{'0x%x' % (self.object_id << 1)}:#{self.options.key.inspect} #{self.to_hash.inspect}>"
+      "#<#{self.class}:#{'0x%x' % (self.object_id << 1)}:#{self.options.key} #{self.to_hash.inspect}>"
     end
 
   end

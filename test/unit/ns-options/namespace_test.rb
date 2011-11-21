@@ -26,7 +26,7 @@ class NsOptions::Namespace
     end
 
     should "contain its options key in its inspect output" do
-      assert_included ":#{subject.options.key.inspect}", subject.inspect
+      assert_included ":#{subject.options.key}", subject.inspect
     end
 
   end
