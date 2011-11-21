@@ -44,22 +44,28 @@ class NsOptions::Option
 
       end
       @special = NsOptions::Option.new(:no_blank, @type_class)
+
+      @boolean = NsOptions::Option.new(:boolean, NsOptions::Option::Boolean)
     end
 
-    should "return true/false appropriately for a boolean option with true or false" do
-      @option.value = true
-      assert_equal true, @option.is_set?
-      @option.value = false
+    should "return appropriately" do
+      @option.value = "abc"
       assert_equal true, @option.is_set?
       @option.value = nil
       assert_equal false, @option.is_set?
+      @boolean.value = true
+      assert_equal true, @boolean.is_set?
+      @boolean.value = false
+      assert_equal true, @boolean.is_set?
     end
-    should "return true/false based on type class's is_set method" do
+
+    should "use the type class's is_set method if available" do
       @special.value = "not blank"
       assert_equal true, @special.is_set?
       @special.value = " "
       assert_equal false, @special.is_set?
     end
+
   end
 
   class EqualityOperatorTest < BaseTest
@@ -201,10 +207,28 @@ class NsOptions::Option
       assert_equal NsOptions::Option::Boolean, @true_option.type_class
       assert_equal NsOptions::Option::Boolean, @false_option.type_class
     end
+
     should "return the 'true' or 'false' value instead of the NsOptions::Option::Boolean object" do
       assert_equal true, @true_option.value
       assert_equal false, @false_option.value
     end
+
+    class BooleanSubclassTests < WithTrueFalseClassTest
+      desc "with a Ns::Options::Option::Boolean kind of type class"
+      setup do
+        class BoolSubOpt < NsOptions::Option::Boolean; end
+        @bool_option = NsOptions::Option.new(:bool, BoolSubOpt)
+      end
+
+      should "return the 'true' or 'false' values, not a BoolSubOpt obj" do
+        @bool_option.value = true
+        assert_equal true, @bool_option.value
+        @bool_option.value = false
+        assert_equal false, @bool_option.value
+      end
+
+    end
+
   end
 
   class WithNilClassTest < BaseTest
@@ -246,7 +270,7 @@ class NsOptions::Option
   end
 
   class WithAValueKindOfTest < BaseTest
-    desc "with a value is a kind of the class"
+    desc "with a value that is a kind of the class"
     setup do
       @class = Class.new
       @child_class = Class.new(@class)
@@ -285,6 +309,7 @@ class NsOptions::Option
         assert_equal expected, subject.value.args
       end
     end
+
     class AsSingleValueTest < WithArgsTest
       desc "as a single value"
       setup do
@@ -298,6 +323,7 @@ class NsOptions::Option
         assert_equal expected, subject.value.args
       end
     end
+
     class AsNilValueTest < WithArgsTest
       desc "as a nil value"
       setup do

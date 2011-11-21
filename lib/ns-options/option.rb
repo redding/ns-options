@@ -14,7 +14,7 @@ module NsOptions
     end
 
     def value
-      if self.type_class == NsOptions::Option::Boolean
+      if @value.kind_of?(NsOptions::Option::Boolean)
         @value and @value.actual
       else
         @value
