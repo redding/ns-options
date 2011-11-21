@@ -207,10 +207,28 @@ class NsOptions::Option
       assert_equal NsOptions::Option::Boolean, @true_option.type_class
       assert_equal NsOptions::Option::Boolean, @false_option.type_class
     end
+
     should "return the 'true' or 'false' value instead of the NsOptions::Option::Boolean object" do
       assert_equal true, @true_option.value
       assert_equal false, @false_option.value
     end
+
+    class BooleanSubclassTests < WithTrueFalseClassTest
+      desc "with a Ns::Options::Option::Boolean kind of type class"
+      setup do
+        class BoolSubOpt < NsOptions::Option::Boolean; end
+        @bool_option = NsOptions::Option.new(:bool, BoolSubOpt)
+      end
+
+      should "return the 'true' or 'false' values, not a BoolSubOpt obj" do
+        @bool_option.value = true
+        assert_equal true, @bool_option.value
+        @bool_option.value = false
+        assert_equal false, @bool_option.value
+      end
+
+    end
+
   end
 
   class WithNilClassTest < BaseTest
