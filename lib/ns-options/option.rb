@@ -20,11 +20,7 @@ module NsOptions
     end
 
     def value=(new_value)
-      @value = if (new_value.kind_of?(self.type_class)) || new_value.nil?
-        new_value
-      else
-        self.coerce(new_value)
-      end
+      @value = self.coerce(new_value)
     end
 
     def is_set?
@@ -44,6 +40,7 @@ module NsOptions
     protected
 
     def coerce(new_value)
+      return new_value if (new_value.kind_of?(self.type_class)) || new_value.nil?
       if [ Integer, Float, String ].include?(self.type_class)
         # ruby type conversion, i.e. String(1)
         Object.send(self.type_class.to_s.to_sym, new_value)
