@@ -151,7 +151,7 @@ module NsOptions
         option = NsOptions::Helper.fetch_and_define_option(self, option_name)
         self.send("#{option.name}=", value)
       elsif !args.empty?
-        option = self.option(option_name, value.class)
+        option = self.option(option_name)
         self.send("#{option.name}=", value)
       else
         super

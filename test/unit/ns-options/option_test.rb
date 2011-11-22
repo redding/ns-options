@@ -45,7 +45,7 @@ class NsOptions::Option
       end
       @special = NsOptions::Option.new(:no_blank, @type_class)
 
-      @boolean = NsOptions::Option.new(:boolean, NsOptions::Option::Boolean)
+      @boolean = NsOptions::Option.new(:boolean, NsOptions::Boolean)
     end
 
     should "return appropriately" do
@@ -111,33 +111,6 @@ class NsOptions::Option
     end
   end
 
-  class WithTypeClassFixnumTest < BaseTest
-    desc "with the Fixnum as a type class (happens through dynamic writers)"
-    setup do
-      @option = NsOptions::Option.new(:something, Fixnum)
-    end
-    subject{ @option }
-
-    should "have used Integer for it's type class" do
-      assert_equal Integer, subject.type_class
-    end
-    should "allow setting it's value with an integer" do
-      new_value = 1
-      subject.value = new_value
-      assert_equal new_value, subject.value
-    end
-    should "allow setting it's value with a float and convert it" do
-      new_value = 12.5
-      subject.value = new_value
-      assert_equal new_value.to_i, subject.value
-    end
-    should "allow setting it's value with a string and convert it" do
-      new_value = "13"
-      subject.value = new_value
-      assert_equal new_value.to_i, subject.value
-    end
-  end
-
   class WithSymbolTypeClasstest < BaseTest
     desc "with a Symbol as a type class"
     setup do
@@ -190,56 +163,6 @@ class NsOptions::Option
       new_value = [ :something, :else, :another ]
       subject.value = new_value
       assert_equal new_value, subject.value
-    end
-  end
-
-  class WithTrueFalseClassTest < BaseTest
-    desc "with a TrueClass/FalseClass as a type class (happens with dynamic writers)"
-    setup do
-      @true_option = NsOptions::Option.new(:something, TrueClass)
-      @true_option.value = true
-      @false_option = NsOptions::Option.new(:else, FalseClass)
-      @false_option.value = false
-    end
-    subject{ @true_option }
-
-    should "have used NsOptions::Option::Boolean for their type class" do
-      assert_equal NsOptions::Option::Boolean, @true_option.type_class
-      assert_equal NsOptions::Option::Boolean, @false_option.type_class
-    end
-
-    should "return the 'true' or 'false' value instead of the NsOptions::Option::Boolean object" do
-      assert_equal true, @true_option.value
-      assert_equal false, @false_option.value
-    end
-
-    class BooleanSubclassTests < WithTrueFalseClassTest
-      desc "with a Ns::Options::Option::Boolean kind of type class"
-      setup do
-        class BoolSubOpt < NsOptions::Option::Boolean; end
-        @bool_option = NsOptions::Option.new(:bool, BoolSubOpt)
-      end
-
-      should "return the 'true' or 'false' values, not a BoolSubOpt obj" do
-        @bool_option.value = true
-        assert_equal true, @bool_option.value
-        @bool_option.value = false
-        assert_equal false, @bool_option.value
-      end
-
-    end
-
-  end
-
-  class WithNilClassTest < BaseTest
-    desc "with a NilClass as a type class (happens with dynamic writers)"
-    setup do
-      @nil_option = NsOptions::Option.new(:something, NilClass)
-    end
-    subject{ @nil_option }
-
-    should "have used Object for their type class" do
-      assert_equal Object, @nil_option.type_class
     end
   end
 

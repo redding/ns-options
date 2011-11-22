@@ -1,24 +1,22 @@
 module NsOptions
 
   class Option
-    autoload :Boolean, 'ns-options/option/boolean'
-
     attr_accessor :name, :value, :type_class, :rules
 
-    def initialize(name, type_class = nil, rules = {})
+    def initialize(name, type_class, rules={})
       self.name = name.to_s
-      self.type_class = self.usable_type_class(type_class)
+
+      # if a nil type_class is given, just use Object
+      # this makes the option accept any value with no type coercion
+      self.type_class = (type_class || Object)
+
       self.rules = rules
       self.rules[:args] = (self.rules[:args] ? [*self.rules[:args]] : [])
       self.value = rules[:default]
     end
 
     def value
-      if @value.kind_of?(NsOptions::Option::Boolean)
-        @value and @value.actual
-      else
-        @value
-      end
+      @value
     end
 
     def value=(new_value)
@@ -55,18 +53,6 @@ module NsOptions
         {}.merge(new_value)
       else
         self.type_class.new(new_value, *self.rules[:args])
-      end
-    end
-
-    def usable_type_class(type_class)
-      if type_class == Fixnum
-        Integer
-      elsif [ TrueClass, FalseClass ].include?(type_class)
-        NsOptions::Option::Boolean
-      elsif type_class == NilClass
-        Object
-      else
-        (type_class || Object)
       end
     end
 

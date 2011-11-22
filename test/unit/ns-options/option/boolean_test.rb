@@ -1,11 +1,11 @@
 require 'assert'
 
-class NsOptions::Option::Boolean
+class NsOptions::Boolean
 
   class BaseTest < Assert::Context
-    desc "NsOptions::Option::Boolean"
+    desc "NsOptions::Boolean"
     setup do
-      @boolean = NsOptions::Option::Boolean.new(true)
+      @boolean = NsOptions::Boolean.new(true)
     end
     subject{ @boolean }
 
@@ -15,7 +15,7 @@ class NsOptions::Option::Boolean
   class WithTruthyValuesTest < BaseTest
     desc "with truthy values"
     setup do
-      @boolean = NsOptions::Option::Boolean.new(false)
+      @boolean = NsOptions::Boolean.new(nil)
     end
 
     should "have set actual to true with true" do
@@ -47,7 +47,7 @@ class NsOptions::Option::Boolean
   class WithFalsyValuesTest < BaseTest
     desc "with falsy values"
     setup do
-      @boolean = NsOptions::Option::Boolean.new(true)
+      @boolean = NsOptions::Boolean.new(nil)
     end
 
     should "have set actual to false with false" do
