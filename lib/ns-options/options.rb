@@ -56,14 +56,15 @@ module NsOptions
       self.namespaces[name]
     end
 
-    def build_from(options)
+    def build_from(options, namespace)
       options.each do |key, option|
         self.add(option.name, option.type_class, option.rules)
+        NsOptions::Helper.find_and_define_option(namespace, option.name)
       end
-      options.namespaces.each do |name, namespace|
-        ns_options = namespace.options
-        new_namespace = self.add_namespace(name, ns_options.key, ns_options.parent)
-        new_namespace.options.build_from(ns_options)
+      options.namespaces.each do |name, ns|
+        new_namespace = self.add_namespace(name, ns.options.key, ns.options.parent)
+        NsOptions::Helper.find_and_define_namespace(namespace, name)
+        new_namespace.options.build_from(ns.options, new_namespace)
       end
     end
 

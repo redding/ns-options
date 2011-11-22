@@ -172,13 +172,14 @@ class NsOptions::Options
   class BuildFromTest < BaseTest
     desc "build_from method"
     setup do
+      @namespace = NsOptions::Namespace.new("something")
       @from = NsOptions::Options.new(:something)
       @from.add(:root)
       @from.add_namespace(:else) do
         option :stage
       end
-      @options = NsOptions::Options.new(:another)
-      @options.build_from(@from)
+      @options = @namespace.options
+      @options.build_from(@from, @namespace)
     end
     subject{ @options }
 

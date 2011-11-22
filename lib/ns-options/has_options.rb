@@ -44,7 +44,7 @@ module NsOptions
             def #{name}(&block)
               unless @#{name}
                 @#{name} = NsOptions::Namespace.new('#{key}', &block)
-                @#{name}.options.build_from(self.class.#{name}.options)
+                @#{name}.options.build_from(self.class.#{name}.options, @#{name})
               end
               @#{name}
             end

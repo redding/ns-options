@@ -282,7 +282,7 @@ Example.stuff.symbol # => :awesome, watch out, this will try calling to_sym on t
 Example.stuff.hash = { :a => 'b' }
 Example.stuff.hash # => returns the same hash, does Hash.new.merge(value)
 Example.stuff.array = [ 1, 2, 3 ]
-Example.stuff.array # => returns the same array, Array is the only one that works without anything special, Array.new(value) is done
+Example.stuff.array # => returns the same array, Array is the only one that works without anything special, Array.new(value)
 ```
 
 ### Option Rules
