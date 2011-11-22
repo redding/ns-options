@@ -9,9 +9,9 @@ class NsOptions::Options
     end
     subject{ @options }
 
-    should have_accessors :key, :parent, :children
-    should have_instance_method :namespaces, :add, :del, :remove, :get, :set, :fetch, :is_defined?,
-      :parent_options
+    should have_accessors :key, :parent, :namespaces
+    should have_instance_method :add, :del, :remove, :get, :set, :fetch, :is_defined?,
+      :add_namespace, :get_namespace, :build_from
 
     should "be a kind of Hash" do
       assert_kind_of Hash, subject
@@ -31,7 +31,7 @@ class NsOptions::Options
       assert_nil subject.parent
     end
     should "return a kind of NsOption::Namespaces with a call to #children" do
-      assert_kind_of NsOptions::Namespaces, subject.children
+      assert_kind_of NsOptions::Namespaces, subject.namespaces
     end
   end
 
@@ -86,21 +86,6 @@ class NsOptions::Options
     should "have returned the option's value" do
       assert_equal @value, subject
     end
-
-    class WithParentTest < GetTest
-      desc "with a parent"
-      setup do
-        @parent = NsOptions::Namespace.new(:child)
-        @parent.options = @options
-        @options = NsOptions::Options.new(:child, @parent)
-        @result = @options.get(:my_string)
-      end
-      subject{ @result }
-
-      should "have returned the parent's option's value" do
-        assert_equal @value, subject
-      end
-    end
   end
 
   class SetTest < BaseTest
@@ -116,36 +101,6 @@ class NsOptions::Options
     end
   end
 
-  class FetchTest < BaseTest
-    desc "fetch method"
-    setup do
-      option = @options.add(:my_string)
-      @result = @options.fetch(:my_string)
-    end
-    subject{ @result }
-
-    should "return the option definition for my_string" do
-      assert_kind_of NsOptions::Option, subject
-      assert_equal "my_string", subject.name
-    end
-
-    class WithAParentTest < FetchTest
-      desc "with a parent"
-      setup do
-        @parent = NsOptions::Namespace.new(:child)
-        @parent.options = @options
-        @options = NsOptions::Options.new(:child, @parent)
-        @result = @options.fetch(:my_string)
-      end
-      subject{ @result }
-
-      should "return the option definition for my_string from it's parent" do
-        assert_kind_of NsOptions::Option, subject
-        assert_equal "my_string", subject.name
-      end
-    end
-  end
-
   class IsDefinedTest < BaseTest
     desc "fetch method"
     setup do
@@ -158,41 +113,6 @@ class NsOptions::Options
     end
     should "return false for an undefined option" do
       assert_equal false, subject.is_defined?(:undefined)
-    end
-
-    class WithAParentTest < IsDefinedTest
-      desc "with a parent"
-      setup do
-        @parent = NsOptions::Namespace.new(:child)
-        @parent.options = @options
-        @options = NsOptions::Options.new(:child, @parent)
-      end
-
-      should "return true for an option defined on it's parent" do
-        assert_equal true, subject.is_defined?(:my_string)
-      end
-    end
-  end
-
-  class ParentOptionsTest < BaseTest
-    desc "parent_options method"
-    subject{ @options }
-
-    should "return nil" do
-      assert_nil subject.parent_options
-    end
-
-    class WithAParentTest < ParentOptionsTest
-      desc "with a parent"
-      setup do
-        @parent = NsOptions::Namespace.new(:child)
-        @parent.options = @options
-        @options = NsOptions::Options.new(:child, @parent)
-      end
-
-      should "return it's parent's options" do
-        assert_equal @parent.options, subject.parent_options
-      end
     end
   end
 
@@ -221,6 +141,64 @@ class NsOptions::Options
       assert_equal true, subject.required_set?
       @options.set(:third, nil)
       assert_equal true, subject.required_set?
+    end
+  end
+
+  class AddNamespaceTest < BaseTest
+    desc "add_namespace method"
+    setup do
+      @namespace = @options.add_namespace(:something, :something)
+    end
+    subject{ @options }
+
+    should "create a new namespace and add it to the options namespaces collection" do
+      assert_instance_of NsOptions::Namespace, @namespace
+      assert_equal @namespace, subject.namespaces[:something]
+    end
+  end
+
+  class GetNamespaceTest < AddNamespaceTest
+    desc "get_namespace method"
+    setup do
+      @got_namespace = @options.get_namespace(:something)
+    end
+    subject{ @got_namespace }
+
+    should "allow retrieving a namespace without having to access the namespaces directly" do
+      assert_equal @namespace, subject
+    end
+  end
+
+  class BuildFromTest < BaseTest
+    desc "build_from method"
+    setup do
+      @namespace = NsOptions::Namespace.new("something")
+      @from = NsOptions::Options.new(:something)
+      @from.add(:root)
+      @from.add_namespace(:else) do
+        option :stage
+      end
+      @options = @namespace.options
+      @options.build_from(@from, @namespace)
+    end
+    subject{ @options }
+
+    should "have copied the options" do
+      @from.each do |key, from_option|
+        option = subject[key]
+        assert_equal from_option.name, option.name
+        assert_equal from_option.type_class, option.type_class
+        assert_equal from_option.rules, option.rules
+        assert_not_same from_option, option
+      end
+    end
+    should "have copied the namespaces" do
+      @from.namespaces.each do |name, from_namespace|
+        namespace = subject.get_namespace(name)
+        assert_equal from_namespace.options.key, namespace.options.key
+        assert_equal from_namespace.options.parent, namespace.options.parent
+        assert_not_same from_namespace, namespace
+      end
     end
   end
 

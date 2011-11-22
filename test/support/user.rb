@@ -9,6 +9,10 @@ class User
     option :home_url
     option :show_messages,  NsOptions::Boolean, :require => true
     option :font_size,      Integer,            :default => 12
+
+    namespace :view do
+      option :color
+    end
   end
 
   def preferences_key

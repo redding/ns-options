@@ -161,10 +161,9 @@ class NsOptions::Namespace
   class MethodMissingTest < BaseTest
     desc "method missing"
     setup do
-      @parent = @namespace
-      @parent.options.add(:something)
-      @parent.options.set(:something, "amazing")
-      @namespace = NsOptions::Namespace.new("child", @parent)
+      @namespace = NsOptions::Namespace.new("strange")
+      @namespace.options.add(:something)
+      @namespace.options.set(:something, "amazing")
     end
 
     class ReaderForAKnownOptionTest < MethodMissingTest

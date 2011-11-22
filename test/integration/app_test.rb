@@ -64,11 +64,6 @@ module App
       assert_kind_of NsOptions::Boolean, subject.run_commands
       assert_equal @run, subject.run_commands.actual
     end
-
-    should "have access to it's parent's options" do
-      assert_equal @stage, subject.stage
-    end
-
   end
 
 end

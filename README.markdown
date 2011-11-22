@@ -60,11 +60,11 @@ App.settings.stage = "test"
 App.settings.stage.development? # => false
 ```
 
-This allows you to add extended functionality to your options. The only condition is that the `initialize` accepts a single argument. This argument is always the value that was used with the writer. For the above, the `Stage` class received `"development"` and `"test"` in it's initialize method.
+This allows you to add extended functionality to your options and is where a lot of nice usability can be added. Defining your own type classes is explained in more detail later.
 
 ### Namespaces
 
-Namespaces allow you to organize and share options. With the previously mentioned `App` module and it's options you could create a namespace for another library:
+Namespaces allow you to organize your options. With the previously mentioned `App` module and it's options you could create a namespace for another library:
 
 ```ruby
 module Data # data is a library for retrieving persisted data from some resource
@@ -85,16 +85,13 @@ Now I can set a server option for data that is separate from the main `App` sett
 ```ruby
 Data.config.server = "127.0.0.1:1234"
 
-App.server # => NoMethodError
+App.settings.server # => NoMethodError
+App.settings.data.server # => 127.0.0.1:1234
 ```
 
-Since the data namespace was created from the `App` settings (which is also a namespace) it can access it's parent's options:
+#### With Classes
 
-```ruby
-Data.config.stage # => "test", or whatever App.settings.stage would return
-```
-
-Namespaces and their ability to read their parent's options is internally used by Namespace Options. When you add options to a class like so:
+Using `NsOptions` on a `Class` uses namespaces to create separate sets of options for every instance of your class created. This allows every instance to have different values for the set of options and not interfere with each other. For example with the following:
 
 ```ruby
 class User
@@ -106,11 +103,43 @@ class User
 end
 ```
 
-A namespace will be created for the `User` class itself. Which can have options added and even set. Once a user instance is created, it will create a child namespace from the classes. Thus, it will be able to access and use any options on the class:
+A namespace is created for the `User` class in the same way it works for modules:
+
+```ruby
+User.preferences # => NsOptions::Namespace instance
+User.preferences.home_page = "/home" # you can set options at this level, though I'm not sure why you would
+```
+
+Additionally, `NsOptions` will setup instances of a class to have a _copy_ of their class's namespace.
 
 ```ruby
 user = User.new
-user.preferences.home_page = "/home"
+user.preferences.home_page = "/home" # makes a lot more sense to do this
+user2 = User.new
+user2.preferences.home_page = "/not_home"
+user.preferences.home_page == user2.preferences.home_page # => false, they are completely separate
+```
+
+The instance level namespaces are deep copies of the class one. This means every option and sub-namespaces will be included. Only values are not copied.
+
+```ruby
+class User
+  include NsOptions
+  options(:preferences) do
+    option :home_page
+    namespace :view do
+      option :background_color, ViewColor
+    end
+  end
+
+end
+
+User.preferences.home_page = "/home"
+user = User.new
+user.preferences.home_page # => nil, does not return '/home'
+user.preferences.object_id != User.preferences.object_id # => true, they are different objects, just with the same definition
+user.preferences.view.background_color = "green"
+user.preferences.view.background_color # => returns an instance of ViewColor
 ```
 
 ### Dynamically Defined Options
@@ -123,7 +152,7 @@ App.settings.logger = Logger.new(App.settings.root.join("log", "test.log"))
 App.settings.logger.info("Hello World")
 ```
 
-Writing to a namespace with a previously undefined option will create a new option. The type class will be pulled from whatever object you write with. In the above case, the option defined would have it's type class set to `Logger` and would try to convert any new values to an instance of `Logger`.
+Writing to a namespace with a previously undefined option will create a new option. The type class will be defaulted to `Object` as if you didn't provide it. This will allow you to set any value for the option so you have no guarantee on what it's value is and how it can be used.
 
 ### Mass Assigning Options
 
@@ -162,6 +191,16 @@ project.settings.apply({ :stereoscopic => true, :not_a_namespace => { :yes => tr
 
 project.settings.stereoscopic     # => true
 project.settings.not_a_namespace  # => { :yes => true }
+```
+
+The reverse is also supported, so if you want a `Hash` version of your namespace, just ask your options for it.
+
+```ruby
+# a continuation of the previous block of code...
+project.settings.to_hash # => { :stereoscopic => true, :not_a_namespace => { :yes => true } }
+project.settings.each do |name, value|
+  # iterating over your options works as well
+end
 ```
 
 ### Lazily eval'd options
@@ -205,6 +244,146 @@ end
 explicit.a_proc #=> <the proc obj>
 ```
 
+### Custom Type Classes
+
+As stated previously, type classes is where you can add a lot of functionality and usability to your options. To do this though, understanding what `NsOptions` will do with your type class is important. First, it's important to understand when `NsOptions` will try to _coerce_ a value. This is only done when a value is not a _kind of_ the option's type class or when the value is nil. For example:
+
+```ruby
+module App
+  include NsOptions
+  options :settings do
+    option :stage, Stage
+  end
+end
+
+App.settings.stage = Stage.new("development") # no type coercion is done here, the value is already a Stage
+
+class BetterStage < Stage
+  # do something better
+end
+
+App.settings.stage = BetterStage.new("test") # again, no type coercion is done, as BetterStage is a kind of Stage
+
+App.setting.stage = nil # nil is never coerced, if you set a value to nil, it's just nil
+```
+
+Next, when `NsOptions` chooses to coerce a value with your class, it will always create a new instance of your type class and pass the value as the first argument. Your `initialize` method needs to be defined to handle this:
+
+```ruby
+class Root < Pathname
+  def initialize(path, app_name)
+    super("#{path}/#{app_name}")
+  end
+end
+```
+
+`Root`'s `initialize` method will not work for type coercion. The `app_name` argument will not be provided and Ruby will get angry. To solve this, make the `app_name` not required:
+
+```ruby
+class Root < Pathname
+  def initialize(path, app_name = nil)
+    app_name ||= App.settings.name # this might be one way to solve this
+    super("#{path}/#{app_name}")
+  end
+end
+```
+
+With the revised `initialize` method, `NsOptions` will have no problems coercing values for your the type class. In some cases the above solution may not work for you, but don't worry. See the _Option Rules_ section for another way to solve this, specifically about the args rule. For an example of a custom type class, the included `NsOptions::Boolean` can be looked at. This is a special case, but it works as a type class with `NsOptions`.
+
+### Ruby Classes As A Type Class
+
+`NsOptions` will allow you to use many of Ruby's standard objects as type classes and still handle coercing values appropriately. Typically this is done with ruby's type casting:
+
+```ruby
+module Example
+  include NsOptions
+  options :stuff do
+    option :string, String
+    option :integer, Integer
+    option :float, Float
+    option :symbol, Symbol
+    option :hash, Hash
+    option :array, Array
+  end
+end
+
+Example.stuff.string = 1
+Example.stuff.string # => "1", the same as doing String(1)
+Example.stuff.integer = 5.0
+Example.stuff.integer # => 5, this time it's Integer(5.0)
+Example.stuff.float = "5.0"
+Example.stuff.float # => 5.0, same as Float("5.0")
+```
+
+`Symbol`, `Hash` and `Array` work, but ruby doesn't provide a built in type casting for these.
+
+```ruby
+Example.stuff.symbol = "awesome"
+Example.stuff.symbol # => :awesome, watch out, this will try calling to_sym on the passed value, so it can error
+Example.stuff.hash = { :a => 'b' }
+Example.stuff.hash # => returns the same hash, does Hash.new.merge(value)
+Example.stuff.array = [ 1, 2, 3 ]
+Example.stuff.array # => returns the same array, Array is the only one that works without anything special, Array.new(value)
+```
+
+### Option Rules
+
+An option can be defined with certain rules (through a hash) that will extend the behavior of the option.
+
+#### Default Value
+
+The first rule is setting a default value.
+
+```ruby
+App.settings do
+  option :stage, Stage, :default => "development"
+end
+App.settings.stage # => instead of nil this will be 'development'
+```
+
+A default value runs through the same logic as if you set the value manually, so it will be coerced if necessary.
+
+#### Required
+
+It's also possible to flag an option as _required_.
+
+```ruby
+App.settings do
+  option :root, :required => true
+end
+
+App.settings.required_set? # => false, asking if the required options are set
+App.settings.root = "/path/to/somewhere"
+App.settings.required_set? # => true
+```
+
+To check if an option is set it will simply check if the value is not `nil`. If you are using a custom type class though, you can define an `is_set?` method and this will be used to check if an option is set.
+
+#### Args
+
+Another rule that you can specify is args. This allows you to pass more arguments to a type class.
+
+```ruby
+class Root < Pathname
+  def initialize(path, app_name = nil)
+    app_name = app_name.respond_to?(:call) ? app_name.call : app_name
+    super("#{path}/#{app_name}")
+  end
+end
+
+App.settings do
+  option :name
+  option :root, Root, :args => lambda{ App.settings.name }
+end
+
+App.settings.name = "example"
+App.settings.root = "/path/to"
+App.settings.root # => /path/to/example, uses the args rule to build the path
+```
+
+With the args rule, you can have a type class accept more than one argument. The first argument will always be the value to coerce. Any more arguments will be appended on after the value.
+
+>>>>>>> jcredding/remove_heirarchy
 ## License
 
 Copyright (c) 2011 Collin Redding and Team Insight

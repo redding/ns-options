@@ -9,54 +9,38 @@ module NsOptions::Helper
     end
     subject{ @module }
 
-    should have_instance_methods :new_namespace, :new_child_namespace, :fetch_and_define_option
-
-  end
-
-  class NewNamespaceTest < BaseTest
-    desc "new_namespace method"
-    setup do
-      @parent = @module.new_namespace("parent")
-      @child = @module.new_namespace("child", @parent) do
-        option :something
-      end
-    end
-
-    should "have created a parent namespace" do
-      assert_equal "parent", @parent.options.key
-    end
-    should "have created a child namespace" do
-      assert_equal "child", @child.options.key
-      assert_equal @parent, @child.options.parent
-      assert @child.options[:something]
-    end
+    should have_instance_methods :find_and_define_namespace, :find_and_define_option,
+      :define_namespace_methods, :define_option_methods
   end
   
-  class NewChildNamespaceTest < BaseTest
-    desc "new_child_namespace method"
+  class FindAndDefineOptionTest < BaseTest
+    desc "find_and_define_option method"
     setup do
-      @parent = @module.new_namespace("parent")
-      @mock_class = mock()
-      @mock_class.stubs(:super_settings).returns(@parent)
-      @first_owner = mock()
-      @first_owner.stubs({ :class => @mock_class })
-      @first = @module.new_child_namespace(@first_owner, "super_settings") do
-        option :something
-      end
-      @second_owner = User.new
-      @second = @module.new_child_namespace(@second_owner, "preferences")
+      @namespace = NsOptions::Namespace.new("something")
+      @option = @namespace.options.add(:anything)
+      @result = @module.find_and_define_option(@namespace, @option.name)
     end
+    subject{ @namespace }
     
-    should "have created a child namespace" do
-      class_name = @mock_class.to_s.split('::').last.downcase
-      key = "#{@parent.options.key}:#{class_name}_#{@first_owner.object_id}"
-      assert_equal key, @first.options.key
-      assert_equal @parent, @first.options.parent
-      assert @first.options[:something]
-    end    
-    should "have created a second child namespace" do
-      key = "#{@second.options.parent.options.key}:#{@second_owner.preferences_key}"
-      assert_equal key, @second.options.key
+    should "have defined reader/writer methods for the option and returned the option" do
+      assert_respond_to @option.name, subject
+      assert_respond_to "#{@option.name}=", subject
+      assert_equal @option, @result
+    end
+  end 
+  
+  class FindAndDefineNamespaceTest < BaseTest
+    desc "find_and_define_namespace method"
+    setup do
+      @namespace = NsOptions::Namespace.new("something")
+      @namespace.options.add_namespace(:else, "something:else")
+      @result = @module.find_and_define_namespace(@namespace, :else)
+    end
+    subject{ @namespace }
+    
+    should "have defined reader method for the namespace and returned the namespace" do
+      assert_respond_to :else, subject
+      assert_equal subject.options.get_namespace(:else), @result
     end
   end
 
