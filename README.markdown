@@ -382,7 +382,6 @@ App.settings.root # => /path/to/example, uses the args rule to build the path
 
 With the args rule, you can have a type class accept more than one argument. The first argument will always be the value to coerce. Any more arguments will be appended on after the value.
 
->>>>>>> jcredding/remove_heirarchy
 ## License
 
 Copyright (c) 2011 Collin Redding and Team Insight
