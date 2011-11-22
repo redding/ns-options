@@ -1,3 +1,5 @@
+require 'ns-options/option/boolean'
+
 module App
 
   # mixin on just the top-level NsOptions variant

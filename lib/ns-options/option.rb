@@ -1,8 +1,6 @@
 module NsOptions
 
   class Option
-    autoload :Boolean, 'ns-options/option/boolean'
-
     attr_accessor :name, :value, :type_class, :rules
 
     def initialize(name, type_class, rules={})
@@ -18,11 +16,7 @@ module NsOptions
     end
 
     def value
-      if @value.kind_of?(NsOptions::Option::Boolean)
-        @value and @value.actual
-      else
-        @value
-      end
+      @value
     end
 
     def value=(new_value)

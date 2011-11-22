@@ -39,25 +39,31 @@ module App
     should "have set the stage to 'test'" do
       assert_equal @stage, subject.stage
     end
+
     should "have set the root to this gem's dir" do
       assert_equal Pathname.new(@root_path), subject.root
     end
+
     should "have set the logger to the passed logger" do
       assert_equal @logger, subject.logger
       assert_same @logger, subject.logger
     end
+
   end
-  
+
   class SubNamespaceTest < DefineTest
     desc "the sub namespace"
     subject{ @module.settings.sub }
-    
+
     should "have set the run_commands option" do
-      assert_equal @run, subject.run_commands
+      assert_kind_of NsOptions::Option::Boolean, subject.run_commands
+      assert_equal @run, subject.run_commands.actual
     end
+
     should "have access to it's parent's options" do
       assert_equal @stage, subject.stage
     end
+
   end
 
 end

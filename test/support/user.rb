@@ -1,3 +1,5 @@
+require 'ns-options/option/boolean'
+
 class User
 
   # mixin using the specific HasOptions variant

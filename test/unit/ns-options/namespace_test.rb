@@ -35,7 +35,7 @@ class NsOptions::Namespace
     desc "option method"
     setup do
       @name = :something
-      @type = NsOptions::Option::Boolean
+      @type = String
       @rules = { :default => true }
       @namespace.option(@name, @type, @rules)
     end
@@ -47,6 +47,7 @@ class NsOptions::Namespace
       assert_equal @type, option.type_class
       assert_equal @rules, option.rules
     end
+
   end
 
   class OptionWithNoTypeTest < BaseTest
@@ -61,6 +62,7 @@ class NsOptions::Namespace
       assert(option = subject.options[@name])
       assert_equal Object, option.type_class
     end
+
   end
 
   class OptionMethodsTest < OptionTest
@@ -69,13 +71,15 @@ class NsOptions::Namespace
     should have_instance_methods :something, :something=
 
     should "be writable through the defined writer" do
-      assert_nothing_raised{ subject.something = false }
-      assert_equal false, subject.something
+      assert_nothing_raised{ subject.something = "abc" }
+      assert_equal "abc", subject.something
     end
+
     should "be writable through the reader with args" do
-      assert_nothing_raised{ subject.something true }
-      assert_equal true, subject.something
+      assert_nothing_raised{ subject.something "123" }
+      assert_equal "123", subject.something
     end
+
   end
 
   class NamespaceTest < BaseTest
@@ -94,10 +98,12 @@ class NsOptions::Namespace
       assert_equal subject, namespace.options.parent
       assert namespace.options[:something_else]
     end
+
     should "allow passing a special key to the namespace" do
       assert(namespace = subject.options.namespaces[:another])
       assert_equal "#{subject.options.key}:special_key", namespace.options.key
     end
+
   end
 
   class NamespaceMethodsTest < NamespaceTest
@@ -108,12 +114,14 @@ class NsOptions::Namespace
     should "be return the namespace using the reader" do
       assert_equal subject.options.namespaces[:something], subject.something
     end
+
     should "define the namespace with the reader and a block" do
       subject.something do
         option :another
       end
       assert subject.something.options[:another]
     end
+
   end
 
   class DefineTest < BaseTest
