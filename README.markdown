@@ -207,7 +207,7 @@ end
 
 Sometimes, you may want to set an option to a value that shouldn't (couldn't) be evaluated until the option is read.  If you set an option equal to a Proc, the value of the option will be whatever the return value of the Proc is at the time the option is read.  Here are some examples:
 
-```
+```ruby
 # dynamic value
 options(:dynamic) do
   option :rand, :default => Proc.new { rand(1000) }
@@ -220,10 +220,9 @@ dynamic.rand #=> 529
 dynamic.not_originally_defined = Proc.new { rand(1000) }
 dynamic.not_originally_defined #=> 110
 dynamic.not_originally_defined #=> 931
-
 ```
 
-```
+```ruby
 # self referential value
 options(:selfref) do
   option :something, :default => "123"
@@ -236,7 +235,7 @@ selfref.else #=> "123"
 
 If you really want your option to read and write Procs and not do this lazy eval behavior, just define the option as a Proc option
 
-```
+```ruby
 options(:explicit) do
   option :a_proc, Proc, :default => Proc.new { rand(1000) }
 end
