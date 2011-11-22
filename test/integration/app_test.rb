@@ -49,6 +49,11 @@ module App
       assert_same @logger, subject.logger
     end
 
+    should "have set its self_stage option to its stage" do
+      assert_equal @stage, subject.self_stage
+      assert_same @stage, subject.self_stage
+    end
+
   end
 
   class SubNamespaceTest < DefineTest
