@@ -1,3 +1,5 @@
+require 'ns-options/boolean'
+
 class User
 
   # mixin using the specific HasOptions variant
@@ -5,8 +7,8 @@ class User
 
   options(:preferences, 'user-preferences') do
     option :home_url
-    option :show_messages,  NsOptions::Option::Boolean, :require => true
-    option :font_size,      Integer,                    :default => 12
+    option :show_messages,  NsOptions::Boolean, :require => true
+    option :font_size,      Integer,            :default => 12
   end
 
   def preferences_key
