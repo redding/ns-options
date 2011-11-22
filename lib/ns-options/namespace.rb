@@ -3,11 +3,17 @@ module NsOptions
   class Namespace
     attr_accessor :options, :metaclass
 
-    def initialize(key, parent = nil)
+    # Every namespace tracks a metaclass to allow for individual reader/writers for their options,
+    # without any collisions. Since every namespace is of the same class, defining option reader and
+    # writer methods directly on the class would make multiple namespaces with different options
+    # impossible.
+    def initialize(key, parent = nil, &block)
       self.metaclass = (class << self; self; end)
       self.options = NsOptions::Options.new(key, parent)
+      self.define(&block)
     end
 
+    # This is a helper to check if options that were defined as :required have been set.
     def required_set?
       self.options.required_set?
     end
@@ -65,7 +71,7 @@ module NsOptions
     # The defined namespaces is returned as well.
     def namespace(name, key = nil, &block)
       key = "#{self.options.key}:#{(key || name)}"
-      namespace = self.options.namespaces.add(name, key, self, &block)
+      namespace = self.options.add_namespace(name, key, self, &block)
 
       self.metaclass.class_eval <<-DEFINE_METHOD
 
@@ -80,6 +86,8 @@ module NsOptions
       namespace
     end
 
+    # The opposite of #to_hash. Takes a hash representation of options and namespaces and mass
+    # assigns option values.
     def apply(option_values = {})
       option_values.each do |name, value|
         namespace = self.options.namespaces[name]

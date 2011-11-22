@@ -45,7 +45,7 @@ class NsOptions::Namespaces
 
   class GetTest < AddTest
     desc "get method"
-    
+
     should "return the namespace matching the name" do
       assert(namespace = subject.get("a_name"))
       assert_equal subject[:a_name], namespace

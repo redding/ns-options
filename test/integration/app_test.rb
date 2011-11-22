@@ -55,9 +55,6 @@ module App
     should "have set the run_commands option" do
       assert_equal @run, subject.run_commands
     end
-    should "have access to it's parent's options" do
-      assert_equal @stage, subject.stage
-    end
   end
 
 end

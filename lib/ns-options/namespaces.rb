@@ -10,7 +10,7 @@ module NsOptions
     end
 
     def add(name, key, parent = nil, &block)
-      self[name] = NsOptions::Helper.new_namespace(key, parent, &block)
+      self[name] = NsOptions::Namespace.new(key, parent, &block)
     end
 
     def get(name)

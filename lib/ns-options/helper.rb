@@ -3,30 +3,18 @@ module NsOptions
   module Helper
     module_function
 
-    # Common method for creating a new namespace
-    def new_namespace(key, parent = nil, &block)
-      namespace = NsOptions::Namespace.new(key, parent)
-      namespace.define(&block)
-    end
-
-    # Common method for creating a new child namespace, using the owner's class's options as the
-    # parent.
-    def new_child_namespace(owner, name, &block)
-      parent = owner.class.send(name)
-      method = "#{name}_key"
-      key = if owner.respond_to?(method)
-        owner.send(method)
-      else
-        "#{owner.class.to_s.split('::').last.downcase}_#{owner.object_id}"
-      end
-      namespace = parent.namespace(name, key)
-      namespace.define(&block)
-    end
-
+    # This method is a commonization of code used by a namespaces method_missing method. Essentially
+    # if the case arises that a namespace has an option defined (i.e. namespace.options[name] is
+    # not nil), then when you try to access it through a reader on the namespace, it will go to the
+    # method_missing for the namespace. This will see that there is an option and go ahead and
+    # define the reader/writer on the namespace. To do this, the option definition is found, and
+    # then duplicated with the namespace option method. The value that is currently set is also
+    # kept.
     def fetch_and_define_option(namespace, option_name)
-      option = namespace.options.fetch(option_name)
-      namespace.option(option.name, option.type_class, option.rules)
-      option
+      option = namespace.options[option_name]
+      new_option = namespace.option(option.name, option.type_class, option.rules)
+      new_option.value = option.value
+      new_option
     end
 
   end

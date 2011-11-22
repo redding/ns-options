@@ -1,13 +1,12 @@
 module NsOptions
 
   class Options < Hash
-    attr_accessor :key, :parent, :children
-    alias :namespaces :children
+    attr_accessor :key, :parent, :namespaces
 
     def initialize(key, parent = nil)
       self.key = key.to_s
       self.parent = parent
-      self.children = NsOptions::Namespaces.new
+      self.namespaces = NsOptions::Namespaces.new
     end
 
     def [](name)
@@ -30,11 +29,7 @@ module NsOptions
 
     def get(name)
       option = self[name]
-      if option && !option.value.nil?
-        option.value
-      elsif self.parent_options
-        self.parent_options.get(name)
-      end
+      option and option.value
     end
 
     def set(name, new_value)
@@ -42,21 +37,23 @@ module NsOptions
       self[name]
     end
 
-    def fetch(name)
-      self[name] || (self.parent_options && self.parent_options.fetch(name))
-    end
-
     def is_defined?(name)
-      !!self[name] || !!(self.parent_options && self.parent_options.is_defined?(name))
-    end
-
-    def parent_options
-      self.parent and self.parent.options
+      !!self[name]
     end
 
     def required_set?
       self.values.reject{|option| !option.required? }.inject(true) do |bool, option|
         bool && option.is_set?
+      end
+    end
+    
+    def add_namespace(name, key, parent = nil, &block)
+      self.namespaces.add(name, key, parent, &block)
+    end
+
+    def build_from(options)
+      options.each do |key, option|
+        self.add(option.name, option.type_class, option.rules)
       end
     end
 
