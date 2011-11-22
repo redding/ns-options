@@ -9,6 +9,7 @@ module App
     option :root,   Pathname
     option :stage
     option :logger, Logger
+    option :self_stage, :default => Proc.new { self.stage }
 
     namespace :sub do
       option :run_commands, NsOptions::Boolean
