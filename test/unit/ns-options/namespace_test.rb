@@ -201,14 +201,14 @@ class NsOptions::Namespace
         assert_includes :something_not_defined=, defined_methods
         assert_equal "you know it", subject.something_not_defined
       end
-      should "use the class of the value for the option's type class" do
-        assert_equal String, subject.options[:something_not_defined].type_class
-        assert_equal Integer, subject.options[:even_more_not_defined].type_class
-        assert_equal NsOptions::Option::Boolean, subject.options[:another_not_defined].type_class
-      end
-      should "use Object for the type class when the value is nil" do
+
+      should "use Object for the option's type class, no matter what the value is" do
+        assert_equal Object, subject.options[:something_not_defined].type_class
+        assert_equal Object, subject.options[:even_more_not_defined].type_class
+        assert_equal Object, subject.options[:another_not_defined].type_class
         assert_equal Object, subject.options[:just_one_more_not_defined].type_class
       end
+
     end
   end
 
