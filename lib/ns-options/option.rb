@@ -52,18 +52,18 @@ module NsOptions
       value.kind_of?(::Proc) && !self.type_class.ancestors.include?(::Proc)
     end
 
-    def coerce(new_value)
-      return new_value if (new_value.kind_of?(self.type_class)) || new_value.nil?
+    def coerce(value)
+      return value if (value.kind_of?(self.type_class)) || value.nil?
 
       if [ Integer, Float, String ].include?(self.type_class)
         # ruby type conversion, i.e. String(1)
-        Object.send(self.type_class.to_s.to_sym, new_value)
+        Object.send(self.type_class.to_s.to_sym, value)
       elsif self.type_class == Symbol
-        new_value.to_sym
+        value.to_sym
       elsif self.type_class == Hash
-        {}.merge(new_value)
+        {}.merge(value)
       else
-        self.type_class.new(new_value, *self.rules[:args])
+        self.type_class.new(value, *self.rules[:args])
       end
     end
 
