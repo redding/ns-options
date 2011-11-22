@@ -51,7 +51,7 @@ class User
     end
 
     should "have set show_messages" do
-      assert_kind_of NsOptions::Option::Boolean, subject.show_messages
+      assert_kind_of NsOptions::Boolean, subject.show_messages
       assert_equal false, subject.show_messages.actual
     end
 

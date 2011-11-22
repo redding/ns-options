@@ -56,7 +56,7 @@ module App
     subject{ @module.settings.sub }
 
     should "have set the run_commands option" do
-      assert_kind_of NsOptions::Option::Boolean, subject.run_commands
+      assert_kind_of NsOptions::Boolean, subject.run_commands
       assert_equal @run, subject.run_commands.actual
     end
 

@@ -45,7 +45,7 @@ class NsOptions::Option
       end
       @special = NsOptions::Option.new(:no_blank, @type_class)
 
-      @boolean = NsOptions::Option.new(:boolean, NsOptions::Option::Boolean)
+      @boolean = NsOptions::Option.new(:boolean, NsOptions::Boolean)
     end
 
     should "return appropriately" do

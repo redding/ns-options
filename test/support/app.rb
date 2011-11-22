@@ -1,4 +1,4 @@
-require 'ns-options/option/boolean'
+require 'ns-options/boolean'
 
 module App
 
@@ -11,7 +11,7 @@ module App
     option :logger, Logger
 
     namespace :sub do
-      option :run_commands, NsOptions::Option::Boolean
+      option :run_commands, NsOptions::Boolean
     end
   end
 end
