@@ -60,11 +60,11 @@ App.settings.stage = "test"
 App.settings.stage.development? # => false
 ```
 
-This allows you to add extended functionality to your options. The only condition is that the `initialize` accepts a single argument. This argument is always the value that was used with the writer. For the above, the `Stage` class received `"development"` and `"test"` in it's initialize method.
+This allows you to add extended functionality to your options and is where a lot of nice usability can be added. Defining your own type classes is explained in more detail later.
 
 ### Namespaces
 
-Namespaces allow you to organize and share options. With the previously mentioned `App` module and it's options you could create a namespace for another library:
+Namespaces allow you to organize your options. With the previously mentioned `App` module and it's options you could create a namespace for another library:
 
 ```ruby
 module Data # data is a library for retrieving persisted data from some resource
@@ -85,16 +85,13 @@ Now I can set a server option for data that is separate from the main `App` sett
 ```ruby
 Data.config.server = "127.0.0.1:1234"
 
-App.server # => NoMethodError
+App.settings.server # => NoMethodError
+App.settings.data.server # => 127.0.0.1:1234
 ```
 
-Since the data namespace was created from the `App` settings (which is also a namespace) it can access it's parent's options:
+#### With Classes
 
-```ruby
-Data.config.stage # => "test", or whatever App.settings.stage would return
-```
-
-Namespaces and their ability to read their parent's options is internally used by Namespace Options. When you add options to a class like so:
+Using `NsOptions` on a `Class` uses namespaces to create separate sets of options for every instance of your class created. This allows every instance to have different values for the set of options and not interfere with each other. For example with the following:
 
 ```ruby
 class User
@@ -106,11 +103,43 @@ class User
 end
 ```
 
-A namespace will be created for the `User` class itself. Which can have options added and even set. Once a user instance is created, it will create a child namespace from the classes. Thus, it will be able to access and use any options on the class:
+A namespace is created for the `User` class in the same way it works for modules:
+
+```ruby
+User.preferences # => NsOptions::Namespace instance
+User.preferences.home_page = "/home" # you can set options at this level, though I'm not sure why you would
+```
+
+Additionally, `NsOptions` will setup instances of a class to have a _copy_ of their class's namespace.
 
 ```ruby
 user = User.new
-user.preferences.home_page = "/home"
+user.preferences.home_page = "/home" # makes a lot more sense to do this
+user2 = User.new
+user2.preferences.home_page = "/not_home"
+user.preferences.home_page == user2.preferences.home_page # => false, they are completely separate
+```
+
+The instance level namespaces are deep copies of the class one. This means every option and sub-namespaces will be included. Only values are not copied.
+
+```ruby
+class User
+  include NsOptions
+  options(:preferences) do
+    option :home_page
+    namespace :view do
+      option :background_color, ViewColor
+    end
+  end
+
+end
+
+User.preferences.home_page = "/home"
+user = User.new
+user.preferences.home_page # => nil, does not return '/home'
+user.preferences.object_id != User.preferences.object_id # => true, they are different objects, just with the same definition
+user.preferences.view.background_color = "green"
+user.preferences.view.background_color # => returns an instance of ViewColor
 ```
 
 ### Dynamically Defined Options
@@ -123,7 +152,7 @@ App.settings.logger = Logger.new(App.settings.root.join("log", "test.log"))
 App.settings.logger.info("Hello World")
 ```
 
-Writing to a namespace with a previously undefined option will create a new option. The type class will be pulled from whatever object you write with. In the above case, the option defined would have it's type class set to `Logger` and would try to convert any new values to an instance of `Logger`.
+Writing to a namespace with a previously undefined option will create a new option. The type class will be defaulted to `Object` as if you didn't provide it. This will allow you to set any value for the option so you have no guarantee on what it's value is and how it can be used.
 
 ### Mass Assigning Options
 
@@ -163,6 +192,25 @@ project.settings.apply({ :stereoscopic => true, :not_a_namespace => { :yes => tr
 project.settings.stereoscopic     # => true
 project.settings.not_a_namespace  # => { :yes => true }
 ```
+
+The reverse is also supported, so if you want a `Hash` version of your namespace, just ask your options for it.
+
+```ruby
+# a continuation of the previous block of code...
+project.settings.to_hash # => { :stereoscopic => true, :not_a_namespace => { :yes => true } }
+project.settings.each do |name, value|
+  # iterating over your options works as well
+end
+```
+
+### Custom Type Classes
+
+TODO
+
+### Ruby Classes As A Type Class
+
+TODO
+
 
 ## License
 
