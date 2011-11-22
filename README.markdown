@@ -205,12 +205,142 @@ end
 
 ### Custom Type Classes
 
-TODO
+As stated previously, type classes is where you can add a lot of functionality and usability to your options. To do this though, understanding what `NsOptions` will do with your type class is important. First, it's important to understand when `NsOptions` will try to _coerce_ a value. This is only done when a value is not a _kind of_ the option's type class or when the value is nil. For example:
+
+```ruby
+module App
+  include NsOptions
+  options :settings do
+    option :stage, Stage
+  end
+end
+
+App.settings.stage = Stage.new("development") # no type coercion is done here, the value is already a Stage
+
+class BetterStage < Stage
+  # do something better
+end
+
+App.settings.stage = BetterStage.new("test") # again, no type coercion is done, as BetterStage is a kind of Stage
+
+App.setting.stage = nil # nil is never coerced, if you set a value to nil, it's just nil
+```
+
+Next, when `NsOptions` chooses to coerce a value with your class, it will always create a new instance of your type class and pass the value as the first argument. Your `initialize` method needs to be defined to handle this:
+
+```ruby
+class Root < Pathname
+  def initialize(path, app_name)
+    super("#{path}/#{app_name}")
+  end
+end
+```
+
+`Root`'s `initialize` method will not work for type coercion. The `app_name` argument will not be provided and Ruby will get angry. To solve this, make the `app_name` not required:
+
+```ruby
+class Root < Pathname
+  def initialize(path, app_name = nil)
+    app_name ||= App.settings.name # this might be one way to solve this
+    super("#{path}/#{app_name}")
+  end
+end
+```
+
+With the revised `initialize` method, `NsOptions` will have no problems coercing values for your the type class. In some cases the above solution may not work for you, but don't worry. See the _Option Rules_ section for another way to solve this, specifically about the args rule. For an example of a custom type class, the included `NsOptions::Boolean` can be looked at. This is a special case, but it works as a type class with `NsOptions`.
 
 ### Ruby Classes As A Type Class
 
-TODO
+`NsOptions` will allow you to use many of Ruby's standard objects as type classes and still handle coercing values appropriately. Typically this is done with ruby's type casting:
 
+```ruby
+module Example
+  include NsOptions
+  options :stuff do
+    option :string, String
+    option :integer, Integer
+    option :float, Float
+    option :symbol, Symbol
+    option :hash, Hash
+    option :array, Array
+  end
+end
+
+Example.stuff.string = 1
+Example.stuff.string # => "1", the same as doing String(1)
+Example.stuff.integer = 5.0
+Example.stuff.integer # => 5, this time it's Integer(5.0)
+Example.stuff.float = "5.0"
+Example.stuff.float # => 5.0, same as Float("5.0")
+```
+
+`Symbol`, `Hash` and `Array` work, but ruby doesn't provide a built in type casting for these.
+
+```ruby
+Example.stuff.symbol = "awesome"
+Example.stuff.symbol # => :awesome, watch out, this will try calling to_sym on the passed value, so it can error
+Example.stuff.hash = { :a => 'b' }
+Example.stuff.hash # => returns the same hash, does Hash.new.merge(value)
+Example.stuff.array = [ 1, 2, 3 ]
+Example.stuff.array # => returns the same array, Array is the only one that works without anything special, Array.new(value) is done
+```
+
+### Option Rules
+
+An option can be defined with certain rules (through a hash) that will extend the behavior of the option.
+
+#### Default Value
+
+The first rule is setting a default value.
+
+```ruby
+App.settings do
+  option :stage, Stage, :default => "development"
+end
+App.settings.stage # => instead of nil this will be 'development'
+```
+
+A default value runs through the same logic as if you set the value manually, so it will be coerced if necessary.
+
+#### Required
+
+It's also possible to flag an option as _required_.
+
+```ruby
+App.settings do
+  option :root, :required => true
+end
+
+App.settings.required_set? # => false, asking if the required options are set
+App.settings.root = "/path/to/somewhere"
+App.settings.required_set? # => true
+```
+
+To check if an option is set it will simply check if the value is not `nil`. If you are using a custom type class though, you can define an `is_set?` method and this will be used to check if an option is set.
+
+#### Args
+
+Another rule that you can specify is args. This allows you to pass more arguments to a type class.
+
+```ruby
+class Root < Pathname
+  def initialize(path, app_name = nil)
+    app_name = app_name.respond_to?(:call) ? app_name.call : app_name
+    super("#{path}/#{app_name}")
+  end
+end
+
+App.settings do
+  option :name
+  option :root, Root, :args => lambda{ App.settings.name }
+end
+
+App.settings.name = "example"
+App.settings.root = "/path/to"
+App.settings.root # => /path/to/example, uses the args rule to build the path
+```
+
+With the args rule, you can have a type class accept more than one argument. The first argument will always be the value to coerce. Any more arguments will be appended on after the value.
 
 ## License
 
