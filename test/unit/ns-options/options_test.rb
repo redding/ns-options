@@ -11,7 +11,7 @@ class NsOptions::Options
 
     should have_accessors :key, :parent, :namespaces
     should have_instance_method :add, :del, :remove, :get, :set, :fetch, :is_defined?,
-      :add_namespace
+      :add_namespace, :get_namespace, :build_from
 
     should "be a kind of Hash" do
       assert_kind_of Hash, subject
@@ -141,6 +141,63 @@ class NsOptions::Options
       assert_equal true, subject.required_set?
       @options.set(:third, nil)
       assert_equal true, subject.required_set?
+    end
+  end
+
+  class AddNamespaceTest < BaseTest
+    desc "add_namespace method"
+    setup do
+      @namespace = @options.add_namespace(:something, :something)
+    end
+    subject{ @options }
+
+    should "create a new namespace and add it to the options namespaces collection" do
+      assert_instance_of NsOptions::Namespace, @namespace
+      assert_equal @namespace, subject.namespaces[:something]
+    end
+  end
+
+  class GetNamespaceTest < AddNamespaceTest
+    desc "get_namespace method"
+    setup do
+      @got_namespace = @options.get_namespace(:something)
+    end
+    subject{ @got_namespace }
+
+    should "allow retrieving a namespace without having to access the namespaces directly" do
+      assert_equal @namespace, subject
+    end
+  end
+
+  class BuildFromTest < BaseTest
+    desc "build_from method"
+    setup do
+      @from = NsOptions::Options.new(:something)
+      @from.add(:root)
+      @from.add_namespace(:else) do
+        option :stage
+      end
+      @options = NsOptions::Options.new(:another)
+      @options.build_from(@from)
+    end
+    subject{ @options }
+
+    should "have copied the options" do
+      @from.each do |key, from_option|
+        option = subject[key]
+        assert_equal from_option.name, option.name
+        assert_equal from_option.type_class, option.type_class
+        assert_equal from_option.rules, option.rules
+        assert_not_same from_option, option
+      end
+    end
+    should "have copied the namespaces" do
+      @from.namespaces.each do |name, from_namespace|
+        namespace = subject.get_namespace(name)
+        assert_equal from_namespace.options.key, namespace.options.key
+        assert_equal from_namespace.options.parent, namespace.options.parent
+        assert_not_same from_namespace, namespace
+      end
     end
   end
 

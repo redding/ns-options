@@ -46,14 +46,24 @@ module NsOptions
         bool && option.is_set?
       end
     end
-    
-    def add_namespace(name, key, parent = nil, &block)
+
+    def add_namespace(name, key = nil, parent = nil, &block)
+      key ||= name
       self.namespaces.add(name, key, parent, &block)
+    end
+
+    def get_namespace(name)
+      self.namespaces[name]
     end
 
     def build_from(options)
       options.each do |key, option|
         self.add(option.name, option.type_class, option.rules)
+      end
+      options.namespaces.each do |name, namespace|
+        ns_options = namespace.options
+        new_namespace = self.add_namespace(name, ns_options.key, ns_options.parent)
+        new_namespace.options.build_from(ns_options)
       end
     end
 

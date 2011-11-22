@@ -3,18 +3,47 @@ module NsOptions
   module Helper
     module_function
 
-    # This method is a commonization of code used by a namespaces method_missing method. Essentially
-    # if the case arises that a namespace has an option defined (i.e. namespace.options[name] is
-    # not nil), then when you try to access it through a reader on the namespace, it will go to the
-    # method_missing for the namespace. This will see that there is an option and go ahead and
-    # define the reader/writer on the namespace. To do this, the option definition is found, and
-    # then duplicated with the namespace option method. The value that is currently set is also
-    # kept.
-    def fetch_and_define_option(namespace, option_name)
+    def find_and_define_namespace(namespace, name)
+      sub_namespace = namespace.options.get_namespace(name)
+      self.define_namespace_methods(namespace, name)
+      sub_namespace
+    end
+
+    def define_namespace_methods(namespace, name)
+      namespace.metaclass.class_eval <<-DEFINE_METHOD
+
+        def #{name}(&block)
+          namespace = self.options.namespaces.get("#{name}")
+          namespace.define(&block) if block
+          namespace
+        end
+
+      DEFINE_METHOD
+    end
+
+    def find_and_define_option(namespace, option_name)
       option = namespace.options[option_name]
-      new_option = namespace.option(option.name, option.type_class, option.rules)
-      new_option.value = option.value
-      new_option
+      self.define_option_methods(namespace, option)
+      option
+    end
+
+    def define_option_methods(namespace, option)
+      namespace.metaclass.class_eval <<-DEFINE_METHOD
+
+        def #{option.name}(*args)
+          if !args.empty?
+            self.send("#{option.name}=", *args)
+          else
+            self.options.get(:#{option.name})
+          end
+        end
+
+        def #{option.name}=(*args)
+          value = args.size == 1 ? args.first : args
+          self.options.set(:#{option.name}, value)
+        end
+
+      DEFINE_METHOD
     end
 
   end

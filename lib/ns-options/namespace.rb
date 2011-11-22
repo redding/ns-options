@@ -33,24 +33,7 @@ module NsOptions
     # The defined option is returned as well.
     def option(*args)
       option = self.options.add(*args)
-
-      self.metaclass.class_eval <<-DEFINE_METHOD
-
-        def #{option.name}(*args)
-          if !args.empty?
-            self.send("#{option.name}=", *args)
-          else
-            self.options.get(:#{option.name})
-          end
-        end
-
-        def #{option.name}=(*args)
-          value = args.size == 1 ? args.first : args
-          self.options.set(:#{option.name}, value)
-        end
-
-      DEFINE_METHOD
-
+      NsOptions::Helper.define_option_methods(self, option)
       option
     end
 
@@ -72,17 +55,7 @@ module NsOptions
     def namespace(name, key = nil, &block)
       key = "#{self.options.key}:#{(key || name)}"
       namespace = self.options.add_namespace(name, key, self, &block)
-
-      self.metaclass.class_eval <<-DEFINE_METHOD
-
-        def #{name}(&block)
-          namespace = self.options.namespaces.get("#{name}")
-          namespace.define(&block) if block
-          namespace
-        end
-
-      DEFINE_METHOD
-
+      NsOptions::Helper.define_namespace_methods(self, name)
       namespace
     end
 
@@ -143,20 +116,24 @@ module NsOptions
     # 1. A reader of a 'known' option. This case is for an option that's been defined for an
     #    ancestor of this namespace but not directly for this namespace. In this case we fetch
     #    the options definition and use it to define the option directly for this namespace.
-    # 2. A writer of a 'known' option. This case is similar to the above, but instead we are
+    # 2. TODO
+    # 3. A writer of a 'known' option. This case is similar to the above, but instead we are
     #    wanting to write a value. We need to fetch the option definition, define it and then
     #    we write the option as we normally would.
-    # 3. A dynamic writer. The option is not 'known' to the namespace, so we use the value and it's
+    # 4. A dynamic writer. The option is not 'known' to the namespace, so we use the value and it's
     #    class to define the option for this namespace. Then we just use the writer as we normally
     #    would.
     def method_missing(method, *args, &block)
       option_name = method.to_s.gsub("=", "")
       value = args.size == 1 ? args[0] : args
       if args.empty? && self.respond_to?(option_name)
-        option = NsOptions::Helper.fetch_and_define_option(self, option_name)
+        option = NsOptions::Helper.find_and_define_option(self, option_name)
         self.send(option.name)
+      elsif args.empty? && (namespace = self.options.get_namespace(option_name))
+        NsOptions::Helper.find_and_define_namespace(self, option_name)
+        self.send(option_name)
       elsif !args.empty? && self.respond_to?(option_name)
-        option = NsOptions::Helper.fetch_and_define_option(self, option_name)
+        option = NsOptions::Helper.find_and_define_option(self, option_name)
         self.send("#{option.name}=", value)
       elsif !args.empty?
         option = self.option(option_name, value.class)
