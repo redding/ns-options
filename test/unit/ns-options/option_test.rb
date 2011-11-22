@@ -207,6 +207,54 @@ class NsOptions::Option
     end
   end
 
+  class ProcHandlingTests < BaseTest
+    setup do
+      class KindOfProc < Proc; end
+      @a_string      = "a string"
+      @direct_proc   = Proc.new { "I can haz eval: #{@a_string}" }
+      @subclass_proc = KindOfProc.new { 12345 }
+      @direct_opt    = NsOptions::Option.new(:direct, Proc)
+      @subclass_opt  = NsOptions::Option.new(:subclass, KindOfProc)
+    end
+
+  end
+
+  class WithProcTypeClassTests < ProcHandlingTests
+    desc "with Proc as a type class"
+    setup do
+      @direct_opt.value = @direct_proc
+      @subclass_opt.value = @subclass_proc
+    end
+
+    should "allow setting it with a proc" do
+      assert_kind_of Proc, @direct_opt.value
+      assert_kind_of KindOfProc, @subclass_opt.value
+      assert_equal @direct_proc, @direct_opt.value
+      assert_equal @subclass_proc, @subclass_opt.value
+    end
+
+  end
+
+  class WithLazyProcTests < ProcHandlingTests
+    desc "with a Proc value but no Proc-ancestor type class"
+    setup do
+      @string_opt = NsOptions::Option.new(:string, String)
+    end
+
+    should "set the Proc and coerce the Proc return val when read" do
+      @string_opt.value = @direct_proc
+      assert_kind_of String, @string_opt.value
+      assert_equal "I can haz eval: a string", @string_opt.value
+
+      @a_string = "a new string"
+      assert_equal "I can haz eval: a new string", @string_opt.value
+
+      @string_opt.value = @subclass_proc
+      assert_kind_of String, @string_opt.value
+      assert_equal "12345", @string_opt.value
+    end
+  end
+
   class WithArgsTest < BaseTest
     desc "with args rule"
     setup do

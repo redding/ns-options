@@ -200,6 +200,7 @@ class NsOptions::Namespace
         @namespace.another_not_defined = true
         @namespace.even_more_not_defined = 12
         @namespace.just_one_more_not_defined = nil
+        @namespace.proc_opt_not_defined = Proc.new { "imma proc!" }
       end
 
       should "have defined the accessors and added the option" do
@@ -212,9 +213,15 @@ class NsOptions::Namespace
 
       should "use Object for the option's type class, no matter what the value is" do
         assert_equal Object, subject.options[:something_not_defined].type_class
-        assert_equal Object, subject.options[:even_more_not_defined].type_class
         assert_equal Object, subject.options[:another_not_defined].type_class
+        assert_equal Object, subject.options[:even_more_not_defined].type_class
         assert_equal Object, subject.options[:just_one_more_not_defined].type_class
+        assert_equal Object, subject.options[:proc_opt_not_defined].type_class
+      end
+
+      should "return the Proc return val when an unknow option is set to a Proc" do
+        assert_not_kind_of Proc, subject.options[:proc_opt_not_defined].type_class
+        assert_equal "imma proc!", subject.proc_opt_not_defined
       end
 
     end
