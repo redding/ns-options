@@ -1,6 +1,8 @@
 module NsOptions
 
   module Helper
+    autoload :Advisor, 'ns-options/helper/advisor'
+
     module_function
 
     def find_and_define_namespace(namespace, name)
@@ -44,6 +46,10 @@ module NsOptions
         end
 
       DEFINE_METHOD
+    end
+
+    def advisor(namespace)
+      NsOptions::Helper::Advisor.new(namespace)
     end
 
   end
