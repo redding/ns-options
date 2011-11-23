@@ -6,6 +6,10 @@ module NsOptions
   autoload :Option,         'ns-options/option'
   autoload :Options,        'ns-options/options'
   autoload :VERSION,        'ns-options/version'
+  
+  module Errors
+    autoload :InvalidName, 'ns-options/errors/invalid_name'
+  end
 
   def self.included(receiver)
     receiver.send(:include, HasOptions)

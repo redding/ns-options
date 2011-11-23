@@ -39,6 +39,9 @@ class NsOptions::Namespace
       @rules = { :default => true }
       @namespace.option(@name, @type, @rules)
     end
+    teardown do
+      NsOptions::Helper.unstub(:advisor)
+    end
     subject{ @namespace }
 
     should "have added the option to the namespace's options collection" do
@@ -47,7 +50,15 @@ class NsOptions::Namespace
       assert_equal @type, option.type_class
       assert_equal @rules, option.rules
     end
-
+    
+    should "check if the option name is ok" do
+      advisor = NsOptions::Helper::Advisor.new(@namespace)
+      NsOptions::Helper.expects(:advisor).with(@namespace).returns(advisor)
+      advisor.expects(:is_this_option_ok?)
+      assert_nothing_raised do
+        @namespace.option(:amazing)
+      end
+    end
   end
 
   class OptionWithNoTypeTest < BaseTest
@@ -90,6 +101,9 @@ class NsOptions::Namespace
       end
       @namespace.namespace(:another, "special_key")
     end
+    teardown do
+      NsOptions::Helper.unstub(:advisor)
+    end
     subject{ @namespace }
 
     should "have added a namespace to the namespace's options collection" do
@@ -102,6 +116,15 @@ class NsOptions::Namespace
     should "allow passing a special key to the namespace" do
       assert(namespace = subject.options.namespaces[:another])
       assert_equal "#{subject.options.key}:special_key", namespace.options.key
+    end
+    
+    should "check if the namespace name is ok" do
+      advisor = NsOptions::Helper::Advisor.new(@namespace)
+      NsOptions::Helper.expects(:advisor).with(@namespace).returns(advisor)
+      advisor.expects(:is_this_namespace_ok?)
+      assert_nothing_raised do
+        @namespace.namespace(:yet_another)
+      end
     end
 
   end

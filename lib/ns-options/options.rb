@@ -56,6 +56,10 @@ module NsOptions
       self.namespaces[name]
     end
 
+    def is_namespace_defined?(name)
+      !!self.get_namespace(name)
+    end
+
     def build_from(options, namespace)
       options.each do |key, option|
         self.add(option.name, option.type_class, option.rules)
