@@ -143,12 +143,15 @@ class NsOptions::Options
       assert_equal true, subject.required_set?
     end
   end
-
-  class AddNamespaceTest < BaseTest
-    desc "add_namespace method"
+  
+  class WithNamespaceTest < BaseTest
     setup do
       @namespace = @options.add_namespace(:something, :something)
     end
+  end
+
+  class AddNamespaceTest < WithNamespaceTest
+    desc "add_namespace method"
     subject{ @options }
 
     should "create a new namespace and add it to the options namespaces collection" do
@@ -157,7 +160,7 @@ class NsOptions::Options
     end
   end
 
-  class GetNamespaceTest < AddNamespaceTest
+  class GetNamespaceTest < WithNamespaceTest
     desc "get_namespace method"
     setup do
       @got_namespace = @options.get_namespace(:something)
@@ -166,6 +169,19 @@ class NsOptions::Options
 
     should "allow retrieving a namespace without having to access the namespaces directly" do
       assert_equal @namespace, subject
+    end
+  end
+  
+  class IsNamespaceDefinedTest < WithNamespaceTest
+    desc "is_namespace_defined? method"
+    setup do
+      @has_something = @options.is_namespace_defined?(:something)
+      @has_nothing = @options.is_namespace_defined?(:nothing)
+    end
+
+    should "return a boolean of whether or not the namespace is defined" do
+      assert_equal true, @has_something
+      assert_equal false, @has_nothing
     end
   end
 
