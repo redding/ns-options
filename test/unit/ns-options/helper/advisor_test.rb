@@ -2,19 +2,6 @@ require 'assert'
 
 class NsOptions::Helper::Advisor
 
-  module Output
-    module_function
-
-    def capture
-      out = StringIO.new
-      $stdout = out
-      yield
-      return out
-    ensure
-      $stdout = STDOUT
-    end
-  end
-
   class BaseTest < Assert::Context
     desc "NsOptions::Helper::Advisor"
     setup do
@@ -61,7 +48,7 @@ class NsOptions::Helper::Advisor
     desc "with a duplicate option"
     setup do
       @namespace.option(:duplicate)
-      @output = Output.capture do
+      @output = NsOptions::TestOutput.capture do
         @advisor.is_this_option_ok?("duplicate")
       end
     end
@@ -71,6 +58,7 @@ class NsOptions::Helper::Advisor
       assert_match expected, @output.string
       assert_match "From: ", @output.string
     end
+
     should "return true with a call to #is_already_defined?" do
       assert_equal true, subject.is_already_defined?(:duplicate)
     end
@@ -79,7 +67,7 @@ class NsOptions::Helper::Advisor
   class NotRecommendedOptionTest < BaseTest
     desc "with a not recommended option"
     setup do
-      @output = Output.capture do
+      @output = NsOptions::TestOutput.capture do
         @advisor.is_this_option_ok?("apply")
       end
     end
@@ -111,7 +99,7 @@ class NsOptions::Helper::Advisor
     desc "with a duplicate namespace"
     setup do
       @namespace.namespace(:duplicate)
-      @output = Output.capture do
+      @output = NsOptions::TestOutput.capture do
         @advisor.is_this_sub_namespace_ok?("duplicate")
       end
     end
@@ -121,6 +109,7 @@ class NsOptions::Helper::Advisor
       assert_match expected, @output.string
       assert_match "From: ", @output.string
     end
+
     should "return true with a call to #is_already_defined?" do
       assert_equal true, subject.is_already_defined?(:duplicate)
     end
@@ -129,7 +118,7 @@ class NsOptions::Helper::Advisor
   class NotRecommendedNamespaceTest < BaseTest
     desc "with a not recommended namespace"
     setup do
-      @output = Output.capture do
+      @output = NsOptions::TestOutput.capture do
         @advisor.is_this_sub_namespace_ok?("apply")
       end
     end
