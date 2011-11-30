@@ -17,8 +17,7 @@ module NsOptions
     end
 
     def add(*args)
-      options = args.last.kind_of?(Hash) ? args.pop : {}
-      option = NsOptions::Option.new(args[0], args[1], options)
+      option = NsOptions::Option.new(*args)
       self[option.name] = option
     end
 
