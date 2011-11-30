@@ -48,7 +48,7 @@ module NsOptions
       DEFINE_METHOD
     end
 
-    def advisor(namespace)
+    def advisor(namespace=nil)
       NsOptions::Helper::Advisor.new(namespace)
     end
 
