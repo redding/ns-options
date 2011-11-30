@@ -17,12 +17,13 @@ module NsOptions::HasOptions
     subject{ @instance }
 
     should have_class_methods :options
+
   end
 
-  class OptionsTest < BaseTest
+  class OptionsTests < BaseTest
     desc "options method"
 
-    class WithAKeyTest < OptionsTest
+    class WithAKeyTest < OptionsTests
       desc "with a key"
       setup do
         @key = "configs-key"
@@ -42,13 +43,16 @@ module NsOptions::HasOptions
         assert_equal @key, subject.class.configs.options.key
         assert_match @key, subject.configs.options.key
       end
+
       should "have used the provided block to define the namespace" do
         assert_respond_to :something, subject.configs
         assert_respond_to :something=, subject.configs
         assert subject.configs.options.fetch(:something)
       end
+
     end
-    class WithoutAKeyTest < OptionsTest
+
+    class WithoutAKeyTest < OptionsTests
       desc "without a key"
       setup do
         @name = "configs"
@@ -61,7 +65,26 @@ module NsOptions::HasOptions
         assert_equal @name, subject.class.configs.options.key
         assert_match @name, subject.configs.options.key
       end
+
     end
+
+    class AdvisorTests < OptionsTests
+      desc "creating a root namespace with a bad name"
+      setup do
+        @ns_name = "options"
+        @output = NsOptions::TestOutput.capture do
+          @ns = @class.options(@ns_name.to_sym)
+        end
+        @advisor = NsOptions::Helper::Advisor.new(@ns)
+      end
+
+      should "output a message warning using the method name as a namespace name" do
+        expected = @advisor.not_recommended_method_message("namespace", "options")
+        assert_match expected, @output.string
+      end
+
+    end
+
   end
 
 end

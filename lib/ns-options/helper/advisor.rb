@@ -8,8 +8,32 @@ module NsOptions
         self.namespace = namespace
       end
 
+      # root namespace advisor
+
+      def is_this_namespace_ok?(name, from = nil)
+        if [:options].include?(name.to_sym)
+          puts self.not_recommended_method_message('namespace', name)
+        else
+          return true
+        end
+        puts "From: #{(from || caller).first}"
+        false
+      end
+
+      # sub-namespace / namespace-option advisors
+
+      def is_this_sub_namespace_ok?(name, from = nil)
+        self.is_this_ok?(:'sub-namespace', name, (from || caller))
+      end
+
+      def is_this_option_ok?(name, from = nil)
+        self.is_this_ok?(:option, name, (from || caller))
+      end
+
+      # helper methods
+
       def is_this_ok?(kind, name, from)
-        display = (kind == :option ? "option" : "sub-namespace")
+        display = kind.to_s
         if self.bad_methods.include?(name.to_sym)
           message = self.bad_method_message(display, name)
           exception = NsOptions::Errors::InvalidName.new(message, from)
@@ -19,18 +43,10 @@ module NsOptions
         elsif self.not_recommended_methods.include?(name.to_sym)
           puts self.not_recommended_method_message(display, name)
         else
-          return false
+          return true
         end
         puts "From: #{from.first}"
-        true
-      end
-
-      def is_this_option_ok?(name, from = nil)
-        self.is_this_ok?(:option, name, (from || caller))
-      end
-
-      def is_this_sub_namespace_ok?(name, from = nil)
-        self.is_this_ok?(:namespace, name, (from || caller))
+        false
       end
 
       def is_already_defined?(name)
@@ -51,13 +67,15 @@ module NsOptions
           "Please choose a different name for your #{kind}."
         ].join(" ")
       end
+
       def duplicate_message(name)
         [ "WARNING! '#{name}' has already been defined and will be overwritten.",
           "It's likely that it will not behave as expected."
         ].join(" ")
       end
+
       def not_recommended_method_message(kind, name)
-        [ "WARNING! The #{kind} '#{name}' overwrites a namespace method.",
+        [ "WARNING! The #{kind} '#{name}' overwrites a method NsOptions depends on.",
           "This will limit some of the functionality of NsOptions."
         ].join(" ")
       end
