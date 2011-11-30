@@ -29,7 +29,7 @@ module NsOptions
         self.is_this_ok?(:option, name, (from || caller))
       end
 
-      def is_this_namespace_ok?(name, from = nil)
+      def is_this_sub_namespace_ok?(name, from = nil)
         self.is_this_ok?(:namespace, name, (from || caller))
       end
 

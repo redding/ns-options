@@ -24,7 +24,7 @@ class NsOptions::Helper::Advisor
     subject{ @advisor }
 
     should have_accessors :namespace
-    should have_instance_methods :is_this_ok?, :is_this_option_ok?, :is_this_namespace_ok?,
+    should have_instance_methods :is_this_ok?, :is_this_option_ok?, :is_this_sub_namespace_ok?,
       :is_already_defined?, :bad_methods, :not_recommended_methods, :bad_method_message,
       :duplicate_message, :not_recommended_method_message
 
@@ -95,7 +95,7 @@ class NsOptions::Helper::Advisor
     desc "with a bad namespace"
     setup do
       begin
-        @advisor.is_this_namespace_ok?("options")
+        @advisor.is_this_sub_namespace_ok?("options")
       rescue Exception => @exception
       end
     end
@@ -112,7 +112,7 @@ class NsOptions::Helper::Advisor
     setup do
       @namespace.namespace(:duplicate)
       @output = Output.capture do
-        @advisor.is_this_namespace_ok?("duplicate")
+        @advisor.is_this_sub_namespace_ok?("duplicate")
       end
     end
 
@@ -130,7 +130,7 @@ class NsOptions::Helper::Advisor
     desc "with a not recommended namespace"
     setup do
       @output = Output.capture do
-        @advisor.is_this_namespace_ok?("apply")
+        @advisor.is_this_sub_namespace_ok?("apply")
       end
     end
 
