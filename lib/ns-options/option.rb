@@ -3,8 +3,14 @@ module NsOptions
   class Option
     attr_accessor :name, :value, :type_class, :rules
 
+    def self.rules(rules)
+      (rules || {}).tap do |r|
+        r[:args] = (r[:args] ? [*r[:args]] : [])
+      end
+    end
+
     def self.args(*args)
-      [ args.last.kind_of?(::Hash) ? args.pop : {},
+      [ self.rules(args.last.kind_of?(::Hash) ? args.pop : {}),
         # if a nil type_class is given, just use Object
         # this makes the option accept any value with no type coercion
         (args[1] || Object),
@@ -14,8 +20,7 @@ module NsOptions
 
     def initialize(*args)
       self.rules, self.type_class, self.name = self.class.args(*args)
-      self.rules[:args] = (self.rules[:args] ? [*self.rules[:args]] : [])
-      self.value = rules[:default]
+      self.value = self.rules[:default]
     end
 
     # if reading a lazy_proc, call the proc and return its coerced return val
