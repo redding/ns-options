@@ -6,7 +6,8 @@ module NsOptions
   autoload :Option,         'ns-options/option'
   autoload :Options,        'ns-options/options'
   autoload :VERSION,        'ns-options/version'
-  
+  autoload :AssertMacros,   'ns-options/assert_macros'
+
   module Errors
     autoload :InvalidName, 'ns-options/errors/invalid_name'
   end

@@ -6,10 +6,12 @@ class NsOptions::Option
     desc "NsOptions::Option"
     setup do
       @rules = { :default => "development", :require => true }
-      @option = NsOptions::Option.new(:stage, String, @rules)
+      @args = [:stage, String, @rules]
+      @option = NsOptions::Option.new(*@args)
     end
     subject{ @option }
 
+    should have_class_method :args
     should have_accessors :name, :value, :type_class, :rules
 
     should "have set the name" do
@@ -31,6 +33,35 @@ class NsOptions::Option
       subject.value = nil
       assert_nil subject.value
     end
+  end
+
+  class ParseArgsTests < BaseTest
+    desc "created with args"
+    setup do
+      @prules, @ptype_class, @pname = subject.class.args(*@args)
+    end
+
+    should "parse option rules arguments, defaulting to {}" do
+      assert_equal @rules, @prules
+
+      @prules, @ptype_class, @pname = subject.class.args('test')
+      assert_equal Hash.new, @prules
+    end
+
+    should "parse the name arg and convert to a string" do
+      assert_equal "stage", @pname
+
+      @prules, @ptype_class, @pname = subject.class.args('test')
+      assert_equal 'test', @pname
+    end
+
+    should "parse the type_class arg and default it to Object" do
+      assert_equal String, @ptype_class
+
+      @prules, @ptype_class, @pname = subject.class.args('test')
+      assert_equal Object, @ptype_class
+    end
+
   end
 
   class IsSetTest < BaseTest

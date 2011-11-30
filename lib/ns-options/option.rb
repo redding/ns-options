@@ -3,14 +3,17 @@ module NsOptions
   class Option
     attr_accessor :name, :value, :type_class, :rules
 
-    def initialize(name, type_class, rules={})
-      self.name = name.to_s
+    def self.args(*args)
+      [ args.last.kind_of?(::Hash) ? args.pop : {},
+        # if a nil type_class is given, just use Object
+        # this makes the option accept any value with no type coercion
+        (args[1] || Object),
+        args[0].to_s
+      ]
+    end
 
-      # if a nil type_class is given, just use Object
-      # this makes the option accept any value with no type coercion
-      self.type_class = (type_class || Object)
-
-      self.rules = rules
+    def initialize(*args)
+      self.rules, self.type_class, self.name = self.class.args(*args)
       self.rules[:args] = (self.rules[:args] ? [*self.rules[:args]] : [])
       self.value = rules[:default]
     end
