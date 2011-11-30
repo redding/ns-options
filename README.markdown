@@ -382,6 +382,55 @@ App.settings.root # => /path/to/example, uses the args rule to build the path
 
 With the args rule, you can have a type class accept more than one argument. The first argument will always be the value to coerce. Any more arguments will be appended on after the value.
 
+## NsOptions::Proxy
+Mix in NsOptions::Proxy to any module/class to make it proxy a namespace.  This essentially turns your class into a namespace itself.  You can interact with it just as if it were a namespace object.  For example:
+
+```ruby
+module Something
+  include NsOptions
+  include NsOptions::Proxy
+
+  # define options directly
+  option :foo
+  option :bar, :default => "Bar"
+
+  # define sub-namespaces
+  namespace :more do
+    option :another
+  end
+
+end
+
+# handle those options
+Something.bar #=> "Bar"
+Something.to_hash  #=> {:foo => nil, :bar => "Bar"}
+Something.each do |opt_name, opt_value|
+  ...
+end
+```
+
+What's great is that while your Something behaves like a namespace, you can still define methods and add to it just as you would normally in Ruby:
+
+```ruby
+module Something
+  def self.awesome_bar
+    "Awesome #{bar}"
+  end
+end
+
+Something.awesome_bar  # => "Awesome Bar"
+```
+
+And remember, NsOptions is mixed in, so you can go ahead and create a root namespace as you normally would:
+
+```ruby
+module Something
+  options(:else) do
+    option :baz
+  end
+end
+```
+
 ## License
 
 Copyright (c) 2011 Collin Redding and Team Insight
