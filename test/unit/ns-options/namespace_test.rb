@@ -50,7 +50,7 @@ class NsOptions::Namespace
       assert_equal @type, option.type_class
       assert_equal @rules, option.rules
     end
-    
+
     should "check if the option name is ok" do
       advisor = NsOptions::Helper::Advisor.new(@namespace)
       NsOptions::Helper.expects(:advisor).with(@namespace).returns(advisor)
@@ -117,11 +117,11 @@ class NsOptions::Namespace
       assert(namespace = subject.options.namespaces[:another])
       assert_equal "#{subject.options.key}:special_key", namespace.options.key
     end
-    
+
     should "check if the namespace name is ok" do
       advisor = NsOptions::Helper::Advisor.new(@namespace)
       NsOptions::Helper.expects(:advisor).with(@namespace).returns(advisor)
-      advisor.expects(:is_this_namespace_ok?)
+      advisor.expects(:is_this_sub_namespace_ok?)
       assert_nothing_raised do
         @namespace.namespace(:yet_another)
       end

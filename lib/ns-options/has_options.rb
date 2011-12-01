@@ -30,6 +30,7 @@ module NsOptions
       # separate objects from the class and other instances. Modules only deal with a single
       # namespace at the module level.
       def options(name, key = nil, &block)
+        NsOptions::Helper.advisor.is_this_namespace_ok?(name, caller)
         key ||= name.to_s
         method_definitions = <<-CLASS_METHOD
 

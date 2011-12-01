@@ -2,19 +2,6 @@ require 'assert'
 
 class NsOptions::Helper::Advisor
 
-  module Output
-    module_function
-
-    def capture
-      out = StringIO.new
-      $stdout = out
-      yield
-      return out
-    ensure
-      $stdout = STDOUT
-    end
-  end
-
   class BaseTest < Assert::Context
     desc "NsOptions::Helper::Advisor"
     setup do
@@ -24,7 +11,7 @@ class NsOptions::Helper::Advisor
     subject{ @advisor }
 
     should have_accessors :namespace
-    should have_instance_methods :is_this_ok?, :is_this_option_ok?, :is_this_namespace_ok?,
+    should have_instance_methods :is_this_ok?, :is_this_option_ok?, :is_this_sub_namespace_ok?,
       :is_already_defined?, :bad_methods, :not_recommended_methods, :bad_method_message,
       :duplicate_message, :not_recommended_method_message
 
@@ -61,7 +48,7 @@ class NsOptions::Helper::Advisor
     desc "with a duplicate option"
     setup do
       @namespace.option(:duplicate)
-      @output = Output.capture do
+      @output = NsOptions::TestOutput.capture do
         @advisor.is_this_option_ok?("duplicate")
       end
     end
@@ -71,6 +58,7 @@ class NsOptions::Helper::Advisor
       assert_match expected, @output.string
       assert_match "From: ", @output.string
     end
+
     should "return true with a call to #is_already_defined?" do
       assert_equal true, subject.is_already_defined?(:duplicate)
     end
@@ -79,7 +67,7 @@ class NsOptions::Helper::Advisor
   class NotRecommendedOptionTest < BaseTest
     desc "with a not recommended option"
     setup do
-      @output = Output.capture do
+      @output = NsOptions::TestOutput.capture do
         @advisor.is_this_option_ok?("apply")
       end
     end
@@ -91,11 +79,41 @@ class NsOptions::Helper::Advisor
     end
   end
 
-  class BadNamespaceTest < BaseTest
-    desc "with a bad namespace"
+  class NotRecommendedNamespaceTest < BaseTest
+    desc "with a not recommended root namespace"
+    setup do
+      @output = NsOptions::TestOutput.capture do
+        @advisor.is_this_namespace_ok?("options")
+      end
+    end
+
+    should "output a message warning using the method name as a namespace name" do
+      expected = subject.not_recommended_method_message("namespace", "options")
+      assert_match expected, @output.string
+      assert_match "From: ", @output.string
+    end
+  end
+
+  class NotRecommendedSubNamespaceTest < BaseTest
+    desc "with a not recommended sub namespace"
+    setup do
+      @output = NsOptions::TestOutput.capture do
+        @advisor.is_this_sub_namespace_ok?("apply")
+      end
+    end
+
+    should "output a message warning using the method name as a namespace name" do
+      expected = subject.not_recommended_method_message("sub-namespace", "apply")
+      assert_match expected, @output.string
+      assert_match "From: ", @output.string
+    end
+  end
+
+  class BadSubNamespaceTest < BaseTest
+    desc "with a bad sub namespace"
     setup do
       begin
-        @advisor.is_this_namespace_ok?("options")
+        @advisor.is_this_sub_namespace_ok?("options")
       rescue Exception => @exception
       end
     end
@@ -107,12 +125,12 @@ class NsOptions::Helper::Advisor
     end
   end
 
-  class DuplicateNamespaceTest < BaseTest
-    desc "with a duplicate namespace"
+  class DuplicateSubNamespaceTest < BaseTest
+    desc "with a duplicate sub namespace"
     setup do
       @namespace.namespace(:duplicate)
-      @output = Output.capture do
-        @advisor.is_this_namespace_ok?("duplicate")
+      @output = NsOptions::TestOutput.capture do
+        @advisor.is_this_sub_namespace_ok?("duplicate")
       end
     end
 
@@ -121,23 +139,9 @@ class NsOptions::Helper::Advisor
       assert_match expected, @output.string
       assert_match "From: ", @output.string
     end
+
     should "return true with a call to #is_already_defined?" do
       assert_equal true, subject.is_already_defined?(:duplicate)
-    end
-  end
-
-  class NotRecommendedNamespaceTest < BaseTest
-    desc "with a not recommended namespace"
-    setup do
-      @output = Output.capture do
-        @advisor.is_this_namespace_ok?("apply")
-      end
-    end
-
-    should "output a message warning using the method name as a namespace name" do
-      expected = subject.not_recommended_method_message("sub-namespace", "apply")
-      assert_match expected, @output.string
-      assert_match "From: ", @output.string
     end
   end
 
