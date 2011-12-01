@@ -26,7 +26,7 @@ module NsOptions::Proxy
 
     def method_missing(meth, *args, &block)
       if (po = self.__proxy_options__) && po.respond_to?(meth.to_s)
-        po.send(method, *args, &block)
+        po.send(meth.to_s, *args, &block)
       else
         super
       end

@@ -19,6 +19,19 @@ module NsOptions::Proxy
           assert_respond_to :each, subject
         end
 
+        should "create options directly" do
+          assert_nothing_raised do
+            subject.option :test_opt
+          end
+        end
+
+        should "create namespaces directly" do
+          assert_nothing_raised do
+            subject.namespace :test_ns
+          end
+        end
+
+
       end
     end
 
