@@ -71,7 +71,11 @@ module NsOptions
       elsif self.type_class == Hash
         {}.merge(value)
       else
-        self.type_class.new(value, *self.rules[:args])
+        begin
+          self.type_class.new(value, *self.rules[:args])
+        rescue ArgumentError => err
+          raise ArgumentError, "#{self.type_class} `initialize': #{err.message}"
+        end
       end
     end
 
