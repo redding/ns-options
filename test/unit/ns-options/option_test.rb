@@ -230,6 +230,33 @@ class NsOptions::Option
     end
   end
 
+  class WithTypeClassArgErrorTests < BaseTest
+    desc "setting a value with arg error"
+    setup do
+      @err = begin
+        raise ArgumentError, "some test error"
+      rescue ArgumentError => err
+        err
+      end
+      class SuperSuperTestTest
+        def initialize(*args)
+          raise ArgumentError, "some test error"
+        end
+      end
+      @option = NsOptions::Option.new(:something, SuperSuperTestTest)
+    end
+
+    should "reraise the arg error, including its type_class in the error message" do
+      err = begin
+        @option.value = "arg error should be raised"
+      rescue Exception => err
+        err
+      end
+      assert_equal ArgumentError, err.class
+      assert_included @option.type_class.to_s, err.message
+    end
+  end
+
   class WithAValueOfTheSameClassTest < BaseTest
     desc "with a value of the same class"
     setup do
