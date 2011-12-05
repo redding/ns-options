@@ -1,11 +1,12 @@
+require 'ns-options/has_options'
+require 'ns-options/helper'
+require 'ns-options/namespace'
+require 'ns-options/namespaces'
+require 'ns-options/option'
+require 'ns-options/options'
+require 'ns-options/version'
+
 module NsOptions
-  autoload :HasOptions,     'ns-options/has_options'
-  autoload :Helper,         'ns-options/helper'
-  autoload :Namespace,      'ns-options/namespace'
-  autoload :Namespaces,     'ns-options/namespaces'
-  autoload :Option,         'ns-options/option'
-  autoload :Options,        'ns-options/options'
-  autoload :VERSION,        'ns-options/version'
 
   def self.included(receiver)
     receiver.send(:include, HasOptions)
