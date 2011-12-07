@@ -1,3 +1,5 @@
+require 'ns-options/errors/invalid_name'
+
 module NsOptions
   module Helper
 

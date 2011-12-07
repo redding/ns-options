@@ -1,4 +1,5 @@
 require 'assert'
+require 'ns-options/assert_macros'
 
 module NsOptions::AssertMacros
 
