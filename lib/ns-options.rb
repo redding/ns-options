@@ -5,7 +5,7 @@ require 'ns-options/namespaces'
 require 'ns-options/option'
 require 'ns-options/options'
 require 'ns-options/proxy'
-require 'ns-options/version'
+require 'ns-options/version' if !defined?(NsOptions::VERSION)
 
 module NsOptions
 
