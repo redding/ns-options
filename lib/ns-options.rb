@@ -4,6 +4,7 @@ require 'ns-options/namespace'
 require 'ns-options/namespaces'
 require 'ns-options/option'
 require 'ns-options/options'
+require 'ns-options/proxy'
 require 'ns-options/version'
 
 module NsOptions

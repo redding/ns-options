@@ -17,8 +17,7 @@ module NsOptions
     end
 
     def add(*args)
-      options = args.last.kind_of?(Hash) ? args.pop : {}
-      option = NsOptions::Option.new(args[0], args[1], options)
+      option = NsOptions::Option.new(*args)
       self[option.name] = option
     end
 
@@ -54,6 +53,10 @@ module NsOptions
 
     def get_namespace(name)
       self.namespaces[name]
+    end
+
+    def is_namespace_defined?(name)
+      !!self.get_namespace(name)
     end
 
     def build_from(options, namespace)

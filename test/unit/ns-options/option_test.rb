@@ -6,10 +6,12 @@ class NsOptions::Option
     desc "NsOptions::Option"
     setup do
       @rules = { :default => "development", :require => true }
-      @option = NsOptions::Option.new(:stage, String, @rules)
+      @args = [:stage, String, @rules]
+      @option = NsOptions::Option.new(*@args)
     end
     subject{ @option }
 
+    should have_class_method :rules, :args
     should have_accessors :name, :value, :type_class, :rules
 
     should "have set the name" do
@@ -31,6 +33,56 @@ class NsOptions::Option
       subject.value = nil
       assert_nil subject.value
     end
+  end
+
+  class ParseRulesTests < BaseTest
+    desc "parsing rules"
+    setup do
+      @cases = [nil, {}, {:args => 'is'}].map do |c|
+        subject.class.rules(c)
+      end
+    end
+
+    should "always return them as a Hash" do
+      @cases.each { |c| assert_kind_of Hash, c }
+    end
+
+    should "always return with an array args rule" do
+      @cases.each do |c|
+        assert c.has_key? :args
+        assert_kind_of Array, c[:args]
+      end
+    end
+
+  end
+
+  class ParseArgsTests < BaseTest
+    desc "when parsing args"
+    setup do
+      @prules, @ptype_class, @pname = subject.class.args(*@args)
+    end
+
+    should "parse option rules arguments, defaulting to {:args => []}" do
+      assert_equal @rules, @prules
+
+      @prules, @ptype_class, @pname = subject.class.args('test')
+      assert_equal({:args => []}, @prules)
+    end
+
+    should "parse the name arg and convert to a string" do
+      assert_equal "stage", @pname
+
+      @prules, @ptype_class, @pname = subject.class.args('test')
+      assert_equal 'test', @pname
+    end
+
+    should "parse the type_class arg and default it to Object" do
+      assert_equal String, @ptype_class
+
+      @prules, @ptype_class, @pname = subject.class.args('test')
+      assert_equal Object, @ptype_class
+    end
+
   end
 
   class IsSetTest < BaseTest
@@ -175,6 +227,33 @@ class NsOptions::Option
 
     should "have default it to Object" do
       assert_equal Object, subject.type_class
+    end
+  end
+
+  class WithTypeClassArgErrorTests < BaseTest
+    desc "setting a value with arg error"
+    setup do
+      @err = begin
+        raise ArgumentError, "some test error"
+      rescue ArgumentError => err
+        err
+      end
+      class SuperSuperTestTest
+        def initialize(*args)
+          raise ArgumentError, "some test error"
+        end
+      end
+      @option = NsOptions::Option.new(:something, SuperSuperTestTest)
+    end
+
+    should "reraise the arg error, including its type_class in the error message" do
+      err = begin
+        @option.value = "arg error should be raised"
+      rescue Exception => err
+        err
+      end
+      assert_equal ArgumentError, err.class
+      assert_included @option.type_class.to_s, err.message
     end
   end
 

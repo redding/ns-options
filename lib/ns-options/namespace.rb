@@ -32,6 +32,7 @@ module NsOptions
     #
     # The defined option is returned as well.
     def option(*args)
+      NsOptions::Helper.advisor(self).is_this_option_ok?(args[0], caller)
       option = self.options.add(*args)
       NsOptions::Helper.define_option_methods(self, option)
       option
@@ -54,6 +55,7 @@ module NsOptions
     # The defined namespaces is returned as well.
     def namespace(name, key = nil, &block)
       key = "#{self.options.key}:#{(key || name)}"
+      NsOptions::Helper.advisor(self).is_this_sub_namespace_ok?(name, caller)
       namespace = self.options.add_namespace(name, key, self, &block)
       NsOptions::Helper.define_namespace_methods(self, name)
       namespace

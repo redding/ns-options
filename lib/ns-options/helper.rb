@@ -1,6 +1,9 @@
+require 'ns-options/helper/advisor'
+
 module NsOptions
 
   module Helper
+
     module_function
 
     def find_and_define_namespace(namespace, name)
@@ -44,6 +47,10 @@ module NsOptions
         end
 
       DEFINE_METHOD
+    end
+
+    def advisor(namespace=nil)
+      NsOptions::Helper::Advisor.new(namespace)
     end
 
   end
