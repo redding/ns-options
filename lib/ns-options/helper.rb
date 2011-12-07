@@ -1,7 +1,8 @@
+require 'ns-options/helper/advisor'
+
 module NsOptions
 
   module Helper
-    autoload :Advisor, 'ns-options/helper/advisor'
 
     module_function
 
