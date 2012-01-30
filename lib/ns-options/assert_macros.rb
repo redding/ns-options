@@ -1,3 +1,4 @@
+module NsOptions; end
 module NsOptions::AssertMacros
 
   # a set of Assert macros to help write namespace definition and
