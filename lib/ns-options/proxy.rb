@@ -6,9 +6,12 @@ module NsOptions::Proxy
   # this means you can interact with the module/class/class-instance as
   # if it were a namespace object itself.
 
+  NAMESPACE = "__proxy_options__"
+
   class << self
 
     def included(receiver)
+      NsOptions::Helper.define_root_namespace_methods(receiver, NAMESPACE)
       receiver.class_eval do
         extend ProxyMethods
         include ProxyMethods
@@ -19,54 +22,48 @@ module NsOptions::Proxy
 
   module ProxyMethods
 
-    # define the proxied NAMESPACE handler
-
-    def __proxy_options__
-      @__proxy_options__ ||= NsOptions::Namespace.new('__proxy_options__')
-    end
-
     # pass thru namespace methods to the proxied NAMESPACE handler
 
     def option(*args, &block)
-      self.__proxy_options__.option(*args, &block)
+      __proxy_options__.option(*args, &block)
     end
     alias_method :opt, :option
 
     def namespace(*args, &block)
-      self.__proxy_options__.namespace(*args, &block)
+      __proxy_options__.namespace(*args, &block)
     end
     alias_method :ns, :namespace
 
     def apply(*args, &block)
-      self.__proxy_options__.apply(*args, &block)
+      __proxy_options__.apply(*args, &block)
     end
 
     def to_hash(*args, &block)
-      self.__proxy_options__.to_hash(*args, &block)
+      __proxy_options__.to_hash(*args, &block)
     end
 
     def each(*args, &block)
-      self.__proxy_options__.each(*args, &block)
+      __proxy_options__.each(*args, &block)
     end
 
     def define(*args, &block)
-      self.__proxy_options__.define(*args, &block)
+      __proxy_options__.define(*args, &block)
     end
 
     def inspect(*args, &block)
-      self.__proxy_options__.inspect(*args, &block)
+      __proxy_options__.inspect(*args, &block)
     end
 
     def required_set?(*args, &block)
-      self.__proxy_options__.required_set?(*args, &block)
+      __proxy_options__.required_set?(*args, &block)
     end
 
     def valid?(*args, &block)
-      self.__proxy_options__.valid?(*args, &block)
+      __proxy_options__.valid?(*args, &block)
     end
 
     # for everything else, send to the proxied NAMESPACE handler
-    # at this point it really just gets dynamic option setting ability
+    # at this point it really just enables setting dynamic options
 
     def method_missing(meth, *args, &block)
       if (po = self.__proxy_options__) && po.respond_to?(meth.to_s)
