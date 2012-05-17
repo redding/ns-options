@@ -12,11 +12,16 @@ module NsOptions::Proxy
           assert_kind_of NsOptions::Namespace, subject.send(NAMESPACE)
         end
 
-        should "respond to namespace methods" do
-          assert_respond_to :option, subject
-          assert_respond_to :namespace, subject
-          assert_respond_to :to_hash, subject
-          assert_respond_to :each, subject
+        should "respond to proxied namespace methods" do
+          assert_respond_to :option,        subject
+          assert_respond_to :namespace,     subject
+          assert_respond_to :apply,         subject
+          assert_respond_to :to_hash,       subject
+          assert_respond_to :each,          subject
+          assert_respond_to :define,        subject
+          assert_respond_to :inspect,       subject
+          assert_respond_to :required_set?, subject
+          assert_respond_to :valid?,        subject
         end
 
         should "create options directly" do
