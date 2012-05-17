@@ -387,7 +387,6 @@ Mix in NsOptions::Proxy to any module/class to make it proxy a namespace.  This 
 
 ```ruby
 module Something
-  include NsOptions
   include NsOptions::Proxy
 
   # define options directly

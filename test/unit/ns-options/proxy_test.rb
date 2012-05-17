@@ -8,8 +8,8 @@ module NsOptions::Proxy
     def self.proxy_a_namespace
       Assert::Macro.new do
         should "create a default namespace to proxy to" do
-          assert_respond_to NAMESPACE, subject
-          assert_kind_of NsOptions::Namespace, subject.send(NAMESPACE)
+          assert_respond_to '__proxy_options__', subject
+          assert_kind_of NsOptions::Namespace, subject.send('__proxy_options__')
         end
 
         should "respond to proxied namespace methods" do
@@ -46,7 +46,6 @@ module NsOptions::Proxy
     desc "when mixed in to a module"
     setup do
       @mod = Module.new do
-        include NsOptions
         include NsOptions::Proxy
       end
     end
@@ -60,7 +59,6 @@ module NsOptions::Proxy
     desc "when mixed into a class"
     setup do
       @cls = Class.new do
-        include NsOptions
         include NsOptions::Proxy
       end
     end

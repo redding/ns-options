@@ -1,18 +1,15 @@
+require 'ns-options'
+
 module NsOptions::Proxy
 
   # Mix this in to any module or class to make it proxy a namespace
   # this means you can interact with the module/class/class-instance as
-  # if it were a namespace object itself.  For example:
-
-  NAMESPACE = "__proxy_options__"
+  # if it were a namespace object itself.
 
   class << self
 
     def included(receiver)
       receiver.class_eval do
-        include NsOptions
-        options(NAMESPACE)
-
         extend ProxyMethods
         include ProxyMethods
       end
@@ -21,6 +18,12 @@ module NsOptions::Proxy
   end
 
   module ProxyMethods
+
+    # define the proxied NAMESPACE handler
+
+    def __proxy_options__
+      @__proxy_options__ ||= NsOptions::Namespace.new('__proxy_options__')
+    end
 
     # pass thru namespace methods to the proxied NAMESPACE handler
 
@@ -61,6 +64,7 @@ module NsOptions::Proxy
     end
 
     # for everything else, send to the proxied NAMESPACE handler
+    # at this point it really just gets dynamic option setting ability
 
     def method_missing(meth, *args, &block)
       if (po = self.__proxy_options__) && po.respond_to?(meth.to_s)
