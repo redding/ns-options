@@ -14,7 +14,9 @@ module NsOptions::Proxy
 
         should "respond to proxied namespace methods" do
           assert_respond_to :option,        subject
+          assert_respond_to :opt,           subject
           assert_respond_to :namespace,     subject
+          assert_respond_to :ns,            subject
           assert_respond_to :apply,         subject
           assert_respond_to :to_hash,       subject
           assert_respond_to :each,          subject

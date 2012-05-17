@@ -30,10 +30,12 @@ module NsOptions::Proxy
     def option(*args, &block)
       self.__proxy_options__.option(*args, &block)
     end
+    alias_method :opt, :option
 
     def namespace(*args, &block)
       self.__proxy_options__.namespace(*args, &block)
     end
+    alias_method :ns, :namespace
 
     def apply(*args, &block)
       self.__proxy_options__.apply(*args, &block)

@@ -89,6 +89,28 @@ App.settings.server # => NoMethodError
 App.settings.data.server # => 127.0.0.1:1234
 ```
 
+### Less Verbose Definitions
+
+As an alternative to the above definition syntax, you can use an alternate less-verbose syntax:
+* `opts` for `options`
+* `opt` for `option`
+* `ns`  for `namespace`
+
+```ruby
+module App
+  include NsOptions
+
+  opts :settings do
+    opt :root, Pathname
+    opt :stage
+
+    ns :other_stuff do
+      opt :something
+    end
+  end
+end
+```
+
 #### With Classes
 
 Using `NsOptions` on a `Class` uses namespaces to create separate sets of options for every instance of your class created. This allows every instance to have different values for the set of options and not interfere with each other. For example with the following:

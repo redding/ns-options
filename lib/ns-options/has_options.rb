@@ -55,6 +55,7 @@ module NsOptions
         self.class_eval(method_definitions)
         self.send(name, &block)
       end
+      alias_method :opts, :options
 
     end
 
