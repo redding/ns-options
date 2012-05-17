@@ -53,6 +53,35 @@ module NsOptions
       NsOptions::Helper::Advisor.new(namespace)
     end
 
+    def define_root_namespace_methods(define_on, name, key=nil)
+      key ||= name.to_s
+
+      # covers defining on Modules and at the class-level of Classes
+      method_definitions = <<-CLASS_METHOD
+
+        def self.#{name}(&block)
+          @#{name} ||= NsOptions::Namespace.new('#{key}', &block)
+        end
+
+      CLASS_METHOD
+
+      if define_on.kind_of?(Class)
+        # covers defining at the instance-level of Classes
+        method_definitions += <<-INSTANCE_METHOD
+
+          def #{name}(&block)
+            unless @#{name}
+              @#{name} = NsOptions::Namespace.new('#{key}', &block)
+              @#{name}.options.build_from(self.class.#{name}.options, @#{name})
+            end
+            @#{name}
+          end
+
+        INSTANCE_METHOD
+      end
+      define_on.class_eval(method_definitions)
+    end
+
   end
 
 end

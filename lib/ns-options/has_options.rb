@@ -39,28 +39,7 @@ module NsOptions
 
       def options(name, key = nil, &block)
         NsOptions::Helper.advisor.is_this_namespace_ok?(name, caller)
-        key ||= name.to_s
-        method_definitions = <<-CLASS_METHOD
-
-          def self.#{name}(&block)
-            @#{name} ||= NsOptions::Namespace.new('#{key}', &block)
-          end
-
-        CLASS_METHOD
-        if self.kind_of?(Class)
-          method_definitions += <<-INSTANCE_METHOD
-
-            def #{name}(&block)
-              unless @#{name}
-                @#{name} = NsOptions::Namespace.new('#{key}', &block)
-                @#{name}.options.build_from(self.class.#{name}.options, @#{name})
-              end
-              @#{name}
-            end
-
-          INSTANCE_METHOD
-        end
-        self.class_eval(method_definitions)
+        NsOptions::Helper.define_root_namespace_methods(self, name, key)
         self.send(name, &block)
       end
       alias_method :opts, :options
