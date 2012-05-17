@@ -29,6 +29,14 @@ module NsOptions
       # the namespaces at the instance level still get all the defined options, but are completely
       # separate objects from the class and other instances. Modules only deal with a single
       # namespace at the module level.
+
+      # The options method takes three args:
+      # * `name` : what to name the defined methods for accessing the namespace
+      # * `key`  : (optional) what to key the created namespace objects with
+      #            - defaults to `name`
+      #            - useful if persisting namespaces into some key-value store
+      # * `block`: (optional) a predefined set up nested options and namespaces
+
       def options(name, key = nil, &block)
         NsOptions::Helper.advisor.is_this_namespace_ok?(name, caller)
         key ||= name.to_s
