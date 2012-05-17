@@ -380,6 +380,8 @@ App.settings.required_set? # => true
 
 To check if an option is set it will simply check if the value is not `nil`. If you are using a custom type class though, you can define an `is_set?` method and this will be used to check if an option is set.
 
+The built in `required_set?` method checks to see if all the options for the namespace that have been marked `:required => true` are set.  It does not recursively check any child namespaces.
+
 #### Args
 
 Another rule that you can specify is args. This allows you to pass more arguments to a type class.
