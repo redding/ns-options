@@ -37,6 +37,7 @@ module NsOptions
       NsOptions::Helper.define_option_methods(self, option)
       option
     end
+    alias_method :opt, :option
 
     # Define a namespace under this namespace. Firstly, a new key is constructured from this current
     # namespace's key and the name for the new namespace. The namespace is then added to the
@@ -60,6 +61,7 @@ module NsOptions
       NsOptions::Helper.define_namespace_methods(self, name)
       namespace
     end
+    alias_method :ns, :namespace
 
     # The opposite of #to_hash. Takes a hash representation of options and namespaces and mass
     # assigns option values.

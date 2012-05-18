@@ -1,28 +1,63 @@
+require 'ns-options'
+
 module NsOptions::Proxy
 
   # Mix this in to any module or class to make it proxy a namespace
   # this means you can interact with the module/class/class-instance as
-  # if it were a namespace object itself.  For example:
+  # if it were a namespace object itself.
 
   NAMESPACE = "__proxy_options__"
 
   class << self
 
     def included(receiver)
-      receiver.class_eval do
-        include NsOptions
-        options(NAMESPACE)
-
-        extend ProxyMethods
-        include ProxyMethods
-      end
+      NsOptions::Helper.define_root_namespace_methods(receiver, NAMESPACE)
+      receiver.class_eval { extend ProxyMethods }
+      receiver.class_eval { include ProxyMethods } if receiver.kind_of?(Class)
     end
 
   end
 
   module ProxyMethods
 
-    # just proxy to the NAMESPACE created when Proxy was mixed in
+    # pass thru namespace methods to the proxied NAMESPACE handler
+
+    def option(*args, &block)
+      __proxy_options__.option(*args, &block)
+    end
+    alias_method :opt, :option
+
+    def namespace(*args, &block)
+      __proxy_options__.namespace(*args, &block)
+    end
+    alias_method :ns, :namespace
+
+    def apply(*args, &block)
+      __proxy_options__.apply(*args, &block)
+    end
+
+    def to_hash(*args, &block)
+      __proxy_options__.to_hash(*args, &block)
+    end
+
+    def each(*args, &block)
+      __proxy_options__.each(*args, &block)
+    end
+
+    def define(*args, &block)
+      __proxy_options__.define(*args, &block)
+    end
+
+    def required_set?(*args, &block)
+      __proxy_options__.required_set?(*args, &block)
+    end
+
+    def valid?(*args, &block)
+      __proxy_options__.valid?(*args, &block)
+    end
+
+    # for everything else, send to the proxied NAMESPACE handler
+    # at this point it really just enables setting dynamic options
 
     def method_missing(meth, *args, &block)
       if (po = self.__proxy_options__) && po.respond_to?(meth.to_s)

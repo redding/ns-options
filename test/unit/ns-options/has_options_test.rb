@@ -16,7 +16,7 @@ module NsOptions::HasOptions
     end
     subject{ @instance }
 
-    should have_class_methods :options
+    should have_class_methods :options, :opts
 
   end
 

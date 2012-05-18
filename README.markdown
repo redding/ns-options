@@ -89,6 +89,28 @@ App.settings.server # => NoMethodError
 App.settings.data.server # => 127.0.0.1:1234
 ```
 
+### Less Verbose Definitions
+
+As an alternative to the above definition syntax, you can use an alternate less-verbose syntax:
+* `opts` for `options`
+* `opt` for `option`
+* `ns`  for `namespace`
+
+```ruby
+module App
+  include NsOptions
+
+  opts :settings do
+    opt :root, Pathname
+    opt :stage
+
+    ns :other_stuff do
+      opt :something
+    end
+  end
+end
+```
+
 #### With Classes
 
 Using `NsOptions` on a `Class` uses namespaces to create separate sets of options for every instance of your class created. This allows every instance to have different values for the set of options and not interfere with each other. For example with the following:
@@ -358,6 +380,8 @@ App.settings.required_set? # => true
 
 To check if an option is set it will simply check if the value is not `nil`. If you are using a custom type class though, you can define an `is_set?` method and this will be used to check if an option is set.
 
+The built in `required_set?` method checks to see if all the options for the namespace that have been marked `:required => true` are set.  It does not recursively check any child namespaces.
+
 #### Args
 
 Another rule that you can specify is args. This allows you to pass more arguments to a type class.
@@ -387,7 +411,6 @@ Mix in NsOptions::Proxy to any module/class to make it proxy a namespace.  This 
 
 ```ruby
 module Something
-  include NsOptions
   include NsOptions::Proxy
 
   # define options directly
