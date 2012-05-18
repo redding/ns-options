@@ -317,7 +317,6 @@ class Thing
 
   options :is do
     option :hosted_at, HostedAt
-    option
   end
 end
 
