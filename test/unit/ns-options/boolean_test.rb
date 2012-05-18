@@ -80,4 +80,22 @@ class NsOptions::Boolean
     end
   end
 
+  class ComparatorTests < BaseTest
+    desc "when comparing for equality"
+    setup do
+      @true_bool   = NsOptions::Boolean.new true
+      @false_bool  = NsOptions::Boolean.new false
+    end
+
+    should "compare with other booleans" do
+      assert_equal NsOptions::Boolean.new(1), @true_bool
+      assert_equal NsOptions::Boolean.new(0), @false_bool
+    end
+
+    should "compare with true and false" do
+      assert_equal true, @true_bool
+      assert_equal false, @false_bool
+    end
+  end
+
 end
