@@ -50,10 +50,6 @@ module NsOptions::Proxy
       __proxy_options__.define(*args, &block)
     end
 
-    def inspect(*args, &block)
-      __proxy_options__.inspect(*args, &block)
-    end
-
     def required_set?(*args, &block)
       __proxy_options__.required_set?(*args, &block)
     end
