@@ -12,10 +12,8 @@ module NsOptions::Proxy
 
     def included(receiver)
       NsOptions::Helper.define_root_namespace_methods(receiver, NAMESPACE)
-      receiver.class_eval do
-        extend ProxyMethods
-        include ProxyMethods
-      end
+      receiver.class_eval { extend ProxyMethods }
+      receiver.class_eval { include ProxyMethods } if receiver.kind_of?(Class)
     end
 
   end
