@@ -9,7 +9,17 @@ class NsOptions::Boolean
     end
     subject{ @boolean }
 
-    should have_accessors :actual
+    should have_accessor :actual
+    should have_reader   :returned_value
+
+    should "return its handled value with the `actual` method" do
+      assert_equal true, subject.actual
+    end
+
+    should "return its handled value with the `returned_value` method" do
+      assert_equal true, subject.returned_value
+    end
+
   end
 
   class WithTruthyValuesTest < BaseTest

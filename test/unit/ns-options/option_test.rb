@@ -17,18 +17,23 @@ class NsOptions::Option
     should "have set the name" do
       assert_equal "stage", subject.name
     end
+
     should "have set the type class" do
       assert_equal String, subject.type_class
     end
+
     should "have set the rules" do
       assert_equal(@rules, subject.rules)
     end
+
     should "have defaulted value based on the rules" do
       assert_equal subject.rules[:default], subject.value
     end
+
     should "return true with a call to #required?" do
       assert_equal true, subject.required?
     end
+
     should "allow setting the value to nil" do
       subject.value = nil
       assert_nil subject.value
@@ -151,11 +156,13 @@ class NsOptions::Option
       subject.value = new_value
       assert_equal new_value, subject.value
     end
+
     should "allow setting it's value with a string and convert it" do
       new_value = "13.4"
       subject.value = new_value
       assert_equal new_value.to_f, subject.value
     end
+
     should "allow setting it's value with an integer and convert it" do
       new_value = 1
       subject.value = new_value
@@ -183,6 +190,7 @@ class NsOptions::Option
       subject.value = value
       assert_equal object_class.new.to_sym, subject.value
     end
+
     should "error on anything that doesn't define #to_sym" do
       assert_raises(NoMethodError) do
         subject.value = true
@@ -331,6 +339,68 @@ class NsOptions::Option
       @string_opt.value = @subclass_proc
       assert_kind_of String, @string_opt.value
       assert_equal "12345", @string_opt.value
+    end
+  end
+
+  class WithReturnValueTests < BaseTest
+    setup do
+      # test control values
+      @string    = NsOptions::Option.new(:string, String)
+      @symbol    = NsOptions::Option.new(:symbol, Symbol)
+      @integer   = NsOptions::Option.new(:integer, Integer)
+      @float     = NsOptions::Option.new(:float, Float)
+      @hash      = NsOptions::Option.new(:hash, Hash)
+      @array     = NsOptions::Option.new(:array, Array)
+      @proc      = NsOptions::Option.new(:proc, Proc)
+      @lazy_proc = NsOptions::Option.new(:lazy_proc)
+
+      # custom return value
+      class HostedAt
+        # sanitized :hosted_at config
+        #  remove any trailing '/'
+        #  ensure single leading '/'
+
+        def initialize(value)
+          @hosted_at = value.sub(/\/+$/, '').sub(/^\/*/, '/')
+        end
+
+        def returned_value
+          @hosted_at
+        end
+      end
+
+      @hosted_at = NsOptions::Option.new(:hosted_at, HostedAt)
+    end
+
+    should "return values normally when no `returned_value` is specified" do
+      @string.value = "test"
+      assert_equal "test", @string.value
+
+      @symbol.value = :test
+      assert_equal :test, @symbol.value
+
+      @integer.value = 1
+      assert_equal 1, @integer.value
+
+      @float.value = 1.1
+      assert_equal 1.1, @float.value
+
+      @hash.value = {:test => 'test'}
+      assert_equal({:test => 'test'}, @hash.value)
+
+      @array.value = ['test']
+      assert_equal ['test'], @array.value
+
+      @proc.value = Proc.new { 'test' }
+      assert_kind_of Proc, @proc.value
+
+      @lazy_proc.value = Proc.new { 'lazy test' }
+      assert_equal 'lazy test', @lazy_proc.value
+    end
+
+    should "should honor `returned_value` when returning option values" do
+      @hosted_at.value = "path/to/resource/"
+      assert_equal '/path/to/resource', @hosted_at.value
     end
   end
 
