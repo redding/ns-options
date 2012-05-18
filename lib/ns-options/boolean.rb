@@ -19,6 +19,10 @@ module NsOptions
       end
     end
 
+    def returned_value
+      self.actual
+    end
+
     protected
 
     def convert(value)

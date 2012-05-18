@@ -309,7 +309,45 @@ class Root < Pathname
 end
 ```
 
-With the revised `initialize` method, `NsOptions` will have no problems coercing values for your the type class. In some cases the above solution may not work for you, but don't worry. See the _Option Rules_ section for another way to solve this, specifically about the args rule. For an example of a custom type class, the included `NsOptions::Boolean` can be looked at. This is a special case, but it works as a type class with `NsOptions`.
+With the revised `initialize` method, `NsOptions` will have no problems coercing values for the type class. In some cases the above solution may not work for you, but don't worry. See the _Option Rules_ section for another way to solve this, specifically about the args rule. For an example of a custom type class, the included `NsOptions::Boolean` can be looked at. This is a special case, but it works as a type class with `NsOptions`.
+
+### Custom type class return values
+
+It may be useful to use a custom type class as a silent value handler.  You don't necessarily care that this option is some handler class - you just want flexible ways to set its value and get a meaningful return value when you read it.
+
+When reading option values, NsOptions will first check and see if the option value responds to the `returned_value` method.  If it does, NsOptions will return that value instead of the instance of the type class.  If not it will return the type class instance as normal.
+
+The included `NsOptions::Boolean` handler class does just this to ensure it always returns either `true` or `false`.  Here is another example:
+
+```ruby
+class HostedAt
+  # sanitized :hosted_at config
+  #  remove any trailing '/'
+  #  ensure single leading '/'
+
+  def initialize(value)
+    @hosted_at = value.sub(/\/+$/, '').sub(/^\/*/, '/')
+  end
+
+  def returned_value
+    @hosted_at
+  end
+end
+
+class Thing
+  include NsOptions
+
+  options :is do
+    option :hosted_at, HostedAt
+    option
+  end
+end
+
+thing = Thing.new
+thing.is.hosted_at  # => nil
+thing.is.hosted_at = "path/to/resource/"
+thing.is.hosted_at  # => "/path/to/resource"
+```
 
 ### Ruby Classes As A Type Class
 
@@ -336,7 +374,7 @@ Example.stuff.float = "5.0"
 Example.stuff.float # => 5.0, same as Float("5.0")
 ```
 
-`Symbol`, `Hash` and `Array` work, but ruby doesn't provide a built in type casting for these.
+`Symbol`, `Hash` and `Array` work, but ruby doesn't provide built in type casting for these.
 
 ```ruby
 Example.stuff.symbol = "awesome"
@@ -456,7 +494,7 @@ end
 
 ## License
 
-Copyright (c) 2011 Collin Redding and Team Insight
+Copyright (c) 2011-Present Collin Redding and Team Insight
 
 Permission is hereby granted, free of charge, to any person
 obtaining a copy of this software and associated documentation
