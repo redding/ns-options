@@ -49,11 +49,34 @@ module NsOptions::Proxy
     setup do
       @mod = Module.new do
         include NsOptions::Proxy
+
+        option :test
       end
     end
     subject { @mod }
 
     should proxy_a_namespace
+
+    should "allow building from a hash of key-values" do
+      subject.new('test' => 1, 'more' => 2)
+
+      assert_equal 1, subject.test
+      assert_equal 2, subject.more
+    end
+
+    should "take `new` method overrides" do
+      @newmod = Module.new do
+        include NsOptions::Proxy
+
+        def self.new
+          # nothing
+        end
+      end
+
+      assert_raises ArgumentError do
+        @newmod.new('test' => 1, 'more' => 2)
+      end
+    end
 
   end
 
@@ -62,6 +85,8 @@ module NsOptions::Proxy
     setup do
       @cls = Class.new do
         include NsOptions::Proxy
+
+        option :test
       end
     end
 
@@ -76,6 +101,27 @@ module NsOptions::Proxy
   class InstanceLevelTests < ClassTests
     subject { @cls.new }
     should proxy_a_namespace
+
+    should "allow building from a hash of key-values" do
+      thing = @cls.new(:test => 1, :more => 2)
+
+      assert_equal 1, thing.test
+      assert_equal 2, thing.more
+    end
+
+    should "take init method overrides" do
+      @newcls = Class.new do
+        include NsOptions::Proxy
+
+        def initialize
+          # nothing
+        end
+      end
+
+      assert_raises ArgumentError do
+        @newcls.new('test' => 1, 'more' => 2)
+      end
+    end
 
   end
 
