@@ -11,6 +11,14 @@ module NsOptions
       @actual = self.convert(new_value)
     end
 
+    def ==(other_boolean)
+      if other_boolean.kind_of?(Boolean)
+        self.actual == other_boolean.actual
+      else
+        self.actual == other_boolean
+      end
+    end
+
     protected
 
     def convert(value)
