@@ -14,6 +14,26 @@ module NsOptions::Proxy
       NsOptions::Helper.define_root_namespace_methods(receiver, NAMESPACE)
       receiver.class_eval { extend ProxyMethods }
       receiver.class_eval { include ProxyMethods } if receiver.kind_of?(Class)
+
+      # default initializer method
+
+      if receiver.kind_of?(Class)
+        receiver.class_eval do
+
+          def initialize(configs={})
+            self.apply(configs || {})
+          end
+
+        end
+      else # Module
+        receiver.class_eval do
+
+          def self.new(configs={})
+            self.apply(configs || {})
+          end
+
+        end
+      end
     end
 
   end

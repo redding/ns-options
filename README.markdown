@@ -491,6 +491,44 @@ module Something
 end
 ```
 
+### Proxy initialization
+
+Mixing in Proxy with mixin a default initializer for you as well.  This initializer allows you to call `new` on your proxy, passing it a hash of key-values.  These key values will be applied to the proxy using the `Namespace#apply` logic.  This allows you to use Proxy objects as option types and maintain the option type-casting and defaulting behavior.
+
+A Module example
+
+```ruby
+module Things
+  include NsOptions::Proxy
+
+  option :one
+  option :two
+end
+
+# proxy defines a `new` method that takes a hash arg and
+# applies it to the proxy
+t = Thing.new(:one => 1, :two => 2, :three => 3)
+
+# the values have been applied
+t.to_hash  # => {:one => 1, :two => 2, :three => 3}
+```
+
+# A Class example
+
+```
+class Thing
+  include NsOptions::Proxy
+
+  option :one
+  option :two
+end
+
+# proxy defines an `initialize` method that takes a hash arg and
+# applies it to the proxy
+t = Thing.new(:one => 1, :two => 2, :three => 3)
+t.to_hash  # => {:one => 1, :two => 2, :three => 3}
+```
+
 ## License
 
 Copyright (c) 2011-Present Collin Redding and Team Insight
