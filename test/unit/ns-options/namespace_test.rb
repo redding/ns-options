@@ -400,5 +400,20 @@ class NsOptions::Namespace
   end
 
 
+  class EqualityTests < HandlingTests
+    desc "when compared to another namespace with the same named values"
+    setup do
+      @namespace.apply(@named_values)
+
+      @other_ns = NsOptions::Namespace.new('other_something')
+      @other_ns.apply(@named_values)
+    end
+
+    should "be equal to the other namespace" do
+      assert_equal @other_ns, @namespace
+    end
+  end
+
+
 
 end

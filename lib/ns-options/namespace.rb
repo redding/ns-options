@@ -116,6 +116,10 @@ module NsOptions
       self
     end
 
+    def ==(other_ns)
+      self.to_hash == other_ns.to_hash
+    end
+
     # There are a number of cases we want to watch for:
     # 1. A reader of a 'known' option. This case is for an option that's been defined for an
     #    ancestor of this namespace but not directly for this namespace. In this case we fetch
