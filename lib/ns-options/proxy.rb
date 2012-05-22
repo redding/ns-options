@@ -81,6 +81,11 @@ module NsOptions::Proxy
       __proxy_options__.valid?(*args, &block)
     end
 
+    def inspect(*args, &block)
+      # __proxy_options__.inspect(*args, &block)
+      "#<#{self.class}:#{'0x%x' % (self.object_id << 1)}:#{__proxy_options__.options.key} #{__proxy_options__.to_hash.inspect}>"
+    end
+
     # for everything else, send to the proxied NAMESPACE handler
     # at this point it really just enables setting dynamic options
 
