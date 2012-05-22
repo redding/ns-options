@@ -15,19 +15,24 @@ module NsOptions::Proxy
       receiver.class_eval { extend ProxyMethods }
       receiver.class_eval { include ProxyMethods } if receiver.kind_of?(Class)
 
-      # default initializer method
-
       if receiver.kind_of?(Class)
         receiver.class_eval do
 
+          # default initializer method
           def initialize(configs={})
             self.apply(configs || {})
+          end
+
+          # equality method override for class-instance proxies
+          def ==(other_proxy_instance)
+            __proxy_options__ == other_proxy_instance.__proxy_options__
           end
 
         end
       else # Module
         receiver.class_eval do
 
+          # default initializer method
           def self.new(configs={})
             self.apply(configs || {})
           end
