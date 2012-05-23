@@ -125,4 +125,23 @@ module NsOptions::Proxy
 
   end
 
+  class EqualityTests < InstanceLevelTests
+    desc "two class instance proxies with the same option values"
+    setup do
+      @proxy1 = @cls.new
+      @proxy2 = @cls.new
+
+      @option_values = {:test => 1, :more => 2}
+
+      @proxy1.apply(@option_values)
+      @proxy2.apply(@option_values)
+    end
+
+    should "be equal to the each other" do
+      assert_equal @proxy2, @proxy1
+    end
+
+
+  end
+
 end
