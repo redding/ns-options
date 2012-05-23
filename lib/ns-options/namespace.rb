@@ -117,7 +117,11 @@ module NsOptions
     end
 
     def ==(other_ns)
-      self.to_hash == other_ns.to_hash
+      if other_ns.kind_of? Namespace
+        self.to_hash == other_ns.to_hash
+      else
+        super
+      end
     end
 
     # There are a number of cases we want to watch for:

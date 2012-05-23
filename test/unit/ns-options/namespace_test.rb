@@ -401,17 +401,30 @@ class NsOptions::Namespace
 
 
   class EqualityTests < HandlingTests
-    desc "when compared to another namespace with the same named values"
+    desc "when compared for equality"
     setup do
       @namespace.apply(@named_values)
-
-      @other_ns = NsOptions::Namespace.new('other_something')
-      @other_ns.apply(@named_values)
     end
 
-    should "be equal to the other namespace" do
-      assert_equal @other_ns, @namespace
+    should "be equal to another namespace with the same named values" do
+      other_ns = NsOptions::Namespace.new('other_something')
+      other_ns.apply(@named_values)
+
+      assert_equal other_ns, @namespace
     end
+
+    should "not be equal to another namespace with different values" do
+      other_ns = NsOptions::Namespace.new('other_something')
+      other_ns.apply({:other => 'data'})
+
+      assert_not_equal other_ns, @namespace
+    end
+
+    should "not be equal to other things" do
+      assert_not_equal 1, @namespace
+      assert_not_equal @named_value, @namespace
+    end
+
   end
 
 
