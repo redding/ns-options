@@ -2,4 +2,4 @@
 require "bundler/gem_tasks"
 
 require 'assert/rake_tasks'
-Assert::RakeTasks.for :test
+Assert::RakeTasks.install
