@@ -1,4 +1,5 @@
 require 'ns-options'
+require 'ns-options/root_methods'
 
 module NsOptions::Proxy
 
@@ -11,8 +12,8 @@ module NsOptions::Proxy
   class << self
 
     def included(receiver)
-      NsOptions::Helper.define_root_namespace_methods(receiver, NAMESPACE)
-      receiver.class_eval { extend ProxyMethods }
+      NsOptions::RootMethods.new(receiver, NAMESPACE).define
+      receiver.class_eval { extend  ProxyMethods }
       receiver.class_eval { include ProxyMethods } if receiver.kind_of?(Class)
 
       if receiver.kind_of?(Class)
@@ -47,43 +48,22 @@ module NsOptions::Proxy
 
     # pass thru namespace methods to the proxied NAMESPACE handler
 
-    def option(*args, &block)
-      __proxy_options__.option(*args, &block)
-    end
+    def option(*args, &block); __proxy_options__.option(*args, &block); end
     alias_method :opt, :option
 
-    def namespace(*args, &block)
-      __proxy_options__.namespace(*args, &block)
-    end
+    def namespace(*args, &block); __proxy_options__.namespace(*args, &block); end
     alias_method :ns, :namespace
 
-    def apply(*args, &block)
-      __proxy_options__.apply(*args, &block)
-    end
+    def apply(*args, &block);   __proxy_options__.apply(*args, &block);   end
+    def to_hash(*args, &block); __proxy_options__.to_hash(*args, &block); end
+    def each(*args, &block);    __proxy_options__.each(*args, &block);    end
+    def define(*args, &block);  __proxy_options__.define(*args, &block);  end
 
-    def to_hash(*args, &block)
-      __proxy_options__.to_hash(*args, &block)
-    end
-
-    def each(*args, &block)
-      __proxy_options__.each(*args, &block)
-    end
-
-    def define(*args, &block)
-      __proxy_options__.define(*args, &block)
-    end
-
-    def required_set?(*args, &block)
-      __proxy_options__.required_set?(*args, &block)
-    end
-
-    def valid?(*args, &block)
-      __proxy_options__.valid?(*args, &block)
-    end
+    def required_set?(*args, &block); __proxy_options__.required_set?(*args, &block); end
+    def valid?(*args, &block);        __proxy_options__.valid?(*args, &block);        end
 
     def inspect(*args, &block)
-      # __proxy_options__.inspect(*args, &block)
-      "#<#{self.class}:#{'0x%x' % (self.object_id << 1)}:#{__proxy_options__.options.key} #{__proxy_options__.to_hash.inspect}>"
+      "#<#{self.class}:#{'0x%x' % (self.object_id << 1)}:#{__proxy_options__.__data__.name} #{__proxy_options__.to_hash.inspect}>"
     end
 
     # for everything else, send to the proxied NAMESPACE handler
