@@ -1,6 +1,5 @@
 require 'ns-options/root_methods'
 require 'ns-options/proxy'
-require 'ns-options/helper'
 
 module NsOptions
 
@@ -15,8 +14,7 @@ module NsOptions
     # an additional instance method for classes.
 
     def options(name, &block)
-      NsOptions::Helper.advisor.is_this_namespace_ok?(name, caller)
-      NsOptions::RootMethods.new(self, name).define
+      NsOptions::RootMethods.new(self, name).define($stdout, caller)
       self.send(name, &block)
     end
     alias_method :opts,      :options

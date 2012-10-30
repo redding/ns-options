@@ -34,10 +34,6 @@ class NsOptions::Namespace
 
   class OptionMethTests < OptionTests
     desc "option method"
-    teardown do
-      # TODO: why?
-      NsOptions::Helper.unstub(:advisor)
-    end
     subject{ @namespace }
 
     should "add an option to the namespace" do
@@ -56,15 +52,19 @@ class NsOptions::Namespace
       assert_equal option, @added_opt
     end
 
-    should "check if the option name is ok" do
-      # TODO: needed??
-      advisor = NsOptions::Helper::Advisor.new(@namespace)
-      NsOptions::Helper.expects(:advisor).with(@namespace).returns(advisor)
-      advisor.expects(:is_this_option_ok?)
-      assert_nothing_raised do
-        @namespace.option(:amazing)
+    should "advise on the option name" do
+      not_recommended_warn = NsOptions::TestOutput.capture do
+        subject.option 'to_hash'
       end
+      assert_match 'WARNING: ', not_recommended_warn
+
+      subject.option 'opt1'
+      duplicate_warn = NsOptions::TestOutput.capture do
+        subject.option 'opt1'
+      end
+      assert_match 'WARNING: ', duplicate_warn
     end
+
   end
 
   class AddedOptionTests < OptionTests
@@ -101,9 +101,6 @@ class NsOptions::Namespace
 
   class NamespaceMethTests < NamespaceTests
     desc "namespace method"
-    teardown do
-      NsOptions::Helper.unstub(:advisor)
-    end
 
     should "add a child namespace to the namespace" do
       assert subject.has_namespace? :something
@@ -113,14 +110,17 @@ class NsOptions::Namespace
       assert_kind_of NsOptions::Option, ns.__data__.child_options[:something_else]
     end
 
-    should "check if the namespace name is ok" do
-      # TODO: needed??
-      advisor = NsOptions::Helper::Advisor.new(@namespace)
-      NsOptions::Helper.expects(:advisor).with(@namespace).returns(advisor)
-      advisor.expects(:is_this_sub_namespace_ok?)
-      assert_nothing_raised do
-        @namespace.namespace(:yet_another)
+    should "advise the namespace name" do
+      not_recommended_warn = NsOptions::TestOutput.capture do
+        subject.namespace 'to_hash'
       end
+      assert_match 'WARNING: ', not_recommended_warn
+
+      subject.namespace 'opt1'
+      duplicate_warn = NsOptions::TestOutput.capture do
+        subject.namespace 'opt1'
+      end
+      assert_match 'WARNING: ', duplicate_warn
     end
 
   end

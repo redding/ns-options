@@ -1,5 +1,5 @@
 require 'ns-options/namespace_data'
-require 'ns-options/helper'
+require 'ns-options/namespace_advisor'
 
 module NsOptions
 
@@ -8,18 +8,18 @@ module NsOptions
     attr_reader :__data__
 
     def initialize(name, &block)
-      @__data__ = NsOptions::NamespaceData.new(self, name)
+      @__data__ = NamespaceData.new(self, name)
       @__data__.define(&block)
     end
 
-    def option(*args)
-      NsOptions::Helper.advisor(@__data__).is_this_option_ok?(args[0], caller)
-      @__data__.add_option(*args)
+    def option(name, *args)
+      NamespaceAdvisor.new(@__data__, name, 'an option').run($stdout, caller)
+      @__data__.add_option(name, *args)
     end
     alias_method :opt, :option
 
     def namespace(name, &block)
-      NsOptions::Helper.advisor(@__data__).is_this_sub_namespace_ok?(name, caller)
+      NamespaceAdvisor.new(@__data__, name, 'a namespace').run($stdout, caller)
       @__data__.add_namespace(name, &block)
     end
     alias_method :ns, :namespace
@@ -56,8 +56,8 @@ module NsOptions
     alias_method :valid?, :required_set?
 
     def define(*args, &block);  @__data__.define(*args, &block);         end
-    def apply(*args, &block);   @__data__.apply(*args, &block);          end
     def build_from(other_ns);   @__data__.build_from(other_ns.__data__); end
+    def apply(*args, &block);   @__data__.apply(*args, &block);          end
     def to_hash(*args, &block); @__data__.to_hash(*args, &block);        end
     def each(*args, &block);    @__data__.each(*args, &block);           end
 

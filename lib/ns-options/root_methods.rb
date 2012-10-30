@@ -19,16 +19,29 @@ module NsOptions
       !!@define_on.kind_of?(::Class)
     end
 
-    def define
+    def define(io=nil, from_caller=nil)
+      validate(io || $stdout, from_caller || caller)
+
       # covers defining the class-level method on Modules or Classes
       @class_meth_extension.class_eval class_meth_extension_code
-      @define_on.extend @class_meth_extension
+      @define_on.send :extend, @class_meth_extension
 
       if define_on_class?
         # covers defining the instance-level method on Classes
         @instance_meth_mixin.class_eval instance_meth_mixin_code
         @define_on.send :include, @instance_meth_mixin
       end
+    end
+
+    def validate(io, from_caller)
+      return true unless [:options, :opts, :namespace, :ns].include?(@name.to_sym)
+
+      io.puts "WARNING: Defining an option namespace with the name `#{@name}'"\
+              " overwrites a method NsOptions depends on.  You won't be able to"\
+              " define any additional option namespaces using the `#{@name}'"\
+              " method."
+      io.puts from_caller.first
+      false
     end
 
     private

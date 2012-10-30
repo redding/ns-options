@@ -11,7 +11,40 @@ class NsOptions::RootMethods
     end
     subject { @rm }
 
-    should have_imeths :define_on_class?, :define
+    should have_imeths :define_on_class?, :define, :validate
+
+  end
+
+  class ValidateTests < BaseTests
+    desc "validate meth"
+    setup do
+      @io = StringIO.new(@out = "")
+      @caller = ["a test caller"]
+    end
+
+    should "return false for :options, :opts, :namespace, :ns names" do
+      [:options, :opts, :namespace, :ns].each do |meth|
+        rm = NsOptions::RootMethods.new(Module.new, meth)
+        assert_equal false, rm.validate(@io, @caller)
+      end
+
+      rm = NsOptions::RootMethods.new(Module.new, "anything_else")
+      assert_equal true, rm.validate(@io, @caller)
+    end
+
+    should "write a warning and any caller info" do
+      NsOptions::RootMethods.new(Module.new, :ns).validate(@io, @caller)
+
+      assert_match "WARNING: ", @out
+      assert_match @caller.first, @out
+    end
+
+    should "be called when calling `define'" do
+      NsOptions::RootMethods.new(Module.new, :ns).define(@io, @caller)
+
+      assert_match "WARNING: ", @out
+      assert_match @caller.first, @out
+    end
 
   end
 
