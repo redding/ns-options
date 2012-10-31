@@ -3,7 +3,6 @@ require 'ns-options/boolean'
 
 class User
 
-  # mixin using the specific HasOptions variant
   include NsOptions
 
   options(:preferences) do
