@@ -1,5 +1,5 @@
 require 'ns-options'
-require 'ns-options/root_methods'
+require 'ns-options/proxy_method'
 
 module NsOptions::Proxy
 
@@ -20,7 +20,7 @@ module NsOptions::Proxy
         receiver.class_eval do
 
           # default initializer method
-          def initialize(configs={})
+          def initialize(configs=nil)
             self.apply(configs || {})
           end
 
@@ -34,7 +34,7 @@ module NsOptions::Proxy
         receiver.class_eval do
 
           # default initializer method
-          def self.new(configs={})
+          def self.new(configs=nil)
             self.apply(configs || {})
           end
 
@@ -48,10 +48,16 @@ module NsOptions::Proxy
 
     # pass thru namespace methods to the proxied NAMESPACE handler
 
-    def option(*args, &block); __proxy_options__.option(*args, &block); end
+    def option(name, *args, &block)
+      __proxy_options__.option(name, *args, &block)
+      NsOptions::ProxyMethod.new(self, name, 'an option').define($stdout, caller)
+    end
     alias_method :opt, :option
 
-    def namespace(*args, &block); __proxy_options__.namespace(*args, &block); end
+    def namespace(name, *args, &block)
+      __proxy_options__.namespace(name, *args, &block)
+      NsOptions::ProxyMethod.new(self, name, 'a namespace').define($stdout, caller)
+    end
     alias_method :ns, :namespace
 
     def apply(*args, &block);   __proxy_options__.apply(*args, &block);   end
@@ -67,10 +73,11 @@ module NsOptions::Proxy
     end
 
     # for everything else, send to the proxied NAMESPACE handler
-    # at this point it really just enables setting dynamic options
+    # at this point it really just enables dynamic options writers
+    # TODO: namespace needs to respond to dynamic writers
 
     def method_missing(meth, *args, &block)
-      if (po = self.__proxy_options__) && po.respond_to?(meth.to_s)
+      if (po = __proxy_options__) && po.respond_to?(meth.to_s)
         po.send(meth.to_s, *args, &block)
       else
         super

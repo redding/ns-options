@@ -9,8 +9,7 @@ module NsOptions
     # class level namespace but with an identical definition
 
     def initialize(define_on, name)
-      @define_on = define_on
-      @name = name
+      @define_on, @name = define_on, name
       @class_meth_extension = Module.new
       @instance_meth_mixin = Module.new
     end
@@ -49,7 +48,7 @@ module NsOptions
     # TODO: inherited hook to build_from and apply on the subclass root meth
     def class_meth_extension_code
       %{
-        def #{@name}(&block)
+        def #{@name}(*args, &block)
           @#{@name} ||= NsOptions::Namespace.new('#{@name}', &block)
         end
       }
@@ -57,7 +56,7 @@ module NsOptions
 
     def instance_meth_mixin_code
       %{
-        def #{@name}(&block)
+        def #{@name}(*args, &block)
           unless @#{@name}
             @#{@name} = NsOptions::Namespace.new('#{@name}', &block)
             @#{@name}.build_from(self.class.#{@name})
