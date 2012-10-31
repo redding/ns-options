@@ -1,4 +1,5 @@
 require 'assert'
+require 'ns-options/boolean'
 
 class NsOptions::Boolean
 
