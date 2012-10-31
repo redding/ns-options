@@ -74,7 +74,6 @@ module NsOptions::Proxy
 
     # for everything else, send to the proxied NAMESPACE handler
     # at this point it really just enables dynamic options writers
-    # TODO: namespace needs to respond to dynamic writers
 
     def method_missing(meth, *args, &block)
       if (po = __proxy_options__) && po.respond_to?(meth.to_s)

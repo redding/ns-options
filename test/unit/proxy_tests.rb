@@ -125,6 +125,32 @@ module NsOptions::Proxy
 
   end
 
+  class DynamicOptionWriterTests < BaseTests
+    setup do
+      @mod = Module.new do
+        include NsOptions::Proxy
+
+        option :test
+      end
+    end
+    subject { @mod }
+
+    should "write non-pre-defined values as Object options" do
+      assert_not subject.has_option? :not_pre_defined
+      assert_responds_to :not_pre_defined=, subject
+      assert_not_responds_to :not_pre_defined, subject
+
+      assert_nothing_raised { subject.not_pre_defined = 123 }
+
+      assert subject.has_option? :not_pre_defined
+      assert_responds_to :not_pre_defined, subject
+
+      assert_equal 123, subject.not_pre_defined
+      assert_equal Object, subject.__data__.child_options['not_pre_defined'].type_class
+    end
+
+  end
+
   class EqualityTests < InstanceLevelTests
     desc "two class instance proxies with the same option values"
     setup do

@@ -25,9 +25,10 @@ module NsOptions
     alias_method :ns, :namespace
 
     def respond_to?(meth)
-      # TODO: respond_to dynamic writers
-      data_name = meth.to_s.gsub("=", "")
-      has_option?(data_name) || has_namespace?(data_name) || super
+      name = meth.to_s.gsub("=", "")
+      dynamic_writer = !!(meth.to_s =~ /=\Z/)
+
+      has_option?(name) || has_namespace?(name) || dynamic_writer || super
     end
 
     def method_missing(meth, *args, &block)
