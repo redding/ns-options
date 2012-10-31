@@ -1,3 +1,5 @@
+require 'ns-options'
+
 module NsOptions
   class Boolean
 

@@ -1,11 +1,13 @@
+require 'ns-options'
 require 'ns-options/boolean'
+require 'logger'
 
 module App
 
   # mixin on just the top-level NsOptions variant
   include NsOptions
 
-  options(:settings, "settings:app") do
+  options(:settings) do
     option :root,   Pathname
     option :stage
     option :logger, Logger

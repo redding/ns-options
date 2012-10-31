@@ -32,7 +32,7 @@ module NsOptions::AssertMacros
       Assert::Macro.new(macro_name) do
         options.each do |opt|
           should "have an option named '#{opt}'", called_from do
-            assert subject.has_option(opt)
+            assert subject.has_option?(opt)
           end
         end
       end
@@ -52,7 +52,7 @@ module NsOptions::AssertMacros
         should test_name do
 
           # have assertions
-          assert subject.has_option(opt_name)
+          assert subject.has_option?(opt_name)
           opt = subject.__data__.child_options[opt_name]
           assert_kind_of NsOptions::Option, opt
 

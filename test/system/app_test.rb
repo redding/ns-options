@@ -1,8 +1,9 @@
 require 'assert'
+require 'test/support/app'
 
 module App
 
-  class BaseTest < Assert::Context
+  class BaseTests < Assert::Context
     desc "the App module"
     setup do
       @module = App
@@ -13,7 +14,7 @@ module App
 
   end
 
-  class DefineTest < BaseTest
+  class DefineTests < BaseTests
     desc "defined"
     setup do
       stage = @stage = "test"
@@ -32,9 +33,9 @@ module App
     end
     subject{ @module.settings }
 
-    should have_instance_methods :namespace, :option, :define, :options, :metaclass
+    should have_instance_methods :namespace, :option, :define
     should have_accessors :stage, :root, :logger
-    should have_instance_methods :sub
+    should have_readers   :sub
 
     should "have set the stage to 'test'" do
       assert_equal @stage, subject.stage
@@ -46,7 +47,7 @@ module App
 
     should "have set the logger to the passed logger" do
       assert_equal @logger, subject.logger
-      assert_same @logger, subject.logger
+      assert_same  @logger, subject.logger
     end
 
     should "have set its self_stage option to its stage" do
@@ -56,13 +57,14 @@ module App
 
   end
 
-  class SubNamespaceTest < DefineTest
+  class SubNamespaceTests < DefineTests
     desc "the sub namespace"
     subject{ @module.settings.sub }
 
     should "have set the run_commands option" do
       assert_equal @run, subject.run_commands
     end
+
   end
 
 end
