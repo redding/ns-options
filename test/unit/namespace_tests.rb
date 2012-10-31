@@ -105,9 +105,18 @@ class NsOptions::Namespace
     should "add a child namespace to the namespace" do
       assert subject.has_namespace? :something
 
-      ns = subject.__data__.child_namespaces[:something]
+      ns = subject.something
+      assert_kind_of NsOptions::Namespace, ns
       assert_equal 'something', ns.__data__.name
-      assert_kind_of NsOptions::Option, ns.__data__.child_options[:something_else]
+      assert ns.has_option? :something_else
+    end
+
+    should "define on the namespace if it is called with a block" do
+      ns = subject.something
+      assert_not ns.has_option? :defined_later
+
+      subject.something { option :defined_later }
+      assert ns.has_option? :defined_later
     end
 
     should "advise the namespace name" do

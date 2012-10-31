@@ -39,7 +39,7 @@ module NsOptions
         @__data__.get_option(data_name)
       elsif has_namespace?(data_name)
         # read a known child namespace
-        @__data__.get_namespace(data_name)
+        @__data__.get_namespace(data_name).define(&block)
       elsif !args.empty?
         # add and set a new child option (dynamic writer)
         @__data__.add_option(data_name)
