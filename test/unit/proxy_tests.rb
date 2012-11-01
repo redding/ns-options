@@ -125,6 +125,24 @@ module NsOptions::Proxy
 
   end
 
+  class EqualityTests < InstanceLevelTests
+    desc "two class instance proxies with the same option values"
+    setup do
+      @proxy1 = @cls.new
+      @proxy2 = @cls.new
+
+      @option_values = {:test => 1, :more => 2}
+
+      @proxy1.apply(@option_values)
+      @proxy2.apply(@option_values)
+    end
+
+    should "be equal to the each other" do
+      assert_equal @proxy2, @proxy1
+    end
+
+  end
+
   class DynamicOptionWriterTests < BaseTests
     setup do
       @mod = Module.new do
@@ -151,22 +169,24 @@ module NsOptions::Proxy
 
   end
 
-  class EqualityTests < InstanceLevelTests
-    desc "two class instance proxies with the same option values"
+  class InheritedTests < BaseTests
+    desc "when inherited"
     setup do
-      @proxy1 = @cls.new
-      @proxy2 = @cls.new
+      @a_super_class = Class.new do
+        include NsOptions::Proxy
 
-      @option_values = {:test => 1, :more => 2}
-
-      @proxy1.apply(@option_values)
-      @proxy2.apply(@option_values)
+        option :test
+        namespace(:other) { option :stuff }
+      end
     end
 
-    should "be equal to the each other" do
-      assert_equal @proxy2, @proxy1
-    end
+    should "pass its definition to any subclass" do
+      a_sub_class = Class.new(@a_super_class)
 
+      assert a_sub_class.has_option? :test
+      assert a_sub_class.has_namespace? :other
+      assert a_sub_class.other.has_option? :stuff
+    end
 
   end
 

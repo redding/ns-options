@@ -39,3 +39,15 @@ class SomeProxySomeThingTests < SomeProxyIntTests
   end
 
 end
+
+class SomeProxySomeOtherThingTests < SomeProxyIntTests
+  desc "that has a class inherited from another proxy object"
+  setup do
+    @proxy = SomeProxy::SomeOtherThing.new
+  end
+
+  # should "have the same definition as its superclass"
+  should have_namespace :more
+  should have_options :value1, :value2
+
+end
