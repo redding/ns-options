@@ -1,8 +1,9 @@
 require 'assert'
+require 'ns-options/boolean'
 
 class NsOptions::Boolean
 
-  class BaseTest < Assert::Context
+  class BaseTests < Assert::Context
     desc "NsOptions::Boolean"
     setup do
       @boolean = NsOptions::Boolean.new(true)
@@ -22,7 +23,7 @@ class NsOptions::Boolean
 
   end
 
-  class WithTruthyValuesTest < BaseTest
+  class WithTruthyValuesTests < BaseTests
     desc "with truthy values"
     setup do
       @boolean = NsOptions::Boolean.new(nil)
@@ -54,7 +55,7 @@ class NsOptions::Boolean
     end
   end
 
-  class WithFalsyValuesTest < BaseTest
+  class WithFalsyValuesTests < BaseTests
     desc "with falsy values"
     setup do
       @boolean = NsOptions::Boolean.new(nil)
@@ -90,7 +91,7 @@ class NsOptions::Boolean
     end
   end
 
-  class ComparatorTests < BaseTest
+  class ComparatorTests < BaseTests
     desc "when comparing for equality"
     setup do
       @true_bool   = NsOptions::Boolean.new true

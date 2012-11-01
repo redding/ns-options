@@ -1,13 +1,12 @@
-module NsOptions; end
+require 'ns-options'
+
 module NsOptions::AssertMacros
 
   # a set of Assert macros to help write namespace definition and
   # regression tests in Assert (https://github.com/teaminsight/assert)
 
   def self.included(receiver)
-    receiver.class_eval do
-      extend MacroMethods
-    end
+    receiver.class_eval { extend MacroMethods }
   end
 
   module MacroMethods
@@ -19,8 +18,7 @@ module NsOptions::AssertMacros
       Assert::Macro.new(macro_name) do
         namespaces.each do |ns|
           should "have a namespace named '#{ns}'", called_from do
-            assert_respond_to ns, subject
-            assert_kind_of NsOptions::Namespace, subject.send(ns)
+            assert subject.has_namespace?(ns)
           end
         end
       end
@@ -34,8 +32,7 @@ module NsOptions::AssertMacros
       Assert::Macro.new(macro_name) do
         options.each do |opt|
           should "have an option named '#{opt}'", called_from do
-            assert_respond_to opt, subject
-            assert_kind_of NsOptions::Option, subject.options[opt]
+            assert subject.has_option?(opt)
           end
         end
       end
@@ -53,10 +50,10 @@ module NsOptions::AssertMacros
       Assert::Macro.new(test_name) do
 
         should test_name do
-          # name assertions
-          assert_respond_to opt_name, subject
 
-          opt = subject.options[opt_name]
+          # have assertions
+          assert subject.has_option?(opt_name)
+          opt = subject.__data__.child_options[opt_name]
           assert_kind_of NsOptions::Option, opt
 
           # type_class assertions

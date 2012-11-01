@@ -1,7 +1,6 @@
 module NsOptions
 
   class Option
-    attr_accessor :name, :value, :type_class, :rules
 
     def self.rules(rules)
       (rules || {}).tap do |r|
@@ -17,6 +16,8 @@ module NsOptions
         args[0].to_s
       ]
     end
+
+    attr_accessor :name, :value, :type_class, :rules
 
     def initialize(*args)
       self.rules, self.type_class, self.name = self.class.args(*args)

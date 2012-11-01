@@ -2,7 +2,7 @@ require 'assert'
 
 class NsOptions::Option
 
-  class BaseTest < Assert::Context
+  class BaseTests < Assert::Context
     desc "NsOptions::Option"
     setup do
       @rules = { :default => "development", :require => true }
@@ -40,7 +40,7 @@ class NsOptions::Option
     end
   end
 
-  class ParseRulesTests < BaseTest
+  class ParseRulesTests < BaseTests
     desc "parsing rules"
     setup do
       @cases = [nil, {}, {:args => 'is'}].map do |c|
@@ -61,7 +61,7 @@ class NsOptions::Option
 
   end
 
-  class ParseArgsTests < BaseTest
+  class ParseArgsTests < BaseTests
     desc "when parsing args"
     setup do
       @prules, @ptype_class, @pname = subject.class.args(*@args)
@@ -90,7 +90,7 @@ class NsOptions::Option
 
   end
 
-  class IsSetTest < BaseTest
+  class IsSetTests < BaseTests
     desc "is_set method"
     setup do
       @type_class = Class.new(String) do
@@ -125,7 +125,7 @@ class NsOptions::Option
 
   end
 
-  class EqualityOperatorTest < BaseTest
+  class EqualityOperatorTests < BaseTests
     desc "== operator"
     setup do
       @first = NsOptions::Option.new(:stage, String)
@@ -142,9 +142,10 @@ class NsOptions::Option
       @first.value = "staging"
       assert_not_equal @first, @second
     end
+
   end
 
-  class WithNativeTypeClassTest < BaseTest
+  class WithNativeTypeClassTests < BaseTests
     desc "with a native type class (Float)"
     setup do
       @option = NsOptions::Option.new(:something, Float)
@@ -168,9 +169,10 @@ class NsOptions::Option
       subject.value = new_value
       assert_equal new_value.to_f, subject.value
     end
+
   end
 
-  class WithSymbolTypeClasstest < BaseTest
+  class WithSymbolTypeClasstests < BaseTests
     desc "with a Symbol as a type class"
     setup do
       @option = NsOptions::Option.new(:something, Symbol)
@@ -196,9 +198,10 @@ class NsOptions::Option
         subject.value = true
       end
     end
+
   end
 
-  class WithHashTypeClassTest < BaseTest
+  class WithHashTypeClassTests < BaseTests
     desc "with a Hash as a type class"
     setup do
       @option = NsOptions::Option.new(:something, Hash)
@@ -210,9 +213,10 @@ class NsOptions::Option
       subject.value = new_value
       assert_equal new_value, subject.value
     end
+
   end
 
-  class WithArrayTypeClassTest < BaseTest
+  class WithArrayTypeClassTests < BaseTests
     desc "with an Array as a type class"
     setup do
       @option = NsOptions::Option.new(:something, Array)
@@ -224,9 +228,10 @@ class NsOptions::Option
       subject.value = new_value
       assert_equal new_value, subject.value
     end
+
   end
 
-  class WithoutTypeClassTest < BaseTest
+  class WithoutTypeClassTests < BaseTests
     desc "without a type class provided"
     setup do
       @option = NsOptions::Option.new(:something, nil)
@@ -236,9 +241,10 @@ class NsOptions::Option
     should "have default it to Object" do
       assert_equal Object, subject.type_class
     end
+
   end
 
-  class WithTypeClassArgErrorTests < BaseTest
+  class WithTypeClassArgErrorTests < BaseTests
     desc "setting a value with arg error"
     setup do
       @err = begin
@@ -263,9 +269,10 @@ class NsOptions::Option
       assert_equal ArgumentError, err.class
       assert_included @option.type_class.to_s, err.message
     end
+
   end
 
-  class WithAValueOfTheSameClassTest < BaseTest
+  class WithAValueOfTheSameClassTests < BaseTests
     desc "with a value of the same class"
     setup do
       @class = Class.new
@@ -277,9 +284,10 @@ class NsOptions::Option
       @option.value = value
       assert_same value, @option.value
     end
+
   end
 
-  class WithAValueKindOfTest < BaseTest
+  class WithAValueKindOfTests < BaseTests
     desc "with a value that is a kind of the class"
     setup do
       @class = Class.new
@@ -292,9 +300,10 @@ class NsOptions::Option
       @option.value = value
       assert_same value, @option.value
     end
+
   end
 
-  class ProcHandlingTests < BaseTest
+  class ProcHandlingTests < BaseTests
     setup do
       class KindOfProc < Proc; end
       @a_string      = "a string"
@@ -342,7 +351,7 @@ class NsOptions::Option
     end
   end
 
-  class WithReturnValueTests < BaseTest
+  class WithReturnValueTests < BaseTests
     setup do
       # test control values
       @string    = NsOptions::Option.new(:string, String)
@@ -402,9 +411,10 @@ class NsOptions::Option
       @hosted_at.value = "path/to/resource/"
       assert_equal '/path/to/resource', @hosted_at.value
     end
+
   end
 
-  class WithArgsTest < BaseTest
+  class WithArgsTests < BaseTests
     desc "with args rule"
     setup do
       @class = Class.new do
@@ -416,7 +426,7 @@ class NsOptions::Option
       @value = "amazing"
     end
 
-    class AsArrayTest < WithArgsTest
+    class AsArrayTests < WithArgsTests
       desc "as an array"
       setup do
         @args = [ true, false, { :hash => "yes" } ]
@@ -428,9 +438,10 @@ class NsOptions::Option
         expected = @args.dup.insert(0, @value)
         assert_equal expected, subject.value.args
       end
+
     end
 
-    class AsSingleValueTest < WithArgsTest
+    class AsSingleValueTests < WithArgsTests
       desc "as a single value"
       setup do
         @args = lambda{ "something" }
@@ -442,9 +453,10 @@ class NsOptions::Option
         expected = [*@args].insert(0, @value)
         assert_equal expected, subject.value.args
       end
+
     end
 
-    class AsNilValueTest < WithArgsTest
+    class AsNilValueTests < WithArgsTests
       desc "as a nil value"
       setup do
         @args = nil
@@ -456,6 +468,7 @@ class NsOptions::Option
         expected = [@value]
         assert_equal expected, subject.value.args
       end
+
     end
   end
 
