@@ -9,39 +9,40 @@ module NsOptions::Proxy
 
   NAMESPACE = "__proxy_options__"
 
-  class << self
+  def self.included(receiver)
+    NsOptions::RootMethods.new(receiver, NAMESPACE).define
+    receiver.class_eval { extend  ProxyMethods }
+    receiver.class_eval { include ProxyMethods } if receiver.kind_of?(Class)
 
-    def included(receiver)
-      NsOptions::RootMethods.new(receiver, NAMESPACE).define
-      receiver.class_eval { extend  ProxyMethods }
-      receiver.class_eval { include ProxyMethods } if receiver.kind_of?(Class)
+    if receiver.kind_of?(Class)
+      receiver.class_eval do
 
-      if receiver.kind_of?(Class)
-        receiver.class_eval do
-
-          # default initializer method
-          def initialize(configs=nil)
-            self.apply(configs || {})
-          end
-
-          # equality method override for class-instance proxies
-          def ==(other_proxy_instance)
-            __proxy_options__ == other_proxy_instance.__proxy_options__
-          end
-
+        # This hook copies the proxy definition to any subclasses
+        def self.inherited(subclass)
+          subclass.__proxy_options__.build_from(self.__proxy_options__)
         end
-      else # Module
-        receiver.class_eval do
 
-          # default initializer method
-          def self.new(configs=nil)
-            self.apply(configs || {})
-          end
-
+        # default initializer method
+        def initialize(configs=nil)
+          self.apply(configs || {})
         end
+
+        # equality method override for class-instance proxies
+        def ==(other_proxy_instance)
+          __proxy_options__ == other_proxy_instance.__proxy_options__
+        end
+
+      end
+    else # Module
+      receiver.class_eval do
+
+        # default initializer method
+        def self.new(configs=nil)
+          self.apply(configs || {})
+        end
+
       end
     end
-
   end
 
   module ProxyMethods

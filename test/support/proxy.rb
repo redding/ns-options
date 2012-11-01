@@ -16,6 +16,8 @@ module SomeProxy
 
   end
 
+  class SomeOtherThing < SomeThing; end
+
   opt :some, SomeThing, :default => { :value1 => 1 }
   opt :some_prime, SomeThing, :default => { :value1 => 'one' }
   opt :stuff, :default => []

@@ -97,4 +97,25 @@ class NsOptions::RootMethods
 
   end
 
+  class InheritedClassTests < BaseTests
+    desc "when inherited"
+    setup do
+      @rm = NsOptions::RootMethods.new(@a_super_class = Class.new, 'a_ns')
+      @rm.define
+      @a_super_class.a_ns do
+        option :test
+        namespace(:other) { option :stuff }
+      end
+    end
+
+    should "define a singleton method that builds a ns with the same def as its superclass" do
+      a_sub_class = Class.new(@a_super_class)
+
+      assert a_sub_class.a_ns.has_option? :test
+      assert a_sub_class.a_ns.has_namespace? :other
+      assert a_sub_class.a_ns.other.has_option? :stuff
+    end
+
+  end
+
 end

@@ -49,7 +49,15 @@ module NsOptions
     def class_meth_extension_code
       %{
         def #{@name}(*args, &block)
-          @#{@name} ||= NsOptions::Namespace.new('#{@name}', &block)
+          unless @#{@name}
+            @#{@name} = NsOptions::Namespace.new('#{@name}', &block)
+            if respond_to?('superclass') && superclass &&
+               superclass.respond_to?('#{@name}') &&
+               superclass.#{@name}.kind_of?(NsOptions::Namespace)
+              @#{@name}.build_from(superclass.#{@name})
+            end
+          end
+          @#{@name}
         end
       }
     end
