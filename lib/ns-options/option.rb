@@ -21,7 +21,7 @@ module NsOptions
 
     def initialize(*args)
       self.rules, self.type_class, self.name = self.class.args(*args)
-      self.value = self.rules[:default]
+      self.reset
     end
 
     # if reading a lazy_proc, call the proc and return its coerced return val
@@ -40,6 +40,10 @@ module NsOptions
     # otherwise, coerce and store the value being set
     def value=(new_value)
       @value = self.lazy_proc?(new_value) ? new_value : self.coerce(new_value)
+    end
+
+    def reset
+      self.value = self.rules[:default]
     end
 
     def is_set?
