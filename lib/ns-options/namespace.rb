@@ -58,6 +58,7 @@ module NsOptions
 
     def define(*args, &block);  @__data__.define(*args, &block);         end
     def build_from(other_ns);   @__data__.build_from(other_ns.__data__); end
+    def reset(*args, &block);   @__data__.reset(*args, &block);          end
     def apply(*args, &block);   @__data__.apply(*args, &block);          end
     def to_hash(*args, &block); @__data__.to_hash(*args, &block);        end
     def each(*args, &block);    @__data__.each(*args, &block);           end

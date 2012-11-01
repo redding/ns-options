@@ -81,5 +81,10 @@ module NsOptions
       end
     end
 
+    def reset
+      child_options.each {|name, opt| opt.reset}
+      child_namespaces.each {|name, ns| ns.reset}
+    end
+
   end
 end

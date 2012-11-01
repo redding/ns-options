@@ -14,7 +14,7 @@ class NsOptions::Namespace
     should have_reader :__data__
     should have_imeths :option, :opt, :namespace, :ns
     should have_imeths :required_set?, :valid?, :has_option?, :has_namespace?
-    should have_imeths :define, :build_from, :apply, :to_hash, :each
+    should have_imeths :define, :build_from, :reset, :apply, :to_hash, :each
 
     should "contain its name key in its inspect output" do
       assert_included ":something", subject.inspect

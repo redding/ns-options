@@ -1,4 +1,6 @@
 require 'assert'
+require 'ns-options/option'
+require 'ns-options/boolean'
 
 class NsOptions::Option
 
@@ -11,8 +13,9 @@ class NsOptions::Option
     end
     subject{ @option }
 
-    should have_class_method :rules, :args
+    should have_class_methods :rules, :args
     should have_accessors :name, :value, :type_class, :rules
+    should have_imeths :is_set?, :required?, :reset
 
     should "have set the name" do
       assert_equal "stage", subject.name
@@ -37,6 +40,16 @@ class NsOptions::Option
     should "allow setting the value to nil" do
       subject.value = nil
       assert_nil subject.value
+    end
+
+    should "allow resetting the value to its default" do
+      assert_equal "development", subject.value
+      subject.value = "overwritten"
+      assert_equal "overwritten", subject.value
+
+      subject.reset
+
+      assert_equal "development", subject.value
     end
   end
 
