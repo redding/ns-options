@@ -207,7 +207,7 @@ class NsOptions::Option
     end
 
     should "error on anything that doesn't define #to_sym" do
-      assert_raises(NoMethodError) do
+      assert_raises(NsOptions::Option::CoerceError) do
         subject.value = true
       end
     end
@@ -279,7 +279,7 @@ class NsOptions::Option
       rescue Exception => err
         err
       end
-      assert_equal ArgumentError, err.class
+      assert_equal NsOptions::Option::CoerceError, err.class
       assert_included @option.type_class.to_s, err.message
     end
 
