@@ -16,7 +16,7 @@ class NsOptions::NamespaceData
     should have_imeths :has_option?, :has_namespace?, :required_set?
     should have_imeths :add_option, :get_option, :set_option
     should have_imeths :add_namespace, :get_namespace
-    should have_imeths :to_hash, :apply, :each, :define, :build_from
+    should have_imeths :to_hash, :apply, :each, :define, :build_from, :reset
 
     should "know its namespace" do
       assert_equal @ns, subject.ns
@@ -180,6 +180,34 @@ class NsOptions::NamespaceData
       assert subject.has_namespace?(:ns1)
       assert subject.child_namespaces[:ns1].__data__.has_option? :sub_opt1
       assert_not_same @from_child_ns, subject.child_namespaces[:ns1]
+    end
+
+  end
+
+  class ResetTests < BaseTests
+    desc "reset method"
+    setup do
+      @data.add_option 'fixnum', Fixnum, :default => 10
+      @data.add_option 'something'
+      @data.add_namespace 'sub' do
+        option 'subopt'
+      end
+
+      @data.set_option 'fixnum', 9999
+      @data.set_option 'something', 'else'
+      @data.get_namespace('sub').subopt = "a subopt"
+    end
+
+    should "set the options back to their default values" do
+      assert_equal 9999, subject.get_option('fixnum')
+      assert_equal 'else', subject.get_option('something')
+      assert_equal 'a subopt', subject.get_namespace('sub').subopt
+
+      subject.reset
+
+      assert_equal 10, subject.get_option('fixnum')
+      assert_nil subject.get_option('something')
+      assert_nil subject.get_namespace('sub').subopt
     end
 
   end
