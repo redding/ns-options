@@ -2,6 +2,15 @@ module NsOptions
 
   class Option
 
+    class CoerceError < ::ArgumentError
+      attr_reader :message, :backtrace
+      def initialize(type_class, value, err)
+        @backtrace = err.backtrace
+        @message = "can't coerce `#{value.inspect}' to `#{type_class}':"\
+                   " #{err.message}"
+      end
+    end
+
     def self.rules(rules)
       (rules || {}).tap do |r|
         r[:args] = (r[:args] ? [*r[:args]] : [])
@@ -74,19 +83,19 @@ module NsOptions
     def coerce(value)
       return value if (value.kind_of?(self.type_class)) || value.nil?
 
-      if [ Integer, Float, String ].include?(self.type_class)
-        # ruby type conversion, i.e. String(1)
-        Object.send(self.type_class.to_s.to_sym, value)
-      elsif self.type_class == Symbol
-        value.to_sym
-      elsif self.type_class == Hash
-        {}.merge(value)
-      else
-        begin
+      begin
+        if [ Integer, Float, String ].include?(self.type_class)
+          # ruby type conversion, i.e. String(1)
+          Object.send(self.type_class.to_s, value)
+        elsif self.type_class == Symbol
+          value.to_sym
+        elsif self.type_class == Hash
+          {}.merge(value)
+        else
           self.type_class.new(value, *self.rules[:args])
-        rescue ArgumentError => err
-          raise ArgumentError, "#{self.type_class} `initialize': #{err.message}"
         end
+      rescue Exception => err
+        raise CoerceError.new(self.type_class, value, err)
       end
     end
 
