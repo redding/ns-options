@@ -3,11 +3,9 @@ module NsOptions
   class Option
 
     class CoerceError < ::ArgumentError
-      attr_reader :message, :backtrace
       def initialize(type_class, value, err)
-        @backtrace = err.backtrace
-        @message = "can't coerce `#{value.inspect}' to `#{type_class}':"\
-                   " #{err.message}"
+        super("can't coerce `#{value.inspect}' to `#{type_class}': #{err.message}")
+        set_backtrace(err.backtrace)
       end
     end
 

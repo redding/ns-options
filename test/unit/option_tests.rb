@@ -273,14 +273,16 @@ class NsOptions::Option
       @option = NsOptions::Option.new(:something, SuperSuperTestTest)
     end
 
-    should "reraise the arg error, including its type_class in the error message" do
+    should "reraise the arg error, with a custom message and backtrace" do
       err = begin
         @option.value = "arg error should be raised"
       rescue Exception => err
         err
       end
-      assert_equal NsOptions::Option::CoerceError, err.class
-      assert_included @option.type_class.to_s, err.message
+
+      assert_equal NsOptions::Option::CoerceError,  err.class
+      assert_included @option.type_class.to_s,      err.message
+      assert_included 'test/unit/option_tests.rb:', err.backtrace.first
     end
 
   end
