@@ -24,6 +24,10 @@ module NsOptions
     def set_option(name, val); @child_options.set(name, val);  end
     def add_option(*args);     @child_options.add(*args);      end
 
+    def value_option?(name)
+      (opt = @child_options[name]) && opt.rules.has_key?(:value)
+    end
+
     def has_namespace?(name);        !!@child_namespaces[name];           end
     def get_namespace(name);         @child_namespaces.get(name);         end
     def add_namespace(name, &block); @child_namespaces.add(name, &block); end

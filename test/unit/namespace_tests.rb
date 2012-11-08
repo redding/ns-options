@@ -13,7 +13,8 @@ class NsOptions::Namespace
 
     should have_reader :__data__
     should have_imeths :option, :opt, :namespace, :ns
-    should have_imeths :required_set?, :valid?, :has_option?, :has_namespace?
+    should have_imeths :required_set?, :valid?
+    should have_imeths :has_option?, :has_namespace?, :value_option?
     should have_imeths :define, :build_from, :reset, :apply, :to_hash, :each
 
     should "contain its name key in its inspect output" do
@@ -27,14 +28,10 @@ class NsOptions::Namespace
   end
 
   class OptionTests < BaseTests
+    desc "after adding an option named `something`"
     setup do
       @added_opt = @namespace.option('something', String, { :default => true })
     end
-  end
-
-  class OptionMethTests < OptionTests
-    desc "option method"
-    subject{ @namespace }
 
     should "add an option to the namespace" do
       assert subject.has_option? :something
@@ -65,17 +62,12 @@ class NsOptions::Namespace
       assert_match 'WARNING: ', duplicate_warn
     end
 
-  end
-
-  class AddedOptionTests < OptionTests
-    desc "after adding an option named `something`"
-
     should "respond to a reader/writer named after the option name" do
       assert_responds_to :something, subject
       assert_responds_to :something=, subject
     end
 
-    should "be return the option using the reader" do
+    should "return the option using the reader" do
       assert_equal subject.__data__.child_options.get(:something), subject.something
     end
 
@@ -87,6 +79,42 @@ class NsOptions::Namespace
     should "be writable through the reader with args" do
       assert_nothing_raised{ subject.something "123" }
       assert_equal "123", subject.something
+    end
+
+  end
+
+  class ValueOptionTests < BaseTests
+    desc "after adding a value option"
+    setup do
+      @added_opt = @namespace.option('something', :value => 1234)
+    end
+
+    should "NOT respond to a writer named after the option name" do
+      assert_not_responds_to :something=, subject
+    end
+
+    should "NOT be writable through the defined writer" do
+      err = begin
+        subject.something = 'a'
+      rescue Exception => err
+        err
+      end
+
+      assert_kind_of NoMethodError, err
+      assert_includes "undefined method `something='", err.message
+      assert_includes "test/unit/namespace_tests.rb:", err.backtrace.first
+    end
+
+    should "NOT be writable through the reader with args" do
+      err = begin
+        subject.something 'a', 'b', 'c'
+      rescue Exception => err
+        err
+      end
+
+      assert_kind_of ArgumentError, err
+      assert_includes "wrong number of arguments (3 for 0)", err.message
+      assert_includes "test/unit/namespace_tests.rb:", err.backtrace.first
     end
 
   end

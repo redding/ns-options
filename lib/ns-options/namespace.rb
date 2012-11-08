@@ -26,32 +26,48 @@ module NsOptions
 
     def respond_to?(meth)
       name = meth.to_s.gsub("=", "")
-      dynamic_writer = !!(meth.to_s =~ /=\Z/)
+      writer = !!(meth.to_s =~ /=\Z/)
 
-      has_option?(name) || has_namespace?(name) || dynamic_writer || super
+      has_namespace?(name) ||              # namespace reader
+      (has_option?(name) && !writer) ||    # option reader
+      (writer && !value_option?(name)) ||  # option writer
+      super
     end
 
     def method_missing(meth, *args, &block)
       data_name = meth.to_s.gsub("=", "")
+      writer_meth = !!(meth.to_s =~ /=\Z/)
+      data_to_write = !args.empty?
       value = args.size == 1 ? args[0] : args
-      if has_option?(data_name)
-        # write and/or read a known child option
-        @__data__.set_option(data_name, value) if !args.empty?
-        @__data__.get_option(data_name)
-      elsif has_namespace?(data_name)
+
+      if has_namespace?(data_name)
+        # TODO: remove same named opt/ns when adding the other with same name
         # read a known child namespace
         @__data__.get_namespace(data_name).define(&block)
-      elsif !args.empty?
-        # add and set a new child option (dynamic writer)
-        @__data__.add_option(data_name)
-        @__data__.set_option(data_name, value)
+      elsif has_option?(data_name) && !data_to_write
+        # read the defined option
         @__data__.get_option(data_name)
+      elsif data_to_write && !value_option?(data_name)
+        # define the option if needed (dynamic writer)
+        @__data__.add_option(data_name) unless has_option?(data_name)
+        # write the defined option
+        @__data__.set_option(data_name, value)
+      elsif data_to_write && value_option?(data_name) && !writer_meth
+        # trying to write a :value option using the reader w/ args
+        err = ArgumentError.new("wrong number of arguments (#{args.size} for 0)")
+        err.set_backtrace(caller)
+        raise err
       else
-        super
+        # trying to write a :value option using the writer
+        # or other unknown method
+        err = NoMethodError.new("undefined method `#{meth}' for #{self.inspect}")
+        err.set_backtrace(caller)
+        raise err
       end
     end
 
     def has_option?(name);    @__data__.has_option?(name);    end
+    def value_option?(name);  @__data__.value_option?(name);  end
     def has_namespace?(name); @__data__.has_namespace?(name); end
     def required_set?;        @__data__.required_set?;        end
     alias_method :valid?, :required_set?
