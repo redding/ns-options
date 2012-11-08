@@ -37,24 +37,6 @@ module NsOptions
       end
     end
 
-    # The opposite of #to_hash. Takes a hash representation of options and namespaces and mass
-    # assigns option values.
-    def apply(values = {})
-      values.each do |name, value|
-        if has_option?(name)
-          # set a pre-defined option value
-          set_option(name, value)
-        elsif has_namespace?(name) && value.kind_of?(Hash)
-          # recursively set namespace values
-          get_namespace(name).apply(value)
-        elsif !has_option?(name)
-          # dynamically add a non-pre-defined option value
-          add_option(name)
-          set_option(name, value)
-        end
-      end
-    end
-
     # allow for iterating over the key/values of a namespace
     # this uses #to_hash so you won't get option/namespace objs for the values
     def each

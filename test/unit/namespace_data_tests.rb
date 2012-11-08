@@ -16,7 +16,7 @@ class NsOptions::NamespaceData
     should have_imeths :has_option?, :has_namespace?, :required_set?
     should have_imeths :add_option, :get_option, :set_option
     should have_imeths :add_namespace, :get_namespace
-    should have_imeths :to_hash, :apply, :each, :define, :build_from, :reset
+    should have_imeths :to_hash, :each, :define, :build_from, :reset
 
     should "know its namespace" do
       assert_equal @ns, subject.ns
@@ -109,17 +109,12 @@ class NsOptions::NamespaceData
       assert_equal(exp_hash, subject.to_hash)
     end
 
-    should "apply a given hash value to itself" do
-      subject.apply(@named_values)
-      assert_equal @named_values, subject.to_hash
-    end
-
   end
 
   class EachTests < HandlingTests
     desc "iterated with the each method"
     setup do
-      subject.apply(@named_values)
+      @ns.apply(@named_values)
       @exp = "".tap do |exp|
         subject.to_hash.each do |k,v|
           exp << "#{k}=#{v};"

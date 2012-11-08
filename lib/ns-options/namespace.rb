@@ -59,9 +59,22 @@ module NsOptions
     def define(*args, &block);  @__data__.define(*args, &block);         end
     def build_from(other_ns);   @__data__.build_from(other_ns.__data__); end
     def reset(*args, &block);   @__data__.reset(*args, &block);          end
-    def apply(*args, &block);   @__data__.apply(*args, &block);          end
     def to_hash(*args, &block); @__data__.to_hash(*args, &block);        end
     def each(*args, &block);    @__data__.each(*args, &block);           end
+
+    # The opposite of #to_hash. Takes a hash representation of options and
+    # namespaces and mass assigns option values.
+    def apply(values=nil)
+      (values || {}).each do |name, value|
+        if has_namespace?(name) && value.kind_of?(Hash)
+          # recursively apply namespace values
+          @__data__.get_namespace(name).apply(value)
+        else
+          # write the option value
+          self.send("#{name}=", value)
+        end
+      end
+    end
 
     def ==(other_ns)
       if other_ns.kind_of? Namespace
