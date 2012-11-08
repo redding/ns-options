@@ -7,7 +7,7 @@ class NsOptions::Option
   class BaseTests < Assert::Context
     desc "NsOptions::Option"
     setup do
-      @rules = { :default => "development", :require => true }
+      @rules = { :default => "development" }
       @args = [:stage, String, @rules]
       @option = NsOptions::Option.new(*@args)
     end
@@ -29,35 +29,58 @@ class NsOptions::Option
       assert_equal(@rules, subject.rules)
     end
 
-    should "have defaulted value based on the rules" do
-      assert_equal subject.rules[:default], subject.value
+    should "not be required? by default" do
+      assert_equal false, subject.required?
+    end
+
+  end
+
+  class DefaultRuleTests < BaseTests
+    desc "using the :default rule"
+    setup do
+      @option = NsOptions::Option.new(:opt, :default => "something")
+    end
+
+    should "have defaulted value based on the rule" do
+      assert_equal 'something', subject.value
+    end
+
+    should "allow overwriting the default value" do
+      assert_nothing_raised { subject.value = "overwritten" }
+      assert_equal "overwritten", subject.value
+    end
+
+    should "allow setting the value to nil" do
+      assert_nothing_raised { subject.value = nil }
+      assert_nil subject.value
+    end
+
+    should "return the value to its default when `reset` is called" do
+      subject.value = "overwritten"
+      subject.reset
+
+      assert_equal 'something', subject.value
+    end
+
+  end
+
+  class RequiredRuleTests < BaseTests
+    desc "using the :required rule"
+    setup do
+      @option = NsOptions::Option.new(:opt, :required => true)
     end
 
     should "return true with a call to #required?" do
       assert_equal true, subject.required?
     end
 
-    should "allow setting the value to nil" do
-      subject.value = nil
-      assert_nil subject.value
-    end
-
-    should "allow resetting the value to its default" do
-      assert_equal "development", subject.value
-      subject.value = "overwritten"
-      assert_equal "overwritten", subject.value
-
-      subject.reset
-
-      assert_equal "development", subject.value
-    end
   end
 
   class ParseRulesTests < BaseTests
     desc "parsing rules"
     setup do
       @cases = [nil, {}, {:args => 'is'}].map do |c|
-        subject.class.rules(c)
+        NsOptions::Option.rules(c)
       end
     end
 
@@ -77,27 +100,27 @@ class NsOptions::Option
   class ParseArgsTests < BaseTests
     desc "when parsing args"
     setup do
-      @prules, @ptype_class, @pname = subject.class.args(*@args)
+      @prules, @ptype_class, @pname = NsOptions::Option.args(*@args)
     end
 
     should "parse option rules arguments, defaulting to {:args => []}" do
       assert_equal @rules, @prules
 
-      @prules, @ptype_class, @pname = subject.class.args('test')
+      @prules, @ptype_class, @pname = NsOptions::Option.args('test')
       assert_equal({:args => []}, @prules)
     end
 
     should "parse the name arg and convert to a string" do
       assert_equal "stage", @pname
 
-      @prules, @ptype_class, @pname = subject.class.args('test')
+      @prules, @ptype_class, @pname = NsOptions::Option.args('test')
       assert_equal 'test', @pname
     end
 
     should "parse the type_class arg and default it to Object" do
       assert_equal String, @ptype_class
 
-      @prules, @ptype_class, @pname = subject.class.args('test')
+      @prules, @ptype_class, @pname = NsOptions::Option.args('test')
       assert_equal Object, @ptype_class
     end
 
