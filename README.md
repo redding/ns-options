@@ -200,16 +200,29 @@ Example.stuff.array  # => returns the same array
 
 An option can be defined with certain rules that extend the behavior of the option.
 
-#### Default Value
+#### Default
 
 ```ruby
 settings do
   option :opt1, :default => "development"
 end
-settings.opt1 #=> 'development'
+settings.opt1                #=> 'development'
+settings.opt1 = 'production' #=> 'production'
 ```
 
-A default value runs through the same logic as if you set the value manually, so it will be coerced if necessary.
+A default runs through the same logic as if you set the value manually, so it will be coerced if necessary.
+
+#### Value
+
+```ruby
+settings do
+  option :opt1, :value => "development"
+end
+settings.opt1                #=> 'development'
+settings.opt1 = 'production' #=> NoMethodError: undefined method opt1= ...
+```
+
+Specifying an option with a `:value` makes it immutable.
 
 #### Required
 
@@ -287,7 +300,7 @@ explicit.a_proc #=> <the proc obj>
 
 ## NsOptions::Proxy
 
-Mix in NsOptions::Proxy to any module/class to make it proxy a namespace.  This essentially turns your receiver into a namespace - you can interact with it just as if it were a namespace object.  For example:
+Mix in `NsOptions::Proxy` to any module/class to make it proxy a namespace.  This essentially turns your receiver into a namespace - you can interact with it just as if it were a namespace object.  For example:
 
 ```ruby
 module Something
