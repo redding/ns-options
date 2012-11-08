@@ -43,10 +43,9 @@ module NsOptions
       end
     end
 
-    # if setting a lazy_proc, just store the proc off to be called when read
-    # otherwise, coerce and store the value being set
+    # always save the rules' :value if there is one (makes option immutable)
     def value=(new_value)
-      @value = self.lazy_proc?(new_value) ? new_value : self.coerce(new_value)
+      save_value(self.rules.has_key?(:value) ? self.rules[:value] : new_value)
     end
 
     def reset
@@ -68,6 +67,12 @@ module NsOptions
     end
 
     protected
+
+    # if setting a lazy_proc, just store the proc off to be called when read
+    # otherwise, coerce and store the value being set
+    def save_value(new_value)
+      @value = self.lazy_proc?(new_value) ? new_value : self.coerce(new_value)
+    end
 
     # a value is considered to by a lazy eval proc if it some kind of a of
     # Proc and the option it is being set on is not explicitly defined as some

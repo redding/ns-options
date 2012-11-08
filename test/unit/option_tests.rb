@@ -64,6 +64,23 @@ class NsOptions::Option
 
   end
 
+  class ValueRuleTests < BaseTests
+    desc "using the :value rule"
+    setup do
+      @option = NsOptions::Option.new(:opt, :value => "something")
+    end
+
+    should "set the value based on the rule" do
+      assert_equal 'something', subject.value
+    end
+
+    should "NOT allow overwriting the value" do
+      assert_nothing_raised { subject.value = "overwritten" }
+      assert_equal 'something', subject.value
+    end
+
+  end
+
   class RequiredRuleTests < BaseTests
     desc "using the :required rule"
     setup do
