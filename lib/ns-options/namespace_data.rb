@@ -41,6 +41,20 @@ module NsOptions
       end
     end
 
+    # The opposite of #to_hash. Takes a hash representation of options and
+    # namespaces and mass assigns option values.
+    def apply(values=nil)
+      (values || {}).each do |name, value|
+        if has_namespace?(name) && value.kind_of?(Hash)
+          # recursively apply namespace values
+          get_namespace(name).apply(value)
+        else
+          # write the option value
+          @ns.send("#{name}=", value)
+        end
+      end
+    end
+
     # allow for iterating over the key/values of a namespace
     # this uses #to_hash so you won't get option/namespace objs for the values
     def each
@@ -70,6 +84,70 @@ module NsOptions
     def reset
       child_options.each {|name, opt| opt.reset}
       child_namespaces.each {|name, ns| ns.reset}
+    end
+
+    class DslMethod
+      attr_reader :name, :data
+
+      def initialize(meth, *args, &block)
+        @method_string, @args, @block = meth.to_s, args, block
+        @name = @method_string.gsub("=", "")
+        @data = args.size == 1 ? args[0] : args
+      end
+
+      def writer?;   !!(@method_string =~ /=\Z/); end
+      def reader?;   !self.writer?;               end
+      def has_args?; !@args.empty?;               end
+    end
+
+    def ns_respond_to?(meth)
+      dslm = DslMethod.new(meth)
+
+      has_namespace?(dslm.name) ||                      # namespace reader
+      ((!dslm.writer? && has_option?(dslm.name))) ||    # option reader
+      (( dslm.writer? && !value_option?(dslm.name))) || # option writer
+      false
+    end
+
+    def ns_method_missing(called_from, meth, *args, &block)
+      bt = called_from
+      dsl_method = DslMethod.new(meth, *args, &block)
+
+      if is_namespace_reader?(dsl_method)
+        # TODO: remove same-named opt/ns when adding the other with same name
+        get_namespace(dsl_method.name).define(&block)
+      elsif is_option_reader?(dsl_method)
+        get_option(dsl_method.name)
+      elsif is_option_writer?(dsl_method)
+        add_option(dsl_method.name) unless has_option?(dsl_method.name)
+        set_option(dsl_method.name, dsl_method.data)
+      elsif is_value_option_reader_with_args?(dsl_method)
+        error! bt, ArgumentError.new("wrong number of arguments (#{args.size} for 0)")
+      else
+        error! bt, NoMethodError.new("undefined method `#{meth}' for #{@ns.inspect}")
+      end
+    end
+
+    private
+
+    def is_namespace_reader?(dsl_method)
+      has_namespace?(dsl_method.name)
+    end
+
+    def is_option_reader?(dsl_method)
+      has_option?(dsl_method.name) && !dsl_method.has_args?
+    end
+
+    def is_option_writer?(dsl_method)
+      dsl_method.has_args? && !value_option?(dsl_method.name)
+    end
+
+    def is_value_option_reader_with_args?(dsl_method)
+      value_option?(dsl_method.name) && dsl_method.reader? && dsl_method.has_args?
+    end
+
+    def error!(backtrace, exception)
+      exception.set_backtrace(backtrace); raise exception
     end
 
   end
