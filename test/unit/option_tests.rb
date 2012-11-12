@@ -7,9 +7,8 @@ class NsOptions::Option
   class BaseTests < Assert::Context
     desc "NsOptions::Option"
     setup do
-      @rules = { :default => "development" }
-      @args = [:stage, String, @rules]
-      @option = NsOptions::Option.new(*@args)
+      @rules  = { :default => "development" }
+      @option = NsOptions::Option.new(:stage, nil, @rules)
     end
     subject{ @option }
 
@@ -17,16 +16,20 @@ class NsOptions::Option
     should have_accessors :name, :value, :type_class, :rules
     should have_imeths :is_set?, :required?, :reset
 
-    should "have set the name" do
-      assert_equal "stage", subject.name
+    should "know its name" do
+      assert_equal :stage, subject.name
     end
 
-    should "have set the type class" do
-      assert_equal String, subject.type_class
+    should "know its type class" do
+      assert_equal Object, subject.type_class
     end
 
-    should "have set the rules" do
-      assert_equal(@rules, subject.rules)
+    should "know its rules" do
+      exp_rules = {
+        :default => "development",
+        :args => []
+      }
+      assert_equal exp_rules, subject.rules
     end
 
     should "not be required? by default" do
@@ -35,10 +38,39 @@ class NsOptions::Option
 
   end
 
+  class ParseArgsTests < BaseTests
+    desc "when parsing args"
+    setup do
+      @pname, @ptype_class, @prules  = NsOptions::Option.args(:stage, String, @rules)
+    end
+
+    should "parse the name arg and convert to a string" do
+      assert_equal "stage", @pname
+
+      @pname, @ptype_class, @prules = NsOptions::Option.args('test')
+      assert_equal 'test', @pname
+    end
+
+    should "parse the type_class arg and default it to Object" do
+      assert_equal String, @ptype_class
+
+      @pname, @ptype_class, @prules = NsOptions::Option.args('test')
+      assert_equal Object, @ptype_class
+    end
+
+    should "parse option rules arguments, defaulting to {:args => []}" do
+      assert_equal @rules, @prules
+
+      @pname, @ptype_class, @prules = NsOptions::Option.args('test')
+      assert_equal({:args => []}, @prules)
+    end
+
+  end
+
   class DefaultRuleTests < BaseTests
     desc "using the :default rule"
     setup do
-      @option = NsOptions::Option.new(:opt, :default => "something")
+      @option = NsOptions::Option.new(:opt, Object, :default => "something")
     end
 
     should "have defaulted value based on the rule" do
@@ -67,7 +99,7 @@ class NsOptions::Option
   class ValueRuleTests < BaseTests
     desc "using the :value rule"
     setup do
-      @option = NsOptions::Option.new(:opt, :value => "something")
+      @option = NsOptions::Option.new(:opt, Object, :value => "something")
     end
 
     should "set the value based on the rule" do
@@ -84,7 +116,7 @@ class NsOptions::Option
   class RequiredRuleTests < BaseTests
     desc "using the :required rule"
     setup do
-      @option = NsOptions::Option.new(:opt, :required => true)
+      @option = NsOptions::Option.new(:opt, Object, :required => true)
     end
 
     should "return true with a call to #required?" do
@@ -114,35 +146,6 @@ class NsOptions::Option
 
   end
 
-  class ParseArgsTests < BaseTests
-    desc "when parsing args"
-    setup do
-      @prules, @ptype_class, @pname = NsOptions::Option.args(*@args)
-    end
-
-    should "parse option rules arguments, defaulting to {:args => []}" do
-      assert_equal @rules, @prules
-
-      @prules, @ptype_class, @pname = NsOptions::Option.args('test')
-      assert_equal({:args => []}, @prules)
-    end
-
-    should "parse the name arg and convert to a string" do
-      assert_equal "stage", @pname
-
-      @prules, @ptype_class, @pname = NsOptions::Option.args('test')
-      assert_equal 'test', @pname
-    end
-
-    should "parse the type_class arg and default it to Object" do
-      assert_equal String, @ptype_class
-
-      @prules, @ptype_class, @pname = NsOptions::Option.args('test')
-      assert_equal Object, @ptype_class
-    end
-
-  end
-
   class IsSetTests < BaseTests
     desc "is_set method"
     setup do
@@ -154,7 +157,6 @@ class NsOptions::Option
 
       end
       @special = NsOptions::Option.new(:no_blank, @type_class)
-
       @boolean = NsOptions::Option.new(:boolean, NsOptions::Boolean)
     end
 
@@ -284,19 +286,6 @@ class NsOptions::Option
 
   end
 
-  class WithoutTypeClassTests < BaseTests
-    desc "without a type class provided"
-    setup do
-      @option = NsOptions::Option.new(:something, nil)
-    end
-    subject{ @option }
-
-    should "have default it to Object" do
-      assert_equal Object, subject.type_class
-    end
-
-  end
-
   class WithTypeClassArgErrorTests < BaseTests
     desc "setting a value with arg error"
     setup do
@@ -409,14 +398,14 @@ class NsOptions::Option
   class WithReturnValueTests < BaseTests
     setup do
       # test control values
-      @string    = NsOptions::Option.new(:string, String)
-      @symbol    = NsOptions::Option.new(:symbol, Symbol)
-      @integer   = NsOptions::Option.new(:integer, Integer)
-      @float     = NsOptions::Option.new(:float, Float)
-      @hash      = NsOptions::Option.new(:hash, Hash)
-      @array     = NsOptions::Option.new(:array, Array)
-      @proc      = NsOptions::Option.new(:proc, Proc)
-      @lazy_proc = NsOptions::Option.new(:lazy_proc)
+      @string    = NsOptions::Option.new :string,    String
+      @symbol    = NsOptions::Option.new :symbol,    Symbol
+      @integer   = NsOptions::Option.new :integer,   Integer
+      @float     = NsOptions::Option.new :float,     Float
+      @hash      = NsOptions::Option.new :hash,      Hash
+      @array     = NsOptions::Option.new :array,     Array
+      @proc      = NsOptions::Option.new :proc,      Proc
+      @lazy_proc = NsOptions::Option.new :lazy_proc, Object
 
       # custom return value
       class HostedAt
@@ -478,7 +467,6 @@ class NsOptions::Option
           self.args = args
         end
       end
-      @value = "amazing"
     end
 
     class AsArrayTests < WithArgsTests
@@ -486,11 +474,11 @@ class NsOptions::Option
       setup do
         @args = [ true, false, { :hash => "yes" } ]
         @option = NsOptions::Option.new(:something, @class, { :args => @args })
-        @option.value = @value
+        @option.value = "amazing"
       end
 
       should "pass the args to the type class with the value" do
-        expected = @args.dup.insert(0, @value)
+        expected = ["amazing", *@args]
         assert_equal expected, subject.value.args
       end
 
@@ -501,11 +489,11 @@ class NsOptions::Option
       setup do
         @args = lambda{ "something" }
         @option = NsOptions::Option.new(:something, @class, { :args => @args })
-        @option.value = @value
+        @option.value = "amazing"
       end
 
       should "pass the single value to the type class with the value" do
-        expected = [*@args].insert(0, @value)
+        expected = ["amazing", *@args]
         assert_equal expected, subject.value.args
       end
 
@@ -516,15 +504,31 @@ class NsOptions::Option
       setup do
         @args = nil
         @option = NsOptions::Option.new(:something, @class, { :args => @args })
-        @option.value = @value
+        @option.value = "amazing"
       end
 
-      should "just pass the value to the type class" do
-        expected = [@value]
+      should "just pass the value to the type class and that's it" do
+        expected = ["amazing"]
         assert_equal expected, subject.value.args
       end
 
     end
+
+    class AsEmptyArrayValueTests < WithArgsTests
+      desc "as an empty Array value"
+      setup do
+        @args = []
+        @option = NsOptions::Option.new(:something, @class, { :args => @args })
+        @option.value = "amazing"
+      end
+
+      should "just pass the value to the type class and that's it" do
+        expected = ["amazing"]
+        assert_equal expected, subject.value.args
+      end
+
+    end
+
   end
 
 end

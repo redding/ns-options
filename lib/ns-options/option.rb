@@ -21,13 +21,17 @@ module NsOptions
         # this makes the option accept any value with no type coercion
         (args[1] || Object),
         args[0].to_s
-      ]
+      ].reverse
     end
 
     attr_accessor :name, :value, :type_class, :rules
 
-    def initialize(*args)
-      self.rules, self.type_class, self.name = self.class.args(*args)
+    def initialize(name, type_class=nil, rules=nil)
+      @name, @rules = name
+      @type_class = type_class || Object
+      @rules = rules || {}
+      @rules[:args] ||= []
+
       self.reset
     end
 
