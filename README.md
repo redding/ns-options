@@ -220,6 +220,7 @@ settings do
 end
 settings.opt1                #=> 'development'
 settings.opt1 = 'production' #=> NoMethodError: undefined method opt1= ...
+settings.opt1 'production'   #=> ArgumentError: wrong number of arguments ...
 ```
 
 Specifying an option with a `:value` makes it immutable.
