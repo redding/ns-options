@@ -2,6 +2,13 @@ require 'ns-options/options'
 require 'ns-options/namespaces'
 
 module NsOptions
+
+  class OptionWriteError < RuntimeError
+    def initialize(name)
+      super("can't write the :value option `#{name}'.")
+    end
+  end
+
   class NamespaceData
 
     attr_reader :ns, :name, :child_options, :child_namespaces
@@ -109,20 +116,19 @@ module NsOptions
       false
     end
 
-    def ns_method_missing(called_from, meth, *args, &block)
-      bt = called_from
-      dsl_method = DslMethod.new(meth, *args, &block)
+    def ns_method_missing(bt, meth, *args, &block)
+      dslm = DslMethod.new(meth, *args, &block)
 
-      if is_namespace_reader?(dsl_method)
+      if is_namespace_reader?(dslm)
         # TODO: remove same-named opt/ns when adding the other with same name
-        get_namespace(dsl_method.name).define(&block)
-      elsif is_option_reader?(dsl_method)
-        get_option(dsl_method.name)
-      elsif is_option_writer?(dsl_method)
-        add_option(dsl_method.name) unless has_option?(dsl_method.name)
-        set_option(dsl_method.name, dsl_method.data)
-      elsif is_value_option_reader_with_args?(dsl_method)
-        error! bt, ArgumentError.new("wrong number of arguments (#{args.size} for 0)")
+        get_namespace(dslm.name).define(&block)
+      elsif is_option_reader?(dslm)
+        get_option(dslm.name)
+      elsif is_option_writer?(dslm)
+        error!(bt, OptionWriteError.new(dslm.name)) if value_option?(dslm.name)
+
+        add_option(dslm.name) unless has_option?(dslm.name)
+        set_option(dslm.name, dslm.data)
       else
         error! bt, NoMethodError.new("undefined method `#{meth}' for #{@ns.inspect}")
       end
@@ -139,11 +145,7 @@ module NsOptions
     end
 
     def is_option_writer?(dsl_method)
-      dsl_method.has_args? && !value_option?(dsl_method.name)
-    end
-
-    def is_value_option_reader_with_args?(dsl_method)
-      value_option?(dsl_method.name) && dsl_method.reader? && dsl_method.has_args?
+      dsl_method.has_args?
     end
 
     def error!(backtrace, exception)

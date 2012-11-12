@@ -100,8 +100,8 @@ class NsOptions::Namespace
         err
       end
 
-      assert_kind_of NoMethodError, err
-      assert_includes "undefined method `something='", err.message
+      assert_kind_of NsOptions::OptionWriteError, err
+      assert_includes "can't write the :value option `something'.", err.message
       assert_includes "test/unit/namespace_tests.rb:", err.backtrace.first
     end
 
@@ -112,8 +112,8 @@ class NsOptions::Namespace
         err
       end
 
-      assert_kind_of ArgumentError, err
-      assert_includes "wrong number of arguments (3 for 0)", err.message
+      assert_kind_of NsOptions::OptionWriteError, err
+      assert_includes "can't write the :value option `something'.", err.message
       assert_includes "test/unit/namespace_tests.rb:", err.backtrace.first
     end
 
