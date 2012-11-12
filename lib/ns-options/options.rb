@@ -1,10 +1,11 @@
 require 'ns-options/option'
 
 module NsOptions
+
   class Options
 
-    def initialize(option_type=nil)
-      @option_type = option_type || :default
+    def initialize(handing=nil)
+      @handing = handing || :default
       @hash = Hash.new
     end
 
@@ -18,6 +19,9 @@ module NsOptions
 
     def add(*args)
       name, type_class, rules = NsOptions::Option.args(*args)
+      if @handing == :values && !rules.has_key?(:value)
+        rules[:value] = NsOptions::Option::PendingValue
+      end
 
       option = NsOptions::Option.new(name, type_class, rules)
       self[option.name] = option

@@ -107,8 +107,30 @@ class NsOptions::Option
     end
 
     should "NOT allow overwriting the value" do
-      assert_nothing_raised { subject.value = "overwritten" }
-      assert_equal 'something', subject.value
+      assert_raises WriteError do
+        subject.value = "overwritten"
+      end
+    end
+
+  end
+
+  class PendingValueRuleTests < ValueRuleTests
+    desc "with PendingValue"
+    setup do
+      @option = NsOptions::Option.new(:opt, Object, :value => PendingValue)
+    end
+
+    should "set the value as pending" do
+      assert_equal PendingValue, subject.value
+    end
+
+    should "take the first value written as the immutable value of the option" do
+      subject.value = 'this is it'
+      assert_equal 'this is it', subject.value
+
+      assert_raises WriteError do
+        subject.value = 'over write this'
+      end
     end
 
   end
