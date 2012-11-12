@@ -3,21 +3,14 @@ require 'ns-options/namespaces'
 
 module NsOptions
 
-  class OptionWriteError < RuntimeError
-    def initialize(name)
-      super("can't write the :value option `#{name}'.")
-    end
-  end
-
   class NamespaceData
 
     attr_reader :ns, :name, :child_options, :child_namespaces
 
-    def initialize(ns, name)
-      @ns   = ns
-      @name = name
-      @child_options    = NsOptions::Options.new
-      @child_namespaces = NsOptions::Namespaces.new
+    def initialize(ns, name, handling=nil)
+      @ns, @name = ns, name
+      @child_namespaces = NsOptions::Namespaces.new(handling)
+      @child_options    = NsOptions::Options.new(handling)
     end
 
     # Recursively check if options that were defined as :required have been set.
@@ -31,13 +24,11 @@ module NsOptions
     def set_option(name, val); @child_options.set(name, val);  end
     def add_option(*args);     @child_options.add(*args);      end
 
-    def value_option?(name)
-      (opt = @child_options[name]) && opt.rules.has_key?(:value)
+    def has_namespace?(name);  !!@child_namespaces[name];      end
+    def get_namespace(name);   @child_namespaces.get(name);    end
+    def add_namespace(name, *args, &block)
+      @child_namespaces.add(name, *args, &block)
     end
-
-    def has_namespace?(name);        !!@child_namespaces[name];           end
-    def get_namespace(name);         @child_namespaces.get(name);         end
-    def add_namespace(name, &block); @child_namespaces.add(name, &block); end
 
     # recursively build a hash representation of the namespace, using symbols
     # for the option/namespace name-keys
@@ -110,9 +101,9 @@ module NsOptions
     def ns_respond_to?(meth)
       dslm = DslMethod.new(meth)
 
-      has_namespace?(dslm.name) ||                      # namespace reader
-      ((!dslm.writer? && has_option?(dslm.name))) ||    # option reader
-      (( dslm.writer? && !value_option?(dslm.name))) || # option writer
+      has_namespace?(dslm.name) || # namespace reader
+      has_option?(dslm.name)    || # option reader
+      dslm.writer?              || # dynamic option writer
       false
     end
 
@@ -125,11 +116,14 @@ module NsOptions
       elsif is_option_reader?(dslm)
         get_option(dslm.name)
       elsif is_option_writer?(dslm)
-        error!(bt, OptionWriteError.new(dslm.name)) if value_option?(dslm.name)
-
         add_option(dslm.name) unless has_option?(dslm.name)
-        set_option(dslm.name, dslm.data)
+        begin
+          set_option(dslm.name, dslm.data)
+        rescue NsOptions::Option::CoerceError, NsOptions::Option::WriteError => err
+          error! bt, err   # reraise these exceptions with same backtraces
+        end
       else
+        # raise a no meth err with a sane backtrace
         error! bt, NoMethodError.new("undefined method `#{meth}' for #{@ns.inspect}")
       end
     end

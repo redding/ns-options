@@ -3,7 +3,8 @@ require 'ns-options/namespace'
 module NsOptions
   class Namespaces
 
-    def initialize
+    def initialize(handling=nil)
+      @handling = handling || :default
       @hash = Hash.new
     end
 
@@ -15,8 +16,8 @@ module NsOptions
     def each(*args, &block);   @hash.each(*args, &block);   end
     def empty?(*args, &block); @hash.empty?(*args, &block); end
 
-    def add(name, &block)
-      self[name] = NsOptions::Namespace.new(name, &block)
+    def add(name, handling=nil, &block)
+      self[name] = NsOptions::Namespace.new(name, handling || @handling, &block)
     end
 
     def get(name); self[name]; end

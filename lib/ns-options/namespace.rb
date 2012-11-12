@@ -7,8 +7,8 @@ module NsOptions
 
     attr_reader :__data__
 
-    def initialize(name, &block)
-      @__data__ = NamespaceData.new(self, name)
+    def initialize(name, handling=nil, &block)
+      @__data__ = NamespaceData.new(self, name, handling)
       @__data__.define(&block)
     end
 
@@ -18,9 +18,9 @@ module NsOptions
     end
     alias_method :opt, :option
 
-    def namespace(name, &block)
+    def namespace(name, *args, &block)
       NamespaceAdvisor.new(@__data__, name, 'a namespace').run($stdout, caller)
-      @__data__.add_namespace(name, &block)
+      @__data__.add_namespace(name, *args, &block)
     end
     alias_method :ns, :namespace
 

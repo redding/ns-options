@@ -89,10 +89,6 @@ class NsOptions::Namespace
       @added_opt = @namespace.option('something', :value => 1234)
     end
 
-    should "NOT respond to a writer named after the option name" do
-      assert_not_responds_to :something=, subject
-    end
-
     should "NOT be writable through the defined writer" do
       err = begin
         subject.something = 'a'
@@ -100,7 +96,7 @@ class NsOptions::Namespace
         err
       end
 
-      assert_kind_of NsOptions::OptionWriteError, err
+      assert_kind_of NsOptions::Option::WriteError, err
       assert_includes "can't write the :value option `something'.", err.message
       assert_includes "test/unit/namespace_tests.rb:", err.backtrace.first
     end
@@ -112,7 +108,7 @@ class NsOptions::Namespace
         err
       end
 
-      assert_kind_of NsOptions::OptionWriteError, err
+      assert_kind_of NsOptions::Option::WriteError, err
       assert_includes "can't write the :value option `something'.", err.message
       assert_includes "test/unit/namespace_tests.rb:", err.backtrace.first
     end
@@ -169,8 +165,29 @@ class NsOptions::Namespace
       assert_responds_to :something, subject
     end
 
-    should "be return the namespace using the reader" do
+    should "return the namespace using the reader" do
       assert_equal subject.__data__.child_namespaces[:something], subject.something
+    end
+
+  end
+
+  class ValuesHandlingTests < BaseTests
+    desc "with `:values` handling"
+    setup do
+      @namespace = NsOptions::Namespace.new(@name, :values)
+    end
+
+    should "add options with a :value rule" do
+      subject.option('something')
+      assert_equal NsOptions::Option::PendingValue, subject.something
+    end
+
+    should "add namespaces with :values handling" do
+      @namespace.namespace('something') do
+        option :something_else
+      end
+
+      assert_equal NsOptions::Option::PendingValue, subject.something.something_else
     end
 
   end
