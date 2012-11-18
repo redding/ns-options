@@ -146,4 +146,21 @@ class NsOptions::Options
 
   end
 
+  class ValuesTests < BaseTests
+    desc "with `:values` handling"
+    setup do
+      @options = NsOptions::Options.new :values
+    end
+
+    should "add all options with a pending :value rule" do
+      opt = subject.add(:first, String)
+      exp_rules = {
+        :value => NsOptions::Option::PendingValue,
+        :args => []
+      }
+
+      assert_equal exp_rules, opt.rules
+    end
+  end
+
 end

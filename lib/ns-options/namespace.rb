@@ -7,8 +7,8 @@ module NsOptions
 
     attr_reader :__data__
 
-    def initialize(name, &block)
-      @__data__ = NamespaceData.new(self, name)
+    def initialize(name, handling=nil, &block)
+      @__data__ = NamespaceData.new(self, name, handling)
       @__data__.define(&block)
     end
 

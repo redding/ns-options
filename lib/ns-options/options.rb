@@ -4,7 +4,8 @@ module NsOptions
 
   class Options
 
-    def initialize
+    def initialize(handing=nil)
+      @handing = handing || :default
       @hash = Hash.new
     end
 
@@ -17,7 +18,12 @@ module NsOptions
     def empty?(*args, &block); @hash.empty?(*args, &block); end
 
     def add(*args)
-      option = NsOptions::Option.new(*NsOptions::Option.args(*args))
+      name, type_class, rules = NsOptions::Option.args(*args)
+      if @handing == :values && !rules.has_key?(:value)
+        rules[:value] = NsOptions::Option::PendingValue
+      end
+
+      option = NsOptions::Option.new(name, type_class, rules)
       self[option.name] = option
     end
 

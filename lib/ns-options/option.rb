@@ -2,12 +2,20 @@ module NsOptions
 
   class Option
 
+    class WriteError < RuntimeError
+      def initialize(name)
+        super("can't write the :value option `#{name}'.")
+      end
+    end
+
     class CoerceError < ::ArgumentError
       def initialize(type_class, value, err)
         super("can't coerce `#{value.inspect}' to `#{type_class}': #{err.message}")
         set_backtrace(err.backtrace)
       end
     end
+
+    class PendingValue; end
 
     def self.rules(rules)
       (rules || {}).tap do |r|
@@ -47,11 +55,15 @@ module NsOptions
     end
 
     def value=(new_value)
-      save_value(new_value)
+      # can't write if a value rule has been set (makes opt immutable)
+      raise WriteError.new(@name) if value_rule_set?
+
+      # if a :value rule is pending, set it as well as the option value
+      save_value(value_rule_pending? ? self.rules[:value]=new_value : new_value)
     end
 
     def reset
-      save_value(self.rules[:default])
+      save_value(self.rules.has_key?(:value) ? self.rules[:value] : self.rules[:default])
     end
 
     def is_set?
@@ -107,8 +119,16 @@ module NsOptions
 
     private
 
+    def value_rule_set?
+      self.rules.has_key?(:value) && self.rules[:value] != PendingValue
+    end
+
+    def value_rule_pending?
+      self.rules.has_key?(:value) && self.rules[:value] == PendingValue
+    end
+
     def no_coercing_needed?(value)
-      value.kind_of?(self.type_class) || value.nil?
+      value == PendingValue || value.kind_of?(self.type_class) || value.nil?
     end
 
   end

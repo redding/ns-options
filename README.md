@@ -210,7 +210,33 @@ settings.opt1                #=> 'development'
 settings.opt1 = 'production' #=> 'production'
 ```
 
-A default value runs through the same logic as if you set the value manually, so it will be coerced if necessary.
+A default runs through the same logic as if you set the value manually, so it will be coerced if necessary.
+
+#### Value
+
+```ruby
+settings do
+  option :opt1, :value => "development"
+
+  namespace 'immutable_things', :values do
+    option :val1, :default => 'something'
+    option :val2
+  end
+end
+
+settings.opt1                #=> 'development'
+settings.opt1 = 'production' #=> NsOptions::OptionWriteError: can't write the :value ...
+settings.opt1 'production'   #=> NsOptions::OptionWriteError: can't write the :value ...
+
+settings.immutable_things.val1                #=> 'something'
+settings.immutable_things.val1 = 'another'    #=> NsOptions::OptionWriteError ...
+
+settings.immutable_things.val2                #=> nil
+settings.immutable_things.val2 = 'else'       #=> 'else'
+settings.immutable_things.val2 = 'different'  #=> NsOptions::OptionWriteError ...
+```
+
+Specifying an option with a `:value` rule makes it immutable.  Creating a namespace using the `:values` flag makes every option under it (recursively) immutable.
 
 #### Required
 
