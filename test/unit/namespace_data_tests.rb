@@ -184,6 +184,46 @@ class NsOptions::NamespaceData
 
   end
 
+  class ApplyTests < BaseTests
+    setup do
+      @data.define do
+        option :first; option :second; option :third
+        namespace(:child_a) do
+          option(:fourth); option(:fifth)
+          namespace(:child_b) { option(:sixth) }
+        end
+      end
+
+      @named_values = {
+        :first => "1", :second => "2", :third => "3", :twenty_one => "21",
+        :child_a => {
+          :fourth => "4", :fifth => "5",
+          :child_b => { :sixth => "6" }
+        },
+        :child_c => { :what => "?" }
+      }
+    end
+
+    should "apply a given hash value to itself" do
+      subject.apply(@named_values)
+      assert_equal @named_values, subject.to_hash
+    end
+
+    should "ignore applying non-hash values to namespaces" do
+      assert_nil subject.ns.child_a.fourth
+      prev_child_b = subject.ns.child_a.child_b.dup
+
+      subject.apply(:child_a => {
+        :fourth => 4,
+        :child_b => 'something'
+      })
+      assert_equal 4, subject.ns.child_a.fourth
+      assert_not_equal 'something', subject.ns.child_a.child_b
+      assert_equal prev_child_b, subject.ns.child_a.child_b
+    end
+
+  end
+
   class ResetTests < BaseTests
     desc "reset method"
     setup do

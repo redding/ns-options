@@ -10,19 +10,17 @@ class NsOptions::Namespaces
     end
     subject{ @namespaces }
 
-    should have_instance_methods :add, :get, :required_set?
+    should have_accessor :[]
+    should have_imeths :keys, :each, :empty?
+    should have_imeths :add, :get, :required_set?
 
-    should "be a kind of a hash" do
-      assert_kind_of Hash, subject
-    end
+    should "only use strings for keys (indifferent access)" do
+      subject['string_key'] = true
+      subject[:symbol_key]  = true
 
-    should "only use symbols for keys" do
-      subject["string_key"] = true
-      subject[:symbol_key] = true
-
-      assert_includes :string_key, subject.keys
-      assert_includes :symbol_key, subject.keys
-      assert_not_includes "string_key", subject.keys
+      assert_includes 'string_key', subject.keys
+      assert_includes 'symbol_key', subject.keys
+      assert_not_includes :string_key, subject.keys
     end
 
     should "get items" do
@@ -52,6 +50,26 @@ class NsOptions::Namespaces
     should "return the option added" do
       added_ns = subject.add(:a_name)
       assert_kind_of NsOptions::Namespace, added_ns
+    end
+
+  end
+
+  class RequiredSetTests < BaseTests
+    desc "with a namespace with :required options"
+    setup do
+      @namespace = NsOptions::Namespace.new :with_required do
+        option :required, :required => true
+      end
+      @namespaces[:with_required] = @namespace
+    end
+
+    should "know when its namespaces have all required set" do
+      assert_not subject.required_set?
+      @namespace.not_required = 'a value'
+      assert_not subject.required_set?
+
+      @namespace.required = 'something'
+      assert subject.required_set?
     end
 
   end

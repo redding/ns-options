@@ -39,9 +39,8 @@ module NsOptions
 
     private
 
-    # TODO: inherited hook to build_from and apply on the subclass root meth
     def proxy_meth_code
-      "def #{@name}(*args, &block); __proxy_options__.#{@name}; end"
+      "def #{@name}(*args, &block); __proxy_options__.#{@name}(*args, &block); end"
     end
 
     def not_recommended_meth_names
