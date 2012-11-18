@@ -13,7 +13,8 @@ class NsOptions::Namespace
 
     should have_reader :__data__
     should have_imeths :option, :opt, :namespace, :ns
-    should have_imeths :required_set?, :valid?, :has_option?, :has_namespace?
+    should have_imeths :required_set?, :valid?
+    should have_imeths :has_option?, :has_namespace?
     should have_imeths :define, :build_from, :reset, :apply, :to_hash, :each
 
     should "contain its name key in its inspect output" do
@@ -27,16 +28,12 @@ class NsOptions::Namespace
   end
 
   class OptionTests < BaseTests
+    desc "when adding an option named `something`"
     setup do
       @added_opt = @namespace.option('something', String, { :default => true })
     end
-  end
 
-  class OptionMethTests < OptionTests
-    desc "option method"
-    subject{ @namespace }
-
-    should "add an option to the namespace" do
+    should "have added an option to the namespace" do
       assert subject.has_option? :something
 
       opt = subject.__data__.child_options[:something]
@@ -65,17 +62,12 @@ class NsOptions::Namespace
       assert_match 'WARNING: ', duplicate_warn
     end
 
-  end
-
-  class AddedOptionTests < OptionTests
-    desc "after adding an option named `something`"
-
     should "respond to a reader/writer named after the option name" do
       assert_responds_to :something, subject
       assert_responds_to :something=, subject
     end
 
-    should "be return the option using the reader" do
+    should "return the option using the reader" do
       assert_equal subject.__data__.child_options.get(:something), subject.something
     end
 
@@ -92,23 +84,28 @@ class NsOptions::Namespace
   end
 
   class NamespaceTests < BaseTests
+    desc "when adding a namespace named `something`"
     setup do
       @namespace.namespace('something') do
         option :something_else
       end
     end
-  end
 
-  class NamespaceMethTests < NamespaceTests
-    desc "namespace method"
-
-    should "add a child namespace to the namespace" do
+    should "know that it has the child namespace" do
       assert subject.has_namespace? :something
 
       ns = subject.something
       assert_kind_of NsOptions::Namespace, ns
       assert_equal 'something', ns.__data__.name
       assert ns.has_option? :something_else
+    end
+
+    should "respond to a reader named after the namespace name" do
+      assert_responds_to :something, subject
+    end
+
+    should "return the namespace using the reader" do
+      assert_equal subject.__data__.child_namespaces[:something], subject.something
     end
 
     should "define on the namespace if it is called with a block" do
@@ -119,7 +116,7 @@ class NsOptions::Namespace
       assert ns.has_option? :defined_later
     end
 
-    should "advise the namespace name" do
+    should "advise on the namespace name" do
       not_recommended_warn = NsOptions::TestOutput.capture do
         subject.namespace 'to_hash'
       end

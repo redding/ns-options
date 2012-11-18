@@ -59,6 +59,7 @@ module NsOptions
     end
 
     def required?
+      # TODO: wat??
       !!self.rules[:required] || !!self.rules[:require]
     end
 

@@ -2,15 +2,15 @@ require 'ns-options/options'
 require 'ns-options/namespaces'
 
 module NsOptions
+
   class NamespaceData
 
     attr_reader :ns, :name, :child_options, :child_namespaces
 
     def initialize(ns, name)
-      @ns   = ns
-      @name = name
-      @child_options    = NsOptions::Options.new
+      @ns, @name = ns, name
       @child_namespaces = NsOptions::Namespaces.new
+      @child_options    = NsOptions::Options.new
     end
 
     # Recursively check if options that were defined as :required have been set.
