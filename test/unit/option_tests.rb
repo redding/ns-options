@@ -67,6 +67,27 @@ class NsOptions::Option
 
   end
 
+  class ParseRulesTests < BaseTests
+    desc "parsing rules"
+    setup do
+      @cases = [nil, {}, {:args => 'is'}].map do |c|
+        NsOptions::Option.rules(c)
+      end
+    end
+
+    should "always return them as a Hash" do
+      @cases.each { |c| assert_kind_of Hash, c }
+    end
+
+    should "always return with an array args rule" do
+      @cases.each do |c|
+        assert c.has_key? :args
+        assert_kind_of Array, c[:args]
+      end
+    end
+
+  end
+
   class DefaultRuleTests < BaseTests
     desc "using the :default rule"
     setup do
@@ -108,28 +129,46 @@ class NsOptions::Option
 
   end
 
-  class ParseRulesTests < BaseTests
-    desc "parsing rules"
+  class ValueRuleTests < BaseTests
+    desc "using the :value rule"
     setup do
-      @cases = [nil, {}, {:args => 'is'}].map do |c|
-        NsOptions::Option.rules(c)
-      end
+      @option = NsOptions::Option.new(:opt, Object, :value => "something")
     end
 
-    should "always return them as a Hash" do
-      @cases.each { |c| assert_kind_of Hash, c }
+    should "set the value based on the rule" do
+      assert_equal 'something', subject.value
     end
 
-    should "always return with an array args rule" do
-      @cases.each do |c|
-        assert c.has_key? :args
-        assert_kind_of Array, c[:args]
+    should "NOT allow overwriting the value" do
+      assert_raises WriteError do
+        subject.value = "overwritten"
       end
     end
 
   end
 
-  class IsSetTests < BaseTests
+  class PendingValueRuleTests < ValueRuleTests
+    desc "with PendingValue"
+    setup do
+      @option = NsOptions::Option.new(:opt, Object, :value => PendingValue)
+    end
+
+    should "set the value as pending" do
+      assert_equal PendingValue, subject.value
+    end
+
+    should "take the first value written as the immutable value of the option" do
+      subject.value = 'this is it'
+      assert_equal 'this is it', subject.value
+
+      assert_raises WriteError do
+        subject.value = 'over write this'
+      end
+    end
+
+  end
+
+    class IsSetTests < BaseTests
     desc "is_set method"
     setup do
       @type_class = Class.new(String) do

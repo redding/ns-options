@@ -83,6 +83,38 @@ class NsOptions::Namespace
 
   end
 
+  class ValueOptionTests < BaseTests
+    desc "after adding a value option"
+    setup do
+      @added_opt = @namespace.option('something', :value => 1234)
+    end
+
+    should "NOT be writable through the defined writer" do
+      err = begin
+        subject.something = 'a'
+      rescue Exception => err
+        err
+      end
+
+      assert_kind_of NsOptions::Option::WriteError, err
+      assert_includes "can't write the :value option `something'.", err.message
+      assert_includes "test/unit/namespace_tests.rb:", err.backtrace.first
+    end
+
+    should "NOT be writable through the reader with args" do
+      err = begin
+        subject.something 'a', 'b', 'c'
+      rescue Exception => err
+        err
+      end
+
+      assert_kind_of NsOptions::Option::WriteError, err
+      assert_includes "can't write the :value option `something'.", err.message
+      assert_includes "test/unit/namespace_tests.rb:", err.backtrace.first
+    end
+
+  end
+
   class NamespaceTests < BaseTests
     desc "when adding a namespace named `something`"
     setup do
@@ -156,6 +188,55 @@ class NsOptions::Namespace
       assert_raises NoMethodError do
         subject.something = {:a => 'value'}
       end
+    end
+
+  end
+
+  class ValuesHandlingTests < BaseTests
+    desc "with `:values` handling"
+    setup do
+      @namespace = NsOptions::Namespace.new(@name, :values)
+    end
+
+    should "add options with a :value rule" do
+      subject.option('something')
+      assert_equal NsOptions::Option::PendingValue, subject.something
+    end
+
+    should "add namespaces with :values handling" do
+      @namespace.namespace('something') do
+        option :something_else
+      end
+
+      assert_equal NsOptions::Option::PendingValue, subject.something.something_else
+    end
+
+  end
+
+
+  class ApplyTests < BaseTests
+    setup do
+      @namespace.define do
+        option :first; option :second; option :third
+        namespace(:child_a) do
+          option(:fourth); option(:fifth)
+          namespace(:child_b) { option(:sixth) }
+        end
+      end
+
+      @named_values = {
+        :first => "1", :second => "2", :third => "3", :twenty_one => "21",
+        :child_a => {
+          :fourth => "4", :fifth => "5",
+          :child_b => { :sixth => "6" }
+        },
+        :child_c => { :what => "?" }
+      }
+    end
+
+    should "apply a given hash value to itself" do
+      subject.apply(@named_values)
+      assert_equal @named_values, subject.to_hash
     end
 
   end

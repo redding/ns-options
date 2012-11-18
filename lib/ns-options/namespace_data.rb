@@ -7,10 +7,10 @@ module NsOptions
 
     attr_reader :ns, :name, :child_options, :child_namespaces
 
-    def initialize(ns, name)
+    def initialize(ns, name, handling=nil)
       @ns, @name = ns, name
-      @child_namespaces = NsOptions::Namespaces.new
-      @child_options    = NsOptions::Options.new
+      @child_namespaces = NsOptions::Namespaces.new(handling)
+      @child_options    = NsOptions::Options.new(handling)
     end
 
     # Recursively check if options that were defined as :required have been set.
@@ -118,7 +118,7 @@ module NsOptions
         add_option(dslm.name) unless has_option?(dslm.name)
         begin
           set_option(dslm.name, dslm.data)
-        rescue NsOptions::Option::CoerceError
+        rescue NsOptions::Option::CoerceError, NsOptions::Option::WriteError => err
           error! bt, err # reraise this exception with a sane backtrace
         end
       else

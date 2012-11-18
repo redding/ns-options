@@ -74,4 +74,21 @@ class NsOptions::Namespaces
 
   end
 
+  class ValuesTests < AddTests
+    desc "with `:values` handling"
+    setup do
+      @namespaces = NsOptions::Namespaces.new :values
+    end
+
+    should "add namespaces that do :values handling" do
+      assert_nil subject[:a_name]
+      subject.add(:a_name)
+      assert subject[:a_name]
+
+      subject[:a_name].option('subopt')
+      assert_equal NsOptions::Option::PendingValue, subject[:a_name].subopt
+    end
+
+  end
+
 end
