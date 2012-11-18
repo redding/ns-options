@@ -21,13 +21,16 @@ module NsOptions
         # this makes the option accept any value with no type coercion
         (args[1] || Object),
         args[0].to_s
-      ]
+      ].reverse
     end
 
     attr_accessor :name, :value, :type_class, :rules
 
-    def initialize(*args)
-      self.rules, self.type_class, self.name = self.class.args(*args)
+    def initialize(name, type_class=nil, rules=nil)
+      @name, @rules = name, (rules || {})
+      @type_class = type_class || Object
+      @rules[:args] ||= []
+
       self.reset
     end
 
@@ -43,14 +46,12 @@ module NsOptions
       end
     end
 
-    # if setting a lazy_proc, just store the proc off to be called when read
-    # otherwise, coerce and store the value being set
     def value=(new_value)
-      @value = self.lazy_proc?(new_value) ? new_value : self.coerce(new_value)
+      save_value(new_value)
     end
 
     def reset
-      self.value = self.rules[:default]
+      save_value(self.rules[:default])
     end
 
     def is_set?
@@ -69,6 +70,12 @@ module NsOptions
 
     protected
 
+    # if setting a lazy_proc, just store the proc off to be called when read
+    # otherwise, coerce and store the value being set
+    def save_value(new_value)
+      @value = self.lazy_proc?(new_value) ? new_value : self.coerce(new_value)
+    end
+
     # a value is considered to by a lazy eval proc if it some kind of a of
     # Proc and the option it is being set on is not explicitly defined as some
     # kind of Proc
@@ -79,7 +86,7 @@ module NsOptions
     end
 
     def coerce(value)
-      return value if (value.kind_of?(self.type_class)) || value.nil?
+      return value if no_coercing_needed?(value)
 
       begin
         if [ Integer, Float, String ].include?(self.type_class)
@@ -95,6 +102,12 @@ module NsOptions
       rescue Exception => err
         raise CoerceError.new(self.type_class, value, err)
       end
+    end
+
+    private
+
+    def no_coercing_needed?(value)
+      value.kind_of?(self.type_class) || value.nil?
     end
 
   end
