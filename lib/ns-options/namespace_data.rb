@@ -83,5 +83,67 @@ module NsOptions
       child_namespaces.each {|name, ns| ns.reset}
     end
 
+    class DslMethod
+      attr_reader :name, :data
+
+      def initialize(meth, *args, &block)
+        @method_string, @args, @block = meth.to_s, args, block
+        @name = @method_string.gsub("=", "")
+        @data = args.size == 1 ? args[0] : args
+      end
+
+      def writer?;   !!(@method_string =~ /=\Z/); end
+      def reader?;   !self.writer?;               end
+      def has_args?; !@args.empty?;               end
+    end
+
+    def ns_respond_to?(meth)
+      dslm = DslMethod.new(meth)
+
+      has_namespace?(dslm.name) || # namespace reader
+      has_option?(dslm.name)    || # option reader
+      dslm.writer?              || # dynamic option writer
+      false
+    end
+
+    def ns_method_missing(bt, meth, *args, &block)
+      dslm = DslMethod.new(meth, *args, &block)
+
+      if is_namespace_reader?(dslm)
+        get_namespace(dslm.name).define(&block)
+      elsif is_option_reader?(dslm)
+        get_option(dslm.name)
+      elsif is_option_writer?(dslm)
+        # TODO: remove same-named opt/ns when adding the other with same name
+        add_option(dslm.name) unless has_option?(dslm.name)
+        begin
+          set_option(dslm.name, dslm.data)
+        rescue NsOptions::Option::CoerceError
+          error! bt, err # reraise this exception with a sane backtrace
+        end
+      else
+        # raise a no meth err with a sane backtrace
+        error! bt, NoMethodError.new("undefined method `#{meth}' for #{@ns.inspect}")
+      end
+    end
+
+    private
+
+    def is_namespace_reader?(dsl_method)
+      has_namespace?(dsl_method.name)  && !dsl_method.has_args?
+    end
+
+    def is_option_reader?(dsl_method)
+      has_option?(dsl_method.name)     && !dsl_method.has_args?
+    end
+
+    def is_option_writer?(dsl_method)
+      !has_namespace?(dsl_method.name) && dsl_method.has_args?
+    end
+
+    def error!(backtrace, exception)
+      exception.set_backtrace(backtrace); raise exception
+    end
+
   end
 end

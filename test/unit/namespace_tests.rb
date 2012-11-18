@@ -134,20 +134,7 @@ class NsOptions::Namespace
 
   end
 
-  class AddedNamespaceTests < NamespaceTests
-    desc "after adding a namespace named `something`"
-
-    should "respond to a reader named after the namespace name" do
-      assert_responds_to :something, subject
-    end
-
-    should "be return the namespace using the reader" do
-      assert_equal subject.__data__.child_namespaces[:something], subject.something
-    end
-
-  end
-
-  class DynamicOptionWriterTests < BaseTests
+  class DynamicOptionNamespaceWriterTests < BaseTests
 
     should "write non-pre-defined values as Object options" do
       assert_not subject.has_option? :not_pre_defined
@@ -161,6 +148,17 @@ class NsOptions::Namespace
 
       assert_equal 123, subject.not_pre_defined
       assert_equal Object, subject.__data__.child_options['not_pre_defined'].type_class
+    end
+
+    should "raise NoMethodError when writing namespace values" do
+      subject.namespace('something')
+
+      assert_raises NoMethodError do
+        subject.something = 'a value'
+      end
+      assert_raises NoMethodError do
+        subject.something = {:a => 'value'}
+      end
     end
 
   end
