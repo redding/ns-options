@@ -5,10 +5,11 @@ module NsOptions
 
   class Namespace
 
-    attr_reader :__data__
+    attr_reader :__name__, :__data__
 
     def initialize(name, &block)
-      @__data__ = NamespaceData.new(self, name)
+      @__name__ = name
+      @__data__ = NamespaceData.new(self)
       @__data__.define(&block)
     end
 
@@ -53,7 +54,7 @@ module NsOptions
     end
 
     def inspect(*args)
-      "#<#{self.class}:#{'0x%x' % (self.object_id << 1)}:#{@__data__.name} #{to_hash.inspect}>"
+      "#<#{self.class}:#{'0x%x' % (self.object_id << 1)}:#{@__name__} #{to_hash.inspect}>"
     end
 
   end

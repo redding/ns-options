@@ -5,10 +5,10 @@ module NsOptions
 
   class NamespaceData
 
-    attr_reader :ns, :name, :child_options, :child_namespaces
+    attr_reader :ns, :child_options, :child_namespaces
 
-    def initialize(ns, name)
-      @ns, @name = ns, name
+    def initialize(ns)
+      @ns = ns
       @child_namespaces = NsOptions::Namespaces.new
       @child_options    = NsOptions::Options.new
     end

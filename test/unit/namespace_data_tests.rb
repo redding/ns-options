@@ -12,7 +12,7 @@ class NsOptions::NamespaceData
     end
     subject { @data }
 
-    should have_readers :ns, :name, :child_options, :child_namespaces
+    should have_readers :ns, :child_options, :child_namespaces
     should have_imeths :has_option?, :has_namespace?, :required_set?
     should have_imeths :add_option, :get_option, :set_option
     should have_imeths :add_namespace, :get_namespace
@@ -20,10 +20,6 @@ class NsOptions::NamespaceData
 
     should "know its namespace" do
       assert_equal @ns, subject.ns
-    end
-
-    should "know its name" do
-      assert_equal 'thing', subject.name
     end
 
     should "know its child options" do
