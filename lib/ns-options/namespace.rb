@@ -18,38 +18,11 @@ module NsOptions
     end
     alias_method :opt, :option
 
-    def namespace(name, &block)
+    def namespace(name, *args, &block)
       NamespaceAdvisor.new(@__data__, name, 'a namespace').run($stdout, caller)
-      @__data__.add_namespace(name, &block)
+      @__data__.add_namespace(name, *args, &block)
     end
     alias_method :ns, :namespace
-
-    def respond_to?(meth)
-      name = meth.to_s.gsub("=", "")
-      dynamic_writer = !!(meth.to_s =~ /=\Z/)
-
-      has_option?(name) || has_namespace?(name) || dynamic_writer || super
-    end
-
-    def method_missing(meth, *args, &block)
-      data_name = meth.to_s.gsub("=", "")
-      value = args.size == 1 ? args[0] : args
-      if has_option?(data_name)
-        # write and/or read a known child option
-        @__data__.set_option(data_name, value) if !args.empty?
-        @__data__.get_option(data_name)
-      elsif has_namespace?(data_name)
-        # read a known child namespace
-        @__data__.get_namespace(data_name).define(&block)
-      elsif !args.empty?
-        # add and set a new child option (dynamic writer)
-        @__data__.add_option(data_name)
-        @__data__.set_option(data_name, value)
-        @__data__.get_option(data_name)
-      else
-        super
-      end
-    end
 
     def has_option?(name);    @__data__.has_option?(name);    end
     def has_namespace?(name); @__data__.has_namespace?(name); end
@@ -62,6 +35,14 @@ module NsOptions
     def apply(*args, &block);   @__data__.apply(*args, &block);          end
     def to_hash(*args, &block); @__data__.to_hash(*args, &block);        end
     def each(*args, &block);    @__data__.each(*args, &block);           end
+
+    def respond_to?(meth)
+      @__data__.ns_respond_to?(meth) || super
+    end
+
+    def method_missing(meth, *args, &block)
+      @__data__.ns_method_missing(caller, meth, *args, &block)
+    end
 
     def ==(other_ns)
       if other_ns.kind_of? Namespace
