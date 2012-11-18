@@ -28,6 +28,8 @@ module NsOptions
     def add_option(*args)
       name = args.first
       opt  = NsOptions::Option.new(*NsOptions::Option.args(args, @option_type_class))
+
+      @child_namespaces.rm(name)
       @child_options.add(name, opt)
     end
 
@@ -36,6 +38,8 @@ module NsOptions
     def add_namespace(name, option_type_class=nil, &block)
       opt_type_class = option_type_class || @option_type_class
       ns = NsOptions::Namespace.new(name, opt_type_class, &block)
+
+      @child_options.rm(name)
       @child_namespaces.add(name, ns)
     end
 
@@ -134,7 +138,7 @@ module NsOptions
         rescue NsOptions::Option::CoerceError
           error! bt, err # reraise this exception with a sane backtrace
         end
-      else
+      else # namespace writer or unknown
         # raise a no meth err with a sane backtrace
         error! bt, NoMethodError.new("undefined method `#{meth}' for #{@ns.inspect}")
       end

@@ -281,4 +281,56 @@ class NsOptions::NamespaceData
 
   end
 
+  class SameNameTests < BaseTests
+
+    should "replace a same-named option when adding a new option" do
+      subject.add_option :something, String
+      assert subject.has_option? :something
+
+      subject.add_option :something, Fixnum, :default => 10
+      assert subject.has_option? :something
+
+      opt = subject.child_options[:something]
+      assert_equal Fixnum, opt.type_class
+      assert_equal 10,     opt.rules[:default]
+    end
+
+    should "replace a same-named option when adding a new namespace" do
+      subject.add_option :something, String
+      assert subject.has_option? :something
+
+      subject.add_namespace :something
+      assert_not subject.has_option?    :something
+      assert     subject.has_namespace? :something
+
+      assert_equal Hash.new, subject.child_namespaces[:something].to_hash
+    end
+
+    should "replace a same-named namespace when adding a new namespace" do
+      subject.add_namespace :something do
+        option :a, :default => 10
+      end
+      assert subject.has_namespace? :something
+      assert_equal({:a => 10}, subject.child_namespaces[:something].to_hash)
+
+      subject.add_namespace :something
+      assert subject.has_namespace? :something
+      assert_equal Hash.new, subject.child_namespaces[:something].to_hash
+    end
+
+    should "replace a same-named namespace when adding a new option" do
+      subject.add_namespace :something
+      assert subject.has_namespace? :something
+
+      subject.add_option :something, Fixnum, :default => 10
+      assert_not subject.has_namespace? :something
+      assert     subject.has_option?    :something
+
+      opt = subject.child_options[:something]
+      assert_equal Fixnum, opt.type_class
+      assert_equal 10,     opt.rules[:default]
+    end
+
+  end
+
 end
