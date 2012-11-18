@@ -13,9 +13,9 @@ module NsOptions
     # class/module. This will define a class method for classes/modules and
     # an additional instance method for classes.
 
-    def options(name, &block)
+    def options(name, *args, &block)
       NsOptions::RootMethods.new(self, name).define($stdout, caller)
-      self.send(name, &block)
+      self.send(name, *args, &block)
     end
     alias_method :opts,      :options
     alias_method :namespace, :options
