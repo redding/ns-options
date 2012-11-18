@@ -40,7 +40,7 @@ module NsOptions::AssertMacros
 
     def have_option(*args)
       called_from = caller.first
-      opt_name, type_class, rules = NsOptions::Option.args(*args)
+      opt_name, type_class, rules = NsOptions::Option.args(args)
       test_name = [
         "have an option: '#{opt_name}'",
         "of type '#{type_class}'",

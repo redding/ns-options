@@ -41,27 +41,27 @@ class NsOptions::Option
   class ParseArgsTests < BaseTests
     desc "when parsing args"
     setup do
-      @pname, @ptype_class, @prules  = NsOptions::Option.args(:stage, String, @rules)
+      @pname, @ptype_class, @prules  = NsOptions::Option.args([:stage, String, @rules])
     end
 
     should "parse the name arg and convert to a string" do
       assert_equal "stage", @pname
 
-      @pname, @ptype_class, @prules = NsOptions::Option.args('test')
+      @pname, @ptype_class, @prules = NsOptions::Option.args(['test'])
       assert_equal 'test', @pname
     end
 
     should "parse the type_class arg and default it to Object" do
       assert_equal String, @ptype_class
 
-      @pname, @ptype_class, @prules = NsOptions::Option.args('test')
+      @pname, @ptype_class, @prules = NsOptions::Option.args(['test'])
       assert_equal Object, @ptype_class
     end
 
     should "parse option rules arguments, defaulting to {:args => []}" do
       assert_equal @rules, @prules
 
-      @pname, @ptype_class, @prules = NsOptions::Option.args('test')
+      @pname, @ptype_class, @prules = NsOptions::Option.args(['test'])
       assert_equal({:args => []}, @prules)
     end
 

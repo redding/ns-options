@@ -21,8 +21,9 @@ module NsOptions
     def has_option?(name);     !!@child_options[name];         end
     def get_option(name);      @child_options.get(name);       end
     def set_option(name, val); @child_options.set(name, val);  end
-    def add_option(name, *args)
-      opt = NsOptions::Option.new(*NsOptions::Option.args(name, *args))
+    def add_option(*args)
+      name = args.first
+      opt  = NsOptions::Option.new(*NsOptions::Option.args(args))
       @child_options.add(name, opt)
     end
 
