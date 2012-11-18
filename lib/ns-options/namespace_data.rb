@@ -15,8 +15,7 @@ module NsOptions
 
     # Recursively check if options that were defined as :required have been set.
     def required_set?
-      @child_options.required_set?
-      @child_namespaces.required_set?
+      @child_options.required_set? && @child_namespaces.required_set?
     end
 
     def has_option?(name);     !!@child_options[name];         end

@@ -10,19 +10,17 @@ class NsOptions::Options
     end
     subject{ @options }
 
-    should have_instance_method :add, :rm, :get, :set, :required_set?
+    should have_accessor :[]
+    should have_imeths :keys, :each, :empty?
+    should have_imeths :add, :rm, :get, :set, :required_set?
 
-    should "be a Hash" do
-      assert_kind_of Hash, subject
-    end
+    should "only use strings for keys (indifferent access)" do
+      subject['string_key'] = true
+      subject[:symbol_key]  = true
 
-    should "only use symbols for keys" do
-      subject["string_key"] = true
-      subject[:symbol_key] = true
-
-      assert_includes :string_key, subject.keys
-      assert_includes :symbol_key, subject.keys
-      assert_not_includes "string_key", subject.keys
+      assert_includes 'string_key', subject.keys
+      assert_includes 'symbol_key', subject.keys
+      assert_not_includes :string_key, subject.keys
     end
 
   end
