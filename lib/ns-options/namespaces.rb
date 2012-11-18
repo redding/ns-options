@@ -15,8 +15,8 @@ module NsOptions
     def each(*args, &block);   @hash.each(*args, &block);   end
     def empty?(*args, &block); @hash.empty?(*args, &block); end
 
-    def add(name, &block)
-      self[name] = NsOptions::Namespace.new(name, &block)
+    def add(name, *args, &block)
+      self[name] = NsOptions::Namespace.new(name, *args, &block)
     end
 
     def get(name); self[name]; end

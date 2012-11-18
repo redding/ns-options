@@ -23,9 +23,11 @@ module NsOptions
     def set_option(name, val); @child_options.set(name, val);  end
     def add_option(*args);     @child_options.add(*args);      end
 
-    def has_namespace?(name);        !!@child_namespaces[name];           end
-    def get_namespace(name);         @child_namespaces.get(name);         end
-    def add_namespace(name, &block); @child_namespaces.add(name, &block); end
+    def has_namespace?(name);  !!@child_namespaces[name];      end
+    def get_namespace(name);   @child_namespaces.get(name);    end
+    def add_namespace(name, *args, &block)
+      @child_namespaces.add(name, *args, &block)
+    end
 
     # recursively build a hash representation of the namespace, using symbols
     # for the option/namespace name-keys

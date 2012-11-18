@@ -45,12 +45,11 @@ module NsOptions
 
     private
 
-    # TODO: inherited hook to build_from and apply on the subclass root meth
     def class_meth_extension_code
       %{
         def #{@name}(*args, &block)
           unless @#{@name}
-            @#{@name} = NsOptions::Namespace.new('#{@name}', &block)
+            @#{@name} = NsOptions::Namespace.new('#{@name}', *args, &block)
             if respond_to?('superclass') && superclass &&
                superclass.respond_to?('#{@name}') &&
                superclass.#{@name}.kind_of?(NsOptions::Namespace)
@@ -66,7 +65,7 @@ module NsOptions
       %{
         def #{@name}(*args, &block)
           unless @#{@name}
-            @#{@name} = NsOptions::Namespace.new('#{@name}', &block)
+            @#{@name} = NsOptions::Namespace.new('#{@name}', *args, &block)
             @#{@name}.build_from(self.class.#{@name})
           end
           @#{@name}
