@@ -12,17 +12,13 @@ class NsOptions::Namespaces
 
     should have_instance_methods :add, :get, :required_set?
 
-    should "be a kind of a hash" do
-      assert_kind_of Hash, subject
-    end
+    should "only use strings for keys (indifferent access)" do
+      subject['string_key'] = true
+      subject[:symbol_key]  = true
 
-    should "only use symbols for keys" do
-      subject["string_key"] = true
-      subject[:symbol_key] = true
-
-      assert_includes :string_key, subject.keys
-      assert_includes :symbol_key, subject.keys
-      assert_not_includes "string_key", subject.keys
+      assert_includes 'string_key', subject.keys
+      assert_includes 'symbol_key', subject.keys
+      assert_not_includes :string_key, subject.keys
     end
 
     should "get items" do
@@ -52,6 +48,23 @@ class NsOptions::Namespaces
     should "return the option added" do
       added_ns = subject.add(:a_name)
       assert_kind_of NsOptions::Namespace, added_ns
+    end
+
+  end
+
+  class ValuesTests < AddTests
+    desc "with `:values` handling"
+    setup do
+      @namespaces = NsOptions::Namespaces.new :values
+    end
+
+    should "add namespaces that do :values handling" do
+      assert_nil subject[:a_name]
+      subject.add(:a_name)
+      assert subject[:a_name]
+
+      subject[:a_name].option('subopt')
+      assert_equal NsOptions::Option::PendingValue, subject[:a_name].subopt
     end
 
   end

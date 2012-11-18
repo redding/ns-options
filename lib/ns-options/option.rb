@@ -2,12 +2,20 @@ module NsOptions
 
   class Option
 
+    class WriteError < RuntimeError
+      def initialize(name)
+        super("can't write the :value option `#{name}'.")
+      end
+    end
+
     class CoerceError < ::ArgumentError
       def initialize(type_class, value, err)
         super("can't coerce `#{value.inspect}' to `#{type_class}': #{err.message}")
         set_backtrace(err.backtrace)
       end
     end
+
+    class PendingValue; end
 
     def self.rules(rules)
       (rules || {}).tap do |r|
@@ -21,13 +29,17 @@ module NsOptions
         # this makes the option accept any value with no type coercion
         (args[1] || Object),
         args[0].to_s
-      ]
+      ].reverse
     end
 
     attr_accessor :name, :value, :type_class, :rules
 
-    def initialize(*args)
-      self.rules, self.type_class, self.name = self.class.args(*args)
+    def initialize(name, type_class=nil, rules=nil)
+      @name, @rules = name
+      @type_class = type_class || Object
+      @rules = rules || {}
+      @rules[:args] ||= []
+
       self.reset
     end
 
@@ -43,14 +55,16 @@ module NsOptions
       end
     end
 
-    # if setting a lazy_proc, just store the proc off to be called when read
-    # otherwise, coerce and store the value being set
     def value=(new_value)
-      @value = self.lazy_proc?(new_value) ? new_value : self.coerce(new_value)
+      # can't write if a value rule has been set (makes opt immutable)
+      raise WriteError.new(@name) if value_rule_set?
+
+      # if a :value rule is pending, set it as well as the option value
+      save_value(value_rule_pending? ? self.rules[:value]=new_value : new_value)
     end
 
     def reset
-      self.value = self.rules[:default]
+      save_value(self.rules.has_key?(:value) ? self.rules[:value] : self.rules[:default])
     end
 
     def is_set?
@@ -69,6 +83,12 @@ module NsOptions
 
     protected
 
+    # if setting a lazy_proc, just store the proc off to be called when read
+    # otherwise, coerce and store the value being set
+    def save_value(new_value)
+      @value = self.lazy_proc?(new_value) ? new_value : self.coerce(new_value)
+    end
+
     # a value is considered to by a lazy eval proc if it some kind of a of
     # Proc and the option it is being set on is not explicitly defined as some
     # kind of Proc
@@ -79,7 +99,7 @@ module NsOptions
     end
 
     def coerce(value)
-      return value if (value.kind_of?(self.type_class)) || value.nil?
+      return value if no_coercing_needed?(value)
 
       begin
         if [ Integer, Float, String ].include?(self.type_class)
@@ -95,6 +115,20 @@ module NsOptions
       rescue Exception => err
         raise CoerceError.new(self.type_class, value, err)
       end
+    end
+
+    private
+
+    def value_rule_set?
+      self.rules.has_key?(:value) && self.rules[:value] != PendingValue
+    end
+
+    def value_rule_pending?
+      self.rules.has_key?(:value) && self.rules[:value] == PendingValue
+    end
+
+    def no_coercing_needed?(value)
+      value == PendingValue || value.kind_of?(self.type_class) || value.nil?
     end
 
   end

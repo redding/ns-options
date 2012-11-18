@@ -2,15 +2,15 @@ require 'ns-options/options'
 require 'ns-options/namespaces'
 
 module NsOptions
+
   class NamespaceData
 
     attr_reader :ns, :name, :child_options, :child_namespaces
 
-    def initialize(ns, name)
-      @ns   = ns
-      @name = name
-      @child_options    = NsOptions::Options.new
-      @child_namespaces = NsOptions::Namespaces.new
+    def initialize(ns, name, handling=nil)
+      @ns, @name = ns, name
+      @child_namespaces = NsOptions::Namespaces.new(handling)
+      @child_options    = NsOptions::Options.new(handling)
     end
 
     # Recursively check if options that were defined as :required have been set.
@@ -24,9 +24,11 @@ module NsOptions
     def set_option(name, val); @child_options.set(name, val);  end
     def add_option(*args);     @child_options.add(*args);      end
 
-    def has_namespace?(name);        !!@child_namespaces[name];           end
-    def get_namespace(name);         @child_namespaces.get(name);         end
-    def add_namespace(name, &block); @child_namespaces.add(name, &block); end
+    def has_namespace?(name);  !!@child_namespaces[name];      end
+    def get_namespace(name);   @child_namespaces.get(name);    end
+    def add_namespace(name, *args, &block)
+      @child_namespaces.add(name, *args, &block)
+    end
 
     # recursively build a hash representation of the namespace, using symbols
     # for the option/namespace name-keys
@@ -37,20 +39,16 @@ module NsOptions
       end
     end
 
-    # The opposite of #to_hash. Takes a hash representation of options and namespaces and mass
-    # assigns option values.
-    def apply(values = {})
-      values.each do |name, value|
-        if has_option?(name)
-          # set a pre-defined option value
-          set_option(name, value)
-        elsif has_namespace?(name) && value.kind_of?(Hash)
-          # recursively set namespace values
+    # The opposite of #to_hash. Takes a hash representation of options and
+    # namespaces and mass assigns option values.
+    def apply(values=nil)
+      (values || {}).each do |name, value|
+        if has_namespace?(name) && value.kind_of?(Hash)
+          # recursively apply namespace values
           get_namespace(name).apply(value)
-        elsif !has_option?(name)
-          # dynamically add a non-pre-defined option value
-          add_option(name)
-          set_option(name, value)
+        else
+          # write the option value
+          @ns.send("#{name}=", value)
         end
       end
     end
@@ -84,6 +82,68 @@ module NsOptions
     def reset
       child_options.each {|name, opt| opt.reset}
       child_namespaces.each {|name, ns| ns.reset}
+    end
+
+    class DslMethod
+      attr_reader :name, :data
+
+      def initialize(meth, *args, &block)
+        @method_string, @args, @block = meth.to_s, args, block
+        @name = @method_string.gsub("=", "")
+        @data = args.size == 1 ? args[0] : args
+      end
+
+      def writer?;   !!(@method_string =~ /=\Z/); end
+      def reader?;   !self.writer?;               end
+      def has_args?; !@args.empty?;               end
+    end
+
+    def ns_respond_to?(meth)
+      dslm = DslMethod.new(meth)
+
+      has_namespace?(dslm.name) || # namespace reader
+      has_option?(dslm.name)    || # option reader
+      dslm.writer?              || # dynamic option writer
+      false
+    end
+
+    def ns_method_missing(bt, meth, *args, &block)
+      dslm = DslMethod.new(meth, *args, &block)
+
+      if is_namespace_reader?(dslm)
+        # TODO: remove same-named opt/ns when adding the other with same name
+        get_namespace(dslm.name).define(&block)
+      elsif is_option_reader?(dslm)
+        get_option(dslm.name)
+      elsif is_option_writer?(dslm)
+        add_option(dslm.name) unless has_option?(dslm.name)
+        begin
+          set_option(dslm.name, dslm.data)
+        rescue NsOptions::Option::CoerceError, NsOptions::Option::WriteError => err
+          error! bt, err   # reraise these exceptions with same backtraces
+        end
+      else
+        # raise a no meth err with a sane backtrace
+        error! bt, NoMethodError.new("undefined method `#{meth}' for #{@ns.inspect}")
+      end
+    end
+
+    private
+
+    def is_namespace_reader?(dsl_method)
+      has_namespace?(dsl_method.name)
+    end
+
+    def is_option_reader?(dsl_method)
+      has_option?(dsl_method.name) && !dsl_method.has_args?
+    end
+
+    def is_option_writer?(dsl_method)
+      dsl_method.has_args?
+    end
+
+    def error!(backtrace, exception)
+      exception.set_backtrace(backtrace); raise exception
     end
 
   end

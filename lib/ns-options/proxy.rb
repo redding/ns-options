@@ -50,12 +50,14 @@ module NsOptions::Proxy
     # pass thru namespace methods to the proxied NAMESPACE handler
 
     def option(name, *args, &block)
+      # TODO: for values proxy, inject in a :value rule here
       __proxy_options__.option(name, *args, &block)
       NsOptions::ProxyMethod.new(self, name, 'an option').define($stdout, caller)
     end
     alias_method :opt, :option
 
     def namespace(name, *args, &block)
+      # TODO: for values proxy, inject in the :values flag here
       __proxy_options__.namespace(name, *args, &block)
       NsOptions::ProxyMethod.new(self, name, 'a namespace').define($stdout, caller)
     end

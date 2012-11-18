@@ -1,22 +1,35 @@
 require 'ns-options/namespace'
 
 module NsOptions
-  class Namespaces < Hash
+  class Namespaces
+
+    def initialize(handling=nil)
+      @handling = handling || :default
+      @hash = Hash.new
+    end
 
     # for hash with indifferent access behavior
-    def [](name);         super(name.to_sym);        end
-    def []=(name, value); super(name.to_sym, value); end
+    def [](name);         @hash[name.to_s];         end
+    def []=(name, value); @hash[name.to_s] = value; end
 
-    def add(name, &block)
-      self[name] = NsOptions::Namespace.new(name, &block)
+    def keys(*args, &block);   @hash.keys(*args, &block);   end
+    def each(*args, &block);   @hash.each(*args, &block);   end
+    def empty?(*args, &block); @hash.empty?(*args, &block); end
+
+    def add(name, handling=nil, &block)
+      self[name] = NsOptions::Namespace.new(name, handling || @handling, &block)
     end
 
     def get(name); self[name]; end
 
     def required_set?
-      self.values.inject(true) do |bool, ns|
-        bool && ns.required_set?
-      end
+      are_all_these_namespaces_set? @hash.values
+    end
+
+    private
+
+    def are_all_these_namespaces_set?(namespaces)
+      namespaces.inject(true) {|bool, ns| bool && ns.is_set?}
     end
 
   end

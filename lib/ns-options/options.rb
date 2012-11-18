@@ -1,14 +1,29 @@
 require 'ns-options/option'
 
 module NsOptions
-  class Options < Hash
+
+  class Options
+
+    def initialize(handing=nil)
+      @handing = handing || :default
+      @hash = Hash.new
+    end
 
     # for hash with indifferent access behavior
-    def [](name);         super(name.to_sym);        end
-    def []=(name, value); super(name.to_sym, value); end
+    def [](name);         @hash[name.to_s];         end
+    def []=(name, value); @hash[name.to_s] = value; end
+
+    def keys(*args, &block);   @hash.keys(*args, &block);   end
+    def each(*args, &block);   @hash.each(*args, &block);   end
+    def empty?(*args, &block); @hash.empty?(*args, &block); end
 
     def add(*args)
-      option = NsOptions::Option.new(*args)
+      name, type_class, rules = NsOptions::Option.args(*args)
+      if @handing == :values && !rules.has_key?(:value)
+        rules[:value] = NsOptions::Option::PendingValue
+      end
+
+      option = NsOptions::Option.new(name, type_class, rules)
       self[option.name] = option
     end
 
@@ -25,9 +40,17 @@ module NsOptions
     end
 
     def required_set?
-      self.values.reject{|option| !option.required? }.inject(true) do |bool, option|
-        bool && option.is_set?
-      end
+      are_all_these_options_set? required_options
+    end
+
+    private
+
+    def are_all_these_options_set?(options)
+      options.inject(true) {|bool, opt| bool && opt.is_set?}
+    end
+
+    def required_options
+      @hash.values.reject{|opt| !opt.required? }
     end
 
   end

@@ -12,17 +12,13 @@ class NsOptions::Options
 
     should have_instance_method :add, :rm, :get, :set, :required_set?
 
-    should "be a Hash" do
-      assert_kind_of Hash, subject
-    end
+    should "only use strings for keys (indifferent access)" do
+      subject['string_key'] = true
+      subject[:symbol_key]  = true
 
-    should "only use symbols for keys" do
-      subject["string_key"] = true
-      subject[:symbol_key] = true
-
-      assert_includes :string_key, subject.keys
-      assert_includes :symbol_key, subject.keys
-      assert_not_includes "string_key", subject.keys
+      assert_includes 'string_key', subject.keys
+      assert_includes 'symbol_key', subject.keys
+      assert_not_includes :string_key, subject.keys
     end
 
   end
@@ -146,6 +142,23 @@ class NsOptions::Options
       assert_equal true, subject.required_set?
     end
 
+  end
+
+  class ValuesTests < BaseTests
+    desc "with `:values` handling"
+    setup do
+      @options = NsOptions::Options.new :values
+    end
+
+    should "add all options with a pending :value rule" do
+      opt = subject.add(:first, String)
+      exp_rules = {
+        :value => NsOptions::Option::PendingValue,
+        :args => []
+      }
+
+      assert_equal exp_rules, opt.rules
+    end
   end
 
 end
