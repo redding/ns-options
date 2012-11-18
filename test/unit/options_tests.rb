@@ -30,23 +30,23 @@ class NsOptions::Options
 
     should "add options" do
       assert_nil subject[:my_string]
-      subject.add(:my_string)
+      subject.add(:my_string, NsOptions::Option.new(:my_string))
       assert subject[:my_string]
     end
 
     should "should work with both string and symbol names" do
       assert_nil subject[:my_string]
-      subject.add('my_string')
+      subject.add('my_string', NsOptions::Option.new('my_string'))
       assert subject[:my_string]
     end
 
     should "return the option added" do
-      added_opt = subject.add(:something)
+      added_opt = subject.add(:something, NsOptions::Option.new(:something))
       assert_kind_of NsOptions::Option, added_opt
     end
 
     should "build options with args when adding" do
-      subject.add(:my_float, Float, { :default => 1.0 })
+      subject.add(:my_float, NsOptions::Option.new(:my_float, Float, :default => 1.0))
 
       assert_equal Float, subject[:my_float].type_class
       assert_equal 1.0,   subject[:my_float].rules[:default]
@@ -57,7 +57,7 @@ class NsOptions::Options
   class RmTests < BaseTests
     desc "rm method"
     setup do
-      @options.add(:my_string)
+      @options.add(:my_string, NsOptions::Option.new(:my_string))
     end
 
     should "remove the option definition from the collection" do
@@ -77,7 +77,8 @@ class NsOptions::Options
   class GetTests < BaseTests
     desc "get method"
     setup do
-      @options.add(:my_string, { :default => "something" })
+      opt = NsOptions::Option.new(:my_string, Object, :default => "something")
+      @options.add(:my_string, opt)
     end
 
     should "return the named option value" do
@@ -93,7 +94,7 @@ class NsOptions::Options
   class SetTests < BaseTests
     desc "set method"
     setup do
-      @options.add(:my_string)
+      @options.add(:my_string, NsOptions::Option.new(:my_string))
     end
 
     should "set option values" do
@@ -115,9 +116,9 @@ class NsOptions::Options
   class RequiredSetTests < BaseTests
     desc "required_set? method"
     setup do
-      @options.add(:first, String, { :require => true })
-      @options.add(:second, String, { :required => true })
-      @options.add(:third, String)
+      @options.add(:first,  NsOptions::Option.new(:first,  String, :required => true))
+      @options.add(:second, NsOptions::Option.new(:second, String, :required => true))
+      @options.add(:third,  NsOptions::Option.new(:third,  String))
     end
 
     should "return true when all required options are set" do

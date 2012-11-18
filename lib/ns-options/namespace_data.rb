@@ -21,12 +21,16 @@ module NsOptions
     def has_option?(name);     !!@child_options[name];         end
     def get_option(name);      @child_options.get(name);       end
     def set_option(name, val); @child_options.set(name, val);  end
-    def add_option(*args);     @child_options.add(*args);      end
+    def add_option(name, *args)
+      opt = NsOptions::Option.new(*NsOptions::Option.args(name, *args))
+      @child_options.add(name, opt)
+    end
 
     def has_namespace?(name);  !!@child_namespaces[name];      end
     def get_namespace(name);   @child_namespaces.get(name);    end
     def add_namespace(name, *args, &block)
-      @child_namespaces.add(name, *args, &block)
+      ns = NsOptions::Namespace.new(name,*args, &block)
+      @child_namespaces.add(name, ns)
     end
 
     # recursively build a hash representation of the namespace, using symbols
