@@ -12,18 +12,20 @@ class NsOptions::NamespaceData
     end
     subject { @data }
 
-    should have_readers :ns, :name, :child_options, :child_namespaces
-    should have_imeths :has_option?, :has_namespace?, :required_set?
-    should have_imeths :add_option, :get_option, :set_option
-    should have_imeths :add_namespace, :get_namespace
-    should have_imeths :to_hash, :apply, :each, :define, :build_from, :reset
+    should have_readers :ns, :option_type_class
+    should have_readers :child_options, :child_namespaces
+    should have_imeths  :has_option?, :has_namespace?, :required_set?
+    should have_imeths  :add_option, :get_option, :set_option
+    should have_imeths  :add_namespace, :get_namespace
+    should have_imeths  :set_option_type_class
+    should have_imeths  :to_hash, :apply, :each, :define, :build_from, :reset
 
     should "know its namespace" do
       assert_equal @ns, subject.ns
     end
 
-    should "know its name" do
-      assert_equal 'thing', subject.name
+    should "know its type class" do
+      assert_equal Object, subject.option_type_class
     end
 
     should "know its child options" do
@@ -36,9 +38,25 @@ class NsOptions::NamespaceData
       assert_empty subject.child_namespaces
     end
 
+    should "be able to change its option_type_class" do
+      assert_equal Object, subject.option_type_class
+      subject.set_option_type_class(Fixnum)
+
+      assert_equal Fixnum, subject.option_type_class
+    end
+
     should "add options" do
       an_option = subject.add_option 'an_option'
+
       assert_equal an_option, subject.child_options['an_option']
+      assert_equal Object, an_option.type_class
+    end
+
+    should "add options with its type class" do
+      subject.set_option_type_class(Fixnum)
+      an_option = subject.add_option 'an_option'
+
+      assert_equal Fixnum, an_option.type_class
     end
 
     should "get option values" do
@@ -59,6 +77,17 @@ class NsOptions::NamespaceData
     should "add namespaces" do
       a_namespace = subject.add_namespace 'a_namespace'
       assert_equal a_namespace, subject.child_namespaces['a_namespace']
+
+      a_ns_data   = a_namespace.__data__
+      assert_equal Object, a_ns_data.option_type_class
+    end
+
+    should "add namespaces with its type class" do
+      subject.set_option_type_class(Fixnum)
+      a_namespace = subject.add_namespace 'a_namespace'
+      a_ns_data   = subject.child_namespaces['a_namespace'].__data__
+
+      assert_equal Fixnum, a_ns_data.option_type_class
     end
 
     should "get namespaces" do

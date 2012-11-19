@@ -70,7 +70,7 @@ module NsOptions::Proxy
     def valid?(*args, &block);        __proxy_options__.valid?(*args, &block);        end
 
     def inspect(*args, &block)
-      "#<#{self.class}:#{'0x%x' % (self.object_id << 1)}:#{__proxy_options__.__data__.name} #{__proxy_options__.to_hash.inspect}>"
+      "#<#{self.class}:#{'0x%x' % (self.object_id << 1)}:#{__proxy_options__.__name__} #{__proxy_options__.to_hash.inspect}>"
     end
 
     # for everything else, send to the proxied NAMESPACE handler

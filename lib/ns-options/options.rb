@@ -16,9 +16,8 @@ module NsOptions
     def each(*args, &block);   @hash.each(*args, &block);   end
     def empty?(*args, &block); @hash.empty?(*args, &block); end
 
-    def add(*args)
-      option = NsOptions::Option.new(*NsOptions::Option.args(*args))
-      self[option.name] = option
+    def add(name, opt)
+      self[name] = opt
     end
 
     def rm(name)

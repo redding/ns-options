@@ -37,18 +37,18 @@ class NsOptions::Namespaces
 
     should "add namespaces" do
       assert_nil subject[:a_name]
-      subject.add(:a_name)
+      subject.add(:a_name, NsOptions::Namespace.new(:a_name))
       assert subject[:a_name]
     end
 
     should "should work with both string and symbol names" do
       assert_nil subject[:a_name]
-      subject.add('a_name')
+      subject.add('a_name', NsOptions::Namespace.new('a_name'))
       assert subject[:a_name]
     end
 
     should "return the option added" do
-      added_ns = subject.add(:a_name)
+      added_ns = subject.add(:a_name, NsOptions::Namespace.new(:a_name))
       assert_kind_of NsOptions::Namespace, added_ns
     end
 
