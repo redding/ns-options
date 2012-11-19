@@ -7,9 +7,9 @@ module NsOptions
 
     attr_reader :__name__, :__data__
 
-    def initialize(name, &block)
+    def initialize(name, option_type_class=nil, &block)
       @__name__ = name
-      @__data__ = NamespaceData.new(self)
+      @__data__ = NamespaceData.new(self, option_type_class || Object)
       @__data__.define(&block)
     end
 
@@ -24,6 +24,12 @@ module NsOptions
       @__data__.add_namespace(name, *args, &block)
     end
     alias_method :ns, :namespace
+
+    def option_type_class(*args)
+      return @__data__.option_type_class if args.empty?
+      @__data__.set_option_type_class(*args)
+    end
+    alias_method :opt_type_class, :option_type_class
 
     def has_option?(name);    @__data__.has_option?(name);    end
     def has_namespace?(name); @__data__.has_namespace?(name); end

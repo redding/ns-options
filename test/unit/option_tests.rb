@@ -58,6 +58,13 @@ class NsOptions::Option
       assert_equal Object, @ptype_class
     end
 
+    should "parse the type_class arg and default it to a given default type class" do
+      assert_equal String, @ptype_class
+
+      @pname, @ptype_class, @prules = NsOptions::Option.args(['test'], Fixnum)
+      assert_equal Fixnum, @ptype_class
+    end
+
     should "parse option rules arguments, defaulting to {:args => []}" do
       assert_equal @rules, @prules
 

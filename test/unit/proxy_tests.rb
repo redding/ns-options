@@ -174,6 +174,7 @@ module NsOptions::Proxy
     setup do
       @a_super_class = Class.new do
         include NsOptions::Proxy
+        option_type_class Fixnum
 
         option :test
         namespace(:other) { option :stuff }
@@ -186,6 +187,11 @@ module NsOptions::Proxy
       assert a_sub_class.has_option? :test
       assert a_sub_class.has_namespace? :other
       assert a_sub_class.other.has_option? :stuff
+
+      a_sub_ns_data = a_sub_class.__proxy_options__.__data__
+      assert_equal Fixnum, a_sub_ns_data.option_type_class
+      other_ns_data = a_sub_class.other.__data__
+      assert_equal Fixnum, other_ns_data.option_type_class
     end
 
   end

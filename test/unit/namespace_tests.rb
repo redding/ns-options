@@ -13,6 +13,7 @@ class NsOptions::Namespace
 
     should have_reader :__name__, :__data__
     should have_imeths :option, :opt, :namespace, :ns
+    should have_imeths :option_type_class, :opt_type_class
     should have_imeths :required_set?, :valid?
     should have_imeths :has_option?, :has_namespace?
     should have_imeths :define, :build_from, :reset, :apply, :to_hash, :each
@@ -27,6 +28,15 @@ class NsOptions::Namespace
 
     should "contain its to_hash representation in its inspect output" do
       assert_included subject.to_hash.inspect, subject.inspect
+    end
+
+    should "know its option type class" do
+      assert_equal Object, subject.option_type_class
+    end
+
+    should "set its option type class" do
+      subject.option_type_class(String)
+      assert_equal String, subject.option_type_class
     end
 
   end

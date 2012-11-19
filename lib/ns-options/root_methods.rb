@@ -9,9 +9,9 @@ module NsOptions
     # class level namespace but with an identical definition
 
     def initialize(define_on, name)
-      @define_on, @name = define_on, name
+      @define_on, @name     = define_on, name
       @class_meth_extension = Module.new
-      @instance_meth_mixin = Module.new
+      @instance_meth_mixin  = Module.new
     end
 
     def define_on_class?
@@ -45,6 +45,7 @@ module NsOptions
 
     private
 
+    # TODO: be able to call with block over and over
     def class_meth_extension_code
       %{
         def #{@name}(*args, &block)
@@ -61,6 +62,7 @@ module NsOptions
       }
     end
 
+    # TODO: be able to call with block over and over
     def instance_meth_mixin_code
       %{
         def #{@name}(*args, &block)
