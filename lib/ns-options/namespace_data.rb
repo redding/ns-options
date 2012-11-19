@@ -5,12 +5,12 @@ module NsOptions
 
   class NamespaceData
 
-    attr_reader :ns, :name, :child_options, :child_namespaces
+    attr_reader :ns, :option_type_class, :child_options, :child_namespaces
 
-    def initialize(ns, name)
-      @ns, @name = ns, name
-      @child_namespaces = NsOptions::Namespaces.new
-      @child_options    = NsOptions::Options.new
+    def initialize(ns, option_type_class)
+      @ns, @option_type_class = ns, option_type_class
+      @child_namespaces       = NsOptions::Namespaces.new
+      @child_options          = NsOptions::Options.new
     end
 
     # Recursively check if options that were defined as :required have been set.
@@ -18,15 +18,25 @@ module NsOptions
       @child_options.required_set? && @child_namespaces.required_set?
     end
 
+    def set_option_type_class(value)
+      @option_type_class = value
+    end
+
     def has_option?(name);     !!@child_options[name];         end
     def get_option(name);      @child_options.get(name);       end
     def set_option(name, val); @child_options.set(name, val);  end
-    def add_option(*args);     @child_options.add(*args);      end
+    def add_option(*args)
+      name = args.first
+      opt  = NsOptions::Option.new(*NsOptions::Option.args(args, @option_type_class))
+      @child_options.add(name, opt)
+    end
 
     def has_namespace?(name);  !!@child_namespaces[name];      end
     def get_namespace(name);   @child_namespaces.get(name);    end
-    def add_namespace(name, *args, &block)
-      @child_namespaces.add(name, *args, &block)
+    def add_namespace(name, option_type_class=nil, &block)
+      opt_type_class = option_type_class || @option_type_class
+      ns = NsOptions::Namespace.new(name, opt_type_class, &block)
+      @child_namespaces.add(name, ns)
     end
 
     # recursively build a hash representation of the namespace, using symbols
@@ -69,9 +79,12 @@ module NsOptions
     end
 
     def build_from(other_ns_data)
+      set_option_type_class(other_ns_data.option_type_class)
+
       other_ns_data.child_options.each do |name, opt|
         add_option(name, opt.type_class, opt.rules)
       end
+
       other_ns_data.child_namespaces.each do |name, ns|
         new_ns = add_namespace(name)
         new_ns.build_from(ns)

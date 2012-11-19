@@ -10,16 +10,17 @@ module NsOptions
     end
 
     def self.rules(rules)
+      # make sure any given `:args` rule is an array
       (rules || {}).tap do |r|
         r[:args] = (r[:args] ? [*r[:args]] : [])
       end
     end
 
-    def self.args(*args)
+    def self.args(args, default_type_class=nil)
       [ self.rules(args.last.kind_of?(::Hash) ? args.pop : {}),
         # if a nil type_class is given, just use Object
         # this makes the option accept any value with no type coercion
-        (args[1] || Object),
+        (args[1] || default_type_class || Object),
         args[0].to_s
       ].reverse
     end

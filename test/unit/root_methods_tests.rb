@@ -102,7 +102,7 @@ class NsOptions::RootMethods
     setup do
       @rm = NsOptions::RootMethods.new(@a_super_class = Class.new, 'a_ns')
       @rm.define
-      @a_super_class.a_ns do
+      @a_super_class.a_ns Fixnum do
         option :test
         namespace(:other) { option :stuff }
       end
@@ -114,6 +114,11 @@ class NsOptions::RootMethods
       assert a_sub_class.a_ns.has_option? :test
       assert a_sub_class.a_ns.has_namespace? :other
       assert a_sub_class.a_ns.other.has_option? :stuff
+
+      a_sub_ns_data = a_sub_class.a_ns.__data__
+      assert_equal Fixnum, a_sub_ns_data.option_type_class
+      other_ns_data = a_sub_class.a_ns.other.__data__
+      assert_equal Fixnum, other_ns_data.option_type_class
     end
 
   end

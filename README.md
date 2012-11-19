@@ -47,7 +47,7 @@ App.settings.grouped_stuff.something # => 1
 
 ### Less Verbose Definitions
 
-As an alternative to the above definition syntax, you can use an alternate less-verbose syntax:
+As an alternative to the above definition syntax, you can use a less-verbose syntax:
 
 * `opts` for `options`
 * `opt` for `option`
@@ -162,6 +162,44 @@ App.setting.stage = nil
 ```
 
 For type coercion to work, your type class's initializer must work given only a single argument.
+
+### Default Type Classes
+
+```ruby
+class MyCustomFixNum < Struct.new(:num); end
+
+options :settings do
+  option_type_class Fixnum
+
+  option :opt1, :default => 1
+  option :opt2, :default => 2
+  option :opt3, MyCustomFixNum, :default => 3
+end
+
+settings.opt1.class  #=> Fixnum
+settings.opt3.class  #=> Fixnum
+settings.opt3.class  #=> MyCustomFixNum
+```
+
+By default, NsOptions will use `Object` for an option's type class if none is specified.  You can override this on a per-namespaces basis using the `option_type_class` method.  Call this and all options will be defined using the given class by default.
+
+Note, this setting applies recursively, so all child namespaces honor it as well.  You can override this by specifying a new type class on your child namespaces.
+
+```ruby
+# you can use an abbreviated syntax
+#...
+options :settings do
+  opt_type_class Fixnum
+
+  option :opt1, :default => 1
+#...
+
+# you can also pass in the option type class when defining the ns
+#...
+options :settings, Fixnum do
+  option :opt1, :default => 1
+#...
+```
 
 ### Ruby Classes As A Type Class
 
