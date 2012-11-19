@@ -12,7 +12,7 @@ class NsOptions::Namespaces
 
     should have_accessor :[]
     should have_imeths :keys, :each, :empty?
-    should have_imeths :add, :get, :required_set?
+    should have_imeths :add, :rm, :get, :required_set?
 
     should "only use strings for keys (indifferent access)" do
       subject['string_key'] = true
@@ -50,6 +50,28 @@ class NsOptions::Namespaces
     should "return the option added" do
       added_ns = subject.add(:a_name, NsOptions::Namespace.new(:a_name))
       assert_kind_of NsOptions::Namespace, added_ns
+    end
+
+  end
+
+  class RmTests < BaseTests
+    desc "rm method"
+    setup do
+      @namespaces.add(:my_string)
+    end
+
+    should "remove the option definition from the collection" do
+      assert subject[:my_string]
+
+      subject.rm(:my_string)
+      assert_nil subject[:my_string]
+    end
+
+    should "should work with both string and symbol names" do
+      assert subject[:my_string]
+
+      subject.rm('my_string')
+      assert_nil subject[:my_string]
     end
 
   end
