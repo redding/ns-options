@@ -23,8 +23,8 @@ class User
     subject{ @class.preferences }
 
     should have_option :home_url
-    should have_option :show_messages,  NsOptions::Boolean, :require => true
-    should have_option :font_size,      Integer,            :default => 12
+    should have_option :show_messages,  NsOptions::Boolean, :required => true
+    should have_option :font_size,      Integer,            :default  => 12
 
     should have_namespace :view do
       option :color
@@ -45,8 +45,8 @@ class User
     subject { @a_sub_class.preferences }
 
     should have_option :home_url
-    should have_option :show_messages,  NsOptions::Boolean, :require => true
-    should have_option :font_size,      Integer,            :default => 12
+    should have_option :show_messages,  NsOptions::Boolean, :required => true
+    should have_option :font_size,      Integer,            :default  => 12
 
     should have_namespace :view do
       option :color
@@ -109,8 +109,8 @@ class User
     subject{ @instance.preferences }
 
     should have_option :home_url
-    should have_option :show_messages,  NsOptions::Boolean, :require => true
-    should have_option :font_size,      Integer,            :default => 12
+    should have_option :show_messages,  NsOptions::Boolean, :required => true
+    should have_option :font_size,      Integer,            :default  => 12
 
     should have_namespace :view do
       option :color
@@ -134,8 +134,8 @@ class User
     subject { @the_sub_class.preferences }
 
     should have_option :home_url
-    should have_option :show_messages,  NsOptions::Boolean, :require => true
-    should have_option :font_size,      Integer,            :default => 12
+    should have_option :show_messages,  NsOptions::Boolean, :required => true
+    should have_option :font_size,      Integer,            :default  => 12
 
     should have_namespace :view do
       option :color
