@@ -10,7 +10,7 @@ module NsOptions
     end
 
     def self.rules(rules)
-      # for any given `:args` rule into an array
+      # make sure any given `:args` rule is an array
       (rules || {}).tap do |r|
         r[:args] = (r[:args] ? [*r[:args]] : [])
       end
