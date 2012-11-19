@@ -57,7 +57,7 @@ class NsOptions::Namespaces
   class RmTests < BaseTests
     desc "rm method"
     setup do
-      @namespaces.add(:my_string)
+      @namespaces.add(:my_string, NsOptions::Namespace.new(:my_string))
     end
 
     should "remove the option definition from the collection" do

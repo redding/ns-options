@@ -45,7 +45,6 @@ module NsOptions
 
     private
 
-    # TODO: be able to call with block over and over
     def class_meth_extension_code
       %{
         def #{@name}(*args, &block)
@@ -62,7 +61,6 @@ module NsOptions
       }
     end
 
-    # TODO: be able to call with block over and over
     def instance_meth_mixin_code
       %{
         def #{@name}(*args, &block)
