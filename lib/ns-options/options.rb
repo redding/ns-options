@@ -21,7 +21,7 @@ module NsOptions
     end
 
     def rm(name)
-      self[name] = nil
+      @hash.delete(name.to_s)
     end
 
     def get(name)

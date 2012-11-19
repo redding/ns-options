@@ -62,12 +62,14 @@ class NsOptions::Options
 
     should "remove the option definition from the collection" do
       assert subject[:my_string]
+
       subject.rm(:my_string)
       assert_nil subject[:my_string]
     end
 
     should "should work with both string and symbol names" do
       assert subject[:my_string]
+
       subject.rm('my_string')
       assert_nil subject[:my_string]
     end

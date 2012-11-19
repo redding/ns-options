@@ -15,8 +15,9 @@ module NsOptions
     def each(*args, &block);   @hash.each(*args, &block);   end
     def empty?(*args, &block); @hash.empty?(*args, &block); end
 
-    def add(name, ns); self[name] = ns; end
-    def get(name);     self[name];      end
+    def add(name, ns); self[name] = ns;         end
+    def rm(name);      @hash.delete(name.to_s); end
+    def get(name);     self[name];              end
 
     def required_set?
       are_all_these_namespaces_set? @hash.values
