@@ -4,8 +4,8 @@ require File.expand_path('../lib/ns-options/version', __FILE__)
 Gem::Specification.new do |gem|
   gem.authors       = ["Collin Redding"]
   gem.email         = ["collin.redding@reelfx.com"]
-  gem.description   = %q{Define and use namespaced options with a clean interface.}
-  gem.summary       = %q{Define and use namespaced options with a clean interface.}
+  gem.description   = %q{A DSL for defining, organizing and accessing options.}
+  gem.summary       = %q{A DSL for defining, organizing and accessing options.}
 
   gem.executables   = `git ls-files -- bin/*`.split("\n").map{ |f| File.basename(f) }
   gem.files         = `git ls-files`.split("\n")
@@ -14,5 +14,5 @@ Gem::Specification.new do |gem|
   gem.require_paths = ["lib"]
   gem.version       = NsOptions::VERSION
 
-  gem.add_development_dependency("assert", ["~>0.7"])
+  gem.add_development_dependency("assert", ["~>0.8"])
 end

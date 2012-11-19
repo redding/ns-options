@@ -1,6 +1,6 @@
 # NsOptions
 
-NsOptions provides an API for defining, organizing and using options.  Use namespaces to organize options.  Read and write option values using accessors.
+A Ruby DSL for defining, organizing and accessing options.  Use namespaces to organize options.  Read and write option values using accessors.
 
 ## Usage
 
