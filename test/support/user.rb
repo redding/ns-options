@@ -7,8 +7,8 @@ class User
 
   options(:preferences) do
     option :home_url
-    option :show_messages,  NsOptions::Boolean, :require => true
-    option :font_size,      Integer,            :default => 12
+    option :show_messages,  NsOptions::Boolean, :required => true
+    option :font_size,      Integer,            :default  => 12
 
     namespace :view do
       option :color
