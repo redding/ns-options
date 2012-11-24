@@ -61,13 +61,20 @@ module NsOptions::Proxy
     end
     alias_method :ns, :namespace
 
+    def option_type_class(*args, &block)
+      __proxy_options__.option_type_class(*args, &block)
+    end
+    alias_method :opt_type_class, :option_type_class
+
+    def has_option?(*args, &block);    __proxy_options__.has_option?(*args, &block);    end
+    def has_namespace?(*args, &block); __proxy_options__.has_namespace?(*args, &block); end
+    def required_set?(*args, &block);  __proxy_options__.required_set?(*args, &block);    end
+    def valid?(*args, &block);         __proxy_options__.valid?(*args, &block);           end
+
     def apply(*args, &block);   __proxy_options__.apply(*args, &block);   end
     def to_hash(*args, &block); __proxy_options__.to_hash(*args, &block); end
     def each(*args, &block);    __proxy_options__.each(*args, &block);    end
     def define(*args, &block);  __proxy_options__.define(*args, &block);  end
-
-    def required_set?(*args, &block); __proxy_options__.required_set?(*args, &block); end
-    def valid?(*args, &block);        __proxy_options__.valid?(*args, &block);        end
 
     def inspect(*args, &block)
       "#<#{self.class}:#{'0x%x' % (self.object_id << 1)}:#{__proxy_options__.__name__} #{__proxy_options__.to_hash.inspect}>"
