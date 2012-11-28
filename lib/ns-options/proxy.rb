@@ -12,37 +12,50 @@ module NsOptions::Proxy
   def self.included(receiver)
     NsOptions::RootMethods.new(receiver, NAMESPACE).define
     receiver.class_eval { extend  ProxyMethods }
-    receiver.class_eval { include ProxyMethods } if receiver.kind_of?(Class)
 
     if receiver.kind_of?(Class)
-      receiver.class_eval do
 
-        # This hook copies the proxy definition to any subclasses
-        def self.inherited(subclass)
-          subclass.__proxy_options__.build_from(self.__proxy_options__)
-        end
+      receiver.class_eval { include ProxyMethods                 }
+      receiver.class_eval { extend  ClassReceiverExtendMethods   }
+      receiver.class_eval { include ClassReceiverIncludeMethods  }
 
-        # default initializer method
-        def initialize(configs=nil)
-          self.apply(configs || {})
-        end
-
-        # equality method override for class-instance proxies
-        def ==(other_proxy_instance)
-          __proxy_options__ == other_proxy_instance.__proxy_options__
-        end
-
-      end
     else # Module
-      receiver.class_eval do
 
-        # default initializer method
-        def self.new(configs=nil)
-          self.apply(configs || {})
-        end
+      receiver.class_eval { extend  ModuleReceiverExtendMethods  }
 
-      end
     end
+  end
+
+  module ClassReceiverExtendMethods
+
+    # This hook copies the proxy definition to any subclasses
+    def inherited(subclass)
+      subclass.__proxy_options__.build_from(self.__proxy_options__)
+    end
+
+  end
+
+  module ClassReceiverIncludeMethods
+
+    # default initializer method
+    def initialize(configs=nil)
+      self.apply(configs || {})
+    end
+
+    # equality method override for class-instance proxies
+    def ==(other_proxy_instance)
+      __proxy_options__ == other_proxy_instance.__proxy_options__
+    end
+
+  end
+
+  module ModuleReceiverExtendMethods
+
+    # default initializer method
+    def new(configs=nil)
+      self.apply(configs || {})
+    end
+
   end
 
   module ProxyMethods

@@ -6,6 +6,10 @@ module SomeProxy
   class SomeThing
     include NsOptions::Proxy
 
+    def initialize(opts=nil)
+      super(opts)
+    end
+
     opt :value1
     opt :value2
 
