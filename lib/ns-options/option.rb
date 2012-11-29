@@ -90,13 +90,15 @@ module NsOptions
       return value if no_coercing_needed?(value)
 
       begin
-        if [ Integer, Float, String ].include?(self.type_class)
+        if [ ::Integer, ::Float, ::String ].include?(self.type_class)
           # ruby type conversion, i.e. String(1)
           Object.send(self.type_class.to_s, value)
-        elsif self.type_class == Symbol
+        elsif self.type_class == ::Symbol
           value.to_sym
-        elsif self.type_class == Hash
-          {}.merge(value)
+        elsif self.type_class == ::Array
+          ::Array.new([*value])
+        elsif self.type_class == ::Hash
+          ::Hash.new.merge(value)
         else
           self.type_class.new(value, *self.rules[:args])
         end

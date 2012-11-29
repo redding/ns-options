@@ -269,9 +269,17 @@ class NsOptions::Option
     subject{ @option }
 
     should "allow setting it with a array" do
-      new_value = [ :something, :else, :another ]
-      subject.value = new_value
-      assert_equal new_value, subject.value
+      expected = [ :something, :else, :another ]
+      subject.value = [ :something, :else, :another ]
+
+      assert_equal expected, subject.value
+    end
+
+    should "allow setting it with a single value" do
+      expected = [ :something ]
+      subject.value = :something
+
+      assert_equal expected, subject.value
     end
 
   end
