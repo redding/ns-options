@@ -209,6 +209,25 @@ class NsOptions::Option
 
   end
 
+  class WithFixnumTypeClassTests < BaseTests
+    desc "with a Fixnum type class"
+    setup do
+      @option = NsOptions::Option.new(:something, Fixnum)
+    end
+    subject{ @option }
+
+    should "allow setting it's value" do
+      subject.value = 12
+      assert_equal 12, subject.value
+    end
+
+    should "allow setting it's value with a string and convert it" do
+      subject.value = "13"
+      assert_equal "13".to_i, subject.value
+    end
+
+  end
+
   class WithFloatTypeClassTests < BaseTests
     desc "with a Float type class"
     setup do
@@ -234,7 +253,7 @@ class NsOptions::Option
   end
 
   class WithStringTypeClassTests < BaseTests
-    desc "with an Integer type class"
+    desc "with an String type class"
     setup do
       @option = NsOptions::Option.new(:something, String)
     end
