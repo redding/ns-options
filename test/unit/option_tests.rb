@@ -190,29 +190,75 @@ class NsOptions::Option
 
   end
 
-  class WithNativeTypeClassTests < BaseTests
-    desc "with a native type class (Float)"
+  class WithIntegerTypeClassTests < BaseTests
+    desc "with an Integer type class"
+    setup do
+      @option = NsOptions::Option.new(:something, Integer)
+    end
+    subject{ @option }
+
+    should "allow setting it's value" do
+      subject.value = 12
+      assert_equal 12, subject.value
+    end
+
+    should "allow setting it's value with a string and convert it" do
+      subject.value = "13"
+      assert_equal "13".to_i, subject.value
+    end
+
+  end
+
+  class WithFloatTypeClassTests < BaseTests
+    desc "with a Float type class"
     setup do
       @option = NsOptions::Option.new(:something, Float)
     end
     subject{ @option }
 
-    should "allow setting it's value with a float" do
-      new_value = 12.5
-      subject.value = new_value
-      assert_equal new_value, subject.value
+    should "allow setting it's value" do
+      subject.value = 12.5
+      assert_equal 12.5, subject.value
     end
 
     should "allow setting it's value with a string and convert it" do
-      new_value = "13.4"
-      subject.value = new_value
-      assert_equal new_value.to_f, subject.value
+      subject.value = "13.4"
+      assert_equal "13.4".to_f, subject.value
     end
 
     should "allow setting it's value with an integer and convert it" do
-      new_value = 1
-      subject.value = new_value
-      assert_equal new_value.to_f, subject.value
+      subject.value = 1
+      assert_equal 1.to_f, subject.value
+    end
+
+  end
+
+  class WithStringTypeClassTests < BaseTests
+    desc "with an Integer type class"
+    setup do
+      @option = NsOptions::Option.new(:something, String)
+    end
+    subject{ @option }
+
+    should "allow setting it's value" do
+      subject.value = "12"
+      assert_equal "12", subject.value
+    end
+
+    should "allow setting it's value with a numeric and convert it" do
+      subject.value = 13
+      assert_equal 13.to_s, subject.value
+
+      subject.value = 13.5
+      assert_equal 13.5.to_s, subject.value
+    end
+
+    should "allow setting it's value with other things and convert it" do
+      subject.value = true
+      assert_equal true.to_s, subject.value
+
+      subject.value = NsOptions
+      assert_equal NsOptions.to_s, subject.value
     end
 
   end
