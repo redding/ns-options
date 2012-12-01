@@ -131,11 +131,10 @@ module NsOptions
       elsif is_option_reader?(dslm)
         get_option(dslm.name)
       elsif is_option_writer?(dslm)
-        # TODO: remove same-named opt/ns when adding the other with same name
         add_option(dslm.name) unless has_option?(dslm.name)
         begin
           set_option(dslm.name, dslm.data)
-        rescue NsOptions::Option::CoerceError
+        rescue NsOptions::Option::CoerceError => err
           error! bt, err # reraise this exception with a sane backtrace
         end
       else # namespace writer or unknown
