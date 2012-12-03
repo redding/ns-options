@@ -365,7 +365,7 @@ class NsOptions::Option
       @option = NsOptions::Option.new(:something, SuperSuperTestTest)
     end
 
-    should "reraise the arg error, with a custom message and backtrace" do
+    should "reraise as a CoerceError with a custom message and backtrace" do
       err = begin
         @option.value = "arg error should be raised"
       rescue Exception => err

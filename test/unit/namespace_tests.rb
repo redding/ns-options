@@ -44,7 +44,7 @@ class NsOptions::Namespace
   class OptionTests < BaseTests
     desc "when adding an option named `something`"
     setup do
-      @added_opt = @namespace.option('something', String, { :default => true })
+      @added_opt = @namespace.option('something', Fixnum, { :default => 1 })
     end
 
     should "have added an option to the namespace" do
@@ -52,8 +52,8 @@ class NsOptions::Namespace
 
       opt = subject.__data__.child_options[:something]
       assert_equal 'something',  opt.name
-      assert_equal String,  opt.type_class
-      assert_equal true, opt.rules[:default]
+      assert_equal Fixnum,  opt.type_class
+      assert_equal 1, opt.rules[:default]
     end
 
     should "return the option it added" do
@@ -86,13 +86,24 @@ class NsOptions::Namespace
     end
 
     should "be writable through the defined writer" do
-      assert_nothing_raised{ subject.something = "abc" }
-      assert_equal "abc", subject.something
+      assert_nothing_raised{ subject.something = 2 }
+      assert_equal 2, subject.something
     end
 
     should "be writable through the reader with args" do
-      assert_nothing_raised{ subject.something "123" }
-      assert_equal "123", subject.something
+      assert_nothing_raised{ subject.something 3 }
+      assert_equal 3, subject.something
+    end
+
+    should "raise CoerceError when writing values not coercable to the type class" do
+      err = begin
+        subject.something = "can't be coerced to a Fixnum!"
+      rescue Exception => err
+        err
+      end
+
+      assert_equal NsOptions::Option::CoerceError,  err.class
+      assert_included 'test/unit/namespace_tests.rb:', err.backtrace.first
     end
 
   end
