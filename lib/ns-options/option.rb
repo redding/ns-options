@@ -93,6 +93,8 @@ module NsOptions
         if [ ::Integer, ::Float, ::String ].include?(self.type_class)
           # ruby type conversion, i.e. String(1)
           Object.send(self.type_class.to_s, value)
+        elsif self.type_class == ::Fixnum
+          Object.send('Integer', value)
         elsif self.type_class == ::Symbol
           value.to_sym
         elsif self.type_class == ::Array
