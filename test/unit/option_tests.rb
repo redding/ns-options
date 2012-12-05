@@ -77,11 +77,11 @@ class NsOptions::Option
   class DefaultRuleTests < BaseTests
     desc "using the :default rule"
     setup do
-      @option = NsOptions::Option.new(:opt, Object, :default => "something")
+      @option = NsOptions::Option.new(:opt, Object, :default => {})
     end
 
     should "have defaulted value based on the rule" do
-      assert_equal 'something', subject.value
+      assert_equal Hash.new, subject.value
     end
 
     should "allow overwriting the default value" do
@@ -95,10 +95,13 @@ class NsOptions::Option
     end
 
     should "return the value to its default when `reset` is called" do
-      subject.value = "overwritten"
+      subject.value = {:hash => 'overwritten'}
       subject.reset
+      assert_equal Hash.new, subject.value
 
-      assert_equal 'something', subject.value
+      subject.value[:hash] = 'overwritten'
+      subject.reset
+      assert_equal Hash.new, subject.value
     end
 
   end
