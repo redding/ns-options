@@ -188,6 +188,19 @@ module NsOptions::Proxy
       end
     end
 
+    should "should have its proxy namespace built on inheriting" do
+      super_ns = @a_super_class.instance_variable_get("@__proxy_options__")
+      assert_not_nil super_ns
+      assert_kind_of NsOptions::Namespace, super_ns
+
+      a_sub_class = Class.new(@a_super_class)
+      sub_ns = a_sub_class.instance_variable_get("@__proxy_options__")
+      assert_not_nil sub_ns
+      assert_kind_of NsOptions::Namespace, sub_ns
+
+      assert_not_same super_ns, sub_ns
+    end
+
     should "pass its definition to any subclass" do
       a_sub_class = Class.new(@a_super_class)
 
