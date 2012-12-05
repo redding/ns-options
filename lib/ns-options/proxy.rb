@@ -33,6 +33,10 @@ module NsOptions::Proxy
       subclass.__proxy_options__.build_from(self.__proxy_options__)
     end
 
+    def inspect(*args, &block)
+      "#<#{super()}:#{__proxy_options__.__name__} #{__proxy_options__.to_hash.inspect}>"
+    end
+
   end
 
   module ClassReceiverIncludeMethods
@@ -47,6 +51,10 @@ module NsOptions::Proxy
       __proxy_options__ == other_proxy_instance.__proxy_options__
     end
 
+    def inspect(*args, &block)
+      "#<#{self.class.name}:#{'0x%x' % (self.object_id << 1)}:#{__proxy_options__.__name__} #{__proxy_options__.to_hash.inspect}>"
+    end
+
   end
 
   module ModuleReceiverExtendMethods
@@ -54,6 +62,10 @@ module NsOptions::Proxy
     # default initializer method
     def new(configs=nil)
       self.apply(configs || {})
+    end
+
+    def inspect(*args, &block)
+      "#<#{super()}:#{__proxy_options__.__name__} #{__proxy_options__.to_hash.inspect}>"
     end
 
   end
