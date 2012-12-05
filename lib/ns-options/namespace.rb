@@ -60,7 +60,8 @@ module NsOptions
     end
 
     def inspect(*args)
-      "#<#{self.class}:#{'0x%x' % (self.object_id << 1)}:#{@__name__} #{to_hash.inspect}>"
+      inspect_details = to_hash.inspect rescue "error getting inspect details"
+      "#<#{self.class}:#{'0x%x' % (self.object_id << 1)}:#{@__name__} #{inspect_details}>"
     end
 
   end

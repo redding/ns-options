@@ -30,6 +30,14 @@ class NsOptions::Namespace
       assert_included subject.to_hash.inspect, subject.inspect
     end
 
+    should "still work if to_hash raises an exception" do
+      subject.option(:something, :default => proc{ raise 'test' })
+
+      output = nil
+      assert_nothing_raised{ output = subject.inspect }
+      assert_includes "error getting inspect details", output
+    end
+
     should "know its option type class" do
       assert_equal Object, subject.option_type_class
     end
