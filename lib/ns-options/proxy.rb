@@ -34,7 +34,7 @@ module NsOptions::Proxy
     end
 
     def inspect(*args, &block)
-      "#<#{super()}:#{__proxy_options__.__name__} #{__proxy_options__.to_hash.inspect}>"
+      "#<#{super()}:#{__proxy_options__.inspect}>"
     end
 
   end
@@ -52,7 +52,8 @@ module NsOptions::Proxy
     end
 
     def inspect(*args, &block)
-      "#<#{self.class.name}:#{'0x%x' % (self.object_id << 1)}:#{__proxy_options__.__name__} #{__proxy_options__.to_hash.inspect}>"
+      ref = "#{self.class.name}:#{'0x%x' % (self.object_id << 1)}"
+      "#<#{ref}:#{__proxy_options__.inspect}>"
     end
 
   end
@@ -65,7 +66,7 @@ module NsOptions::Proxy
     end
 
     def inspect(*args, &block)
-      "#<#{super()}:#{__proxy_options__.__name__} #{__proxy_options__.to_hash.inspect}>"
+      "#<#{super()}:#{__proxy_options__.inspect}>"
     end
 
   end
