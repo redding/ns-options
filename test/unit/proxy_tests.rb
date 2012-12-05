@@ -23,6 +23,8 @@ module NsOptions::Proxy
           assert_respond_to :to_hash,           subject
           assert_respond_to :each,              subject
           assert_respond_to :define,            subject
+          assert_respond_to :build_from,        subject
+          assert_respond_to :reset,             subject
           assert_respond_to :inspect,           subject
           assert_respond_to :has_option?,       subject
           assert_respond_to :has_namespace?,    subject
@@ -184,6 +186,19 @@ module NsOptions::Proxy
         option :test
         namespace(:other) { option :stuff }
       end
+    end
+
+    should "should have its proxy namespace built on inheriting" do
+      super_ns = @a_super_class.instance_variable_get("@__proxy_options__")
+      assert_not_nil super_ns
+      assert_kind_of NsOptions::Namespace, super_ns
+
+      a_sub_class = Class.new(@a_super_class)
+      sub_ns = a_sub_class.instance_variable_get("@__proxy_options__")
+      assert_not_nil sub_ns
+      assert_kind_of NsOptions::Namespace, sub_ns
+
+      assert_not_same super_ns, sub_ns
     end
 
     should "pass its definition to any subclass" do
