@@ -23,6 +23,8 @@ module NsOptions::Proxy
           assert_respond_to :to_hash,           subject
           assert_respond_to :each,              subject
           assert_respond_to :define,            subject
+          assert_respond_to :build_from,        subject
+          assert_respond_to :reset,             subject
           assert_respond_to :inspect,           subject
           assert_respond_to :has_option?,       subject
           assert_respond_to :has_namespace?,    subject
