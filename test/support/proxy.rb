@@ -10,8 +10,8 @@ module SomeProxy
       super(opts)
     end
 
-    opt :value1
-    opt :value2
+    opt :value1, String
+    opt :value2, Symbol
 
     ns :more do
       opt :other1
@@ -22,7 +22,7 @@ module SomeProxy
 
   class SomeOtherThing < SomeThing; end
 
-  opt :some, SomeThing, :default => { :value1 => 1 }
+  opt :some, SomeThing, :default => { :value1 => '1' }
   opt :some_prime, SomeThing, :default => { :value1 => 'one' }
   opt :stuff, :default => []
 

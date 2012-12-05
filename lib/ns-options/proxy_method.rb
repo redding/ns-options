@@ -45,8 +45,8 @@ module NsOptions
 
     def not_recommended_meth_names
       [ :option, :opt, :namespace, :ns,
-        :define, :inspect, :method_missing, :respond_to?,
-        :apply, :to_hash, :each, :required_set?, :valid?,
+        :inspect, :method_missing, :respond_to?, :required_set?, :valid?,
+        :define, :build_from, :reset, :apply, :to_hash, :each
       ]
     end
 

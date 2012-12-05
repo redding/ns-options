@@ -30,7 +30,11 @@ module NsOptions::Proxy
 
     # This hook copies the proxy definition to any subclasses
     def inherited(subclass)
-      subclass.__proxy_options__.build_from(self.__proxy_options__)
+      subclass.build_from(self.__proxy_options__)
+    end
+
+    def inspect(*args, &block)
+      "#<#{super()}:#{__proxy_options__.inspect}>"
     end
 
   end
@@ -47,6 +51,11 @@ module NsOptions::Proxy
       __proxy_options__ == other_proxy_instance.__proxy_options__
     end
 
+    def inspect(*args, &block)
+      ref = "#{self.class.name}:#{'0x%x' % (self.object_id << 1)}"
+      "#<#{ref}:#{__proxy_options__.inspect}>"
+    end
+
   end
 
   module ModuleReceiverExtendMethods
@@ -54,6 +63,10 @@ module NsOptions::Proxy
     # default initializer method
     def new(configs=nil)
       self.apply(configs || {})
+    end
+
+    def inspect(*args, &block)
+      "#<#{super()}:#{__proxy_options__.inspect}>"
     end
 
   end
@@ -81,17 +94,15 @@ module NsOptions::Proxy
 
     def has_option?(*args, &block);    __proxy_options__.has_option?(*args, &block);    end
     def has_namespace?(*args, &block); __proxy_options__.has_namespace?(*args, &block); end
-    def required_set?(*args, &block);  __proxy_options__.required_set?(*args, &block);    end
-    def valid?(*args, &block);         __proxy_options__.valid?(*args, &block);           end
+    def required_set?(*args, &block);  __proxy_options__.required_set?(*args, &block);  end
+    def valid?(*args, &block);         __proxy_options__.valid?(*args, &block);         end
 
-    def apply(*args, &block);   __proxy_options__.apply(*args, &block);   end
-    def to_hash(*args, &block); __proxy_options__.to_hash(*args, &block); end
-    def each(*args, &block);    __proxy_options__.each(*args, &block);    end
-    def define(*args, &block);  __proxy_options__.define(*args, &block);  end
-
-    def inspect(*args, &block)
-      "#<#{self.class}:#{'0x%x' % (self.object_id << 1)}:#{__proxy_options__.__name__} #{__proxy_options__.to_hash.inspect}>"
-    end
+    def apply(*args, &block);      __proxy_options__.apply(*args, &block);      end
+    def to_hash(*args, &block);    __proxy_options__.to_hash(*args, &block);    end
+    def each(*args, &block);       __proxy_options__.each(*args, &block);       end
+    def define(*args, &block);     __proxy_options__.define(*args, &block);     end
+    def build_from(*args, &block); __proxy_options__.build_from(*args, &block); end
+    def reset(*args, &block);      __proxy_options__.reset(*args, &block);      end
 
     # for everything else, send to the proxied NAMESPACE handler
     # at this point it really just enables dynamic options writers
