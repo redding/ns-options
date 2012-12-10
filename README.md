@@ -393,6 +393,60 @@ t = Thing.new(:one => 1, :two => 2, :three => 3)
 t.to_hash  # => {:one => 1, :two => 2, :three => 3}
 ```
 
+## NsOptions::Struct
+
+Much like a traditional ruby `Struct`, `NsOptions::Struct` is a class that creates other classes.  However, `NsOptions::Struct` creates _proxy_ classes.  There are a number of ways to do this:
+
+```ruby
+NsOptions::Struct.new                     #=> #<#<Class:0x1076166d0>:#<NsOptions::
+Thing = NsOptions::Struct.new             #=> #<Thing:#<NsOptions::
+Thing = Class.new(NsOptions::Struct.new)  #=> #<Thing:#<NsOptions::
+class Thing < NsOptions::Struct.new; end  #=> #<Thing:#<NsOptions::
+```
+
+`NsOptions::Struct` objects, being proxies, can be created with a hash of values and support dynamic writers (much like an `OpenStruct`).
+
+```ruby
+Thing = NsOptions::Struct.new
+
+thing = Thing.new(:something => 1)
+thing.something   #=> 1
+thing.otherthing  #=> NoMethodError
+thing.otherthing = 2
+thing.otherthing  #=> 2
+```
+
+You can pre-define the structure, including default values and type-casting info.
+
+```ruby
+Thing = NsOptions::Struct.new do
+  option :something,  Integer, :default => 1
+  option :otherthing, String
+end
+
+thing = Thing.new(:yet_another => 12.5)
+thing.something    #=> 1
+thing.otherthing   #=> nil
+thing.otherthing = 2
+thing.otherthing   #=> '2'
+thing.yet_another  #=> 12.5
+```
+
+And since struct classes are proxies, you don't have to create instances of them if you don't need to.
+
+```ruby
+thing = NsOptions::Struct.new(:yet_another => 12.5) do
+  option :something,  Integer, :default => 1
+  option :otherthing, String
+end
+
+thing.something    #=> 1
+thing.otherthing   #=> nil
+thing.otherthing = 2
+thing.otherthing   #=> '2'
+thing.yet_another  #=> 12.5
+```
+
 ## Installation
 
 Add this line to your application's Gemfile:
