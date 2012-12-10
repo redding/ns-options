@@ -1,5 +1,6 @@
 require 'ns-options/root_methods'
 require 'ns-options/proxy'
+require 'ns-options/struct'
 
 module NsOptions
 
