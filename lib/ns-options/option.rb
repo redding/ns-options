@@ -52,12 +52,7 @@ module NsOptions
     end
 
     def reset
-      default_value = begin
-        self.rules[:default].clone
-      rescue TypeError
-        self.rules[:default]
-      end
-      save_value(default_value)
+      save_value NsOptions.distinct_value(self.rules[:default])
     end
 
     def is_set?
