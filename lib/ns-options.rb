@@ -8,6 +8,14 @@ module NsOptions
     receiver.class_eval { extend NsOptions::DSL }
   end
 
+  def self.distinct_value(value)
+    begin
+      value.clone
+    rescue TypeError
+      value
+    end
+  end
+
   module DSL
 
     # This is the main DSL method for creating a namespace of options for your
