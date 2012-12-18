@@ -127,22 +127,6 @@ class NsOptions::NamespaceData
       assert_not subject.has_namespace? 'dlakjsglasdjgaklsdgjas'
     end
 
-    should "return its Hash representation" do
-      exp_hash = {
-        :first => nil, :second => nil, :third => nil,
-        :child_a => {
-          :fourth => nil, :fifth => nil,
-          :child_b => { :sixth => nil }
-        }
-      }
-      assert_equal(exp_hash, subject.to_hash)
-    end
-
-    should "apply a given hash value to itself" do
-      subject.apply(@named_values)
-      assert_equal @named_values, subject.to_hash
-    end
-
   end
 
   class EachTests < HandlingTests
@@ -213,7 +197,7 @@ class NsOptions::NamespaceData
 
   end
 
-  class ApplyTests < BaseTests
+  class HashHandlingTests < BaseTests
     setup do
       @data.define do
         option :first; option :second; option :third
@@ -223,19 +207,59 @@ class NsOptions::NamespaceData
         end
       end
 
+      @shared_array = []
       @named_values = {
         :first => "1", :second => "2", :third => "3", :twenty_one => "21",
         :child_a => {
           :fourth => "4", :fifth => "5",
           :child_b => { :sixth => "6" }
         },
-        :child_c => { :what => "?" }
+        :child_c => { :what => "?" },
+        :shared => @shared_array
       }
     end
+
+  end
+
+  class ToHashTests < HashHandlingTests
+
+    should "return its Hash representation" do
+      exp_hash = {
+        :first => nil, :second => nil, :third => nil,
+        :child_a => {
+          :fourth => nil, :fifth => nil,
+          :child_b => { :sixth => nil }
+        }
+      }
+      assert_equal(exp_hash, subject.to_hash)
+    end
+
+    should "use distinct values in its Hash representation" do
+      subject.add_option(:shared)
+      subject.set_option(:shared, [])
+      hash_rep = subject.to_hash
+      subject.get_option(:shared) << 1
+
+      assert_not_empty subject.get_option(:shared)
+      assert_empty     hash_rep[:shared]
+      assert_not_equal subject.get_option(:shared).object_id, hash_rep[:shared].object_id
+    end
+
+  end
+
+  class ApplyTests < HashHandlingTests
 
     should "apply a given hash value to itself" do
       subject.apply(@named_values)
       assert_equal @named_values, subject.to_hash
+    end
+
+    should "use distinct values when applying hashes" do
+      subject.apply(@named_values)
+      @shared_array << 1
+
+      assert_empty subject.get_option(:shared)
+      assert_not_equal @shared_array.object_id, subject.get_option(:shared).object_id
     end
 
     should "ignore applying non-hash values to namespaces" do

@@ -47,7 +47,11 @@ module NsOptions
     # for the option/namespace name-keys
     def to_hash
       Hash.new.tap do |hash|
-        @child_options.each{|name, opt| hash[name.to_sym] = opt.value}
+        @child_options.each do |name, opt|
+          # this is meant to be a "value exporter", so always use distinct values
+          # on the returned hash to prevent unintentional pass-by-ref shared objects
+          hash[name.to_sym] = NsOptions.distinct_value(opt.value)
+        end
         @child_namespaces.each{|name, value| hash[name.to_sym] = value.to_hash}
       end
     end
@@ -60,8 +64,10 @@ module NsOptions
           # recursively apply namespace values if hash given; ignore otherwise.
           get_namespace(name).apply(value) if value.kind_of?(Hash)
         else
+          # this is meant as a "value importer", so always apply distinct values
+          # to prevent unintentional pass-by-ref shared objects.
           # be sure to use the namespace's writer to write the option value
-          @ns.send("#{name}=", value)
+          @ns.send("#{name}=", NsOptions.distinct_value(value))
         end
       end
     end
