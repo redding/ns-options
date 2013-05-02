@@ -520,6 +520,9 @@ class NsOptions::Option
     should "should honor `returned_value` when returning option values" do
       @hosted_at.value = "path/to/resource/"
       assert_equal '/path/to/resource', @hosted_at.value
+
+      @hosted_at.value = proc{ "path/to/resource/" }
+      assert_equal '/path/to/resource', @hosted_at.value
     end
 
   end

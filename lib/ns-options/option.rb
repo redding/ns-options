@@ -38,13 +38,8 @@ module NsOptions
     # if reading a lazy_proc, call the proc and return its coerced return val
     # otherwise, just return the stored value
     def value
-      if self.lazy_proc?(@value)
-        self.coerce(@value.call)
-      elsif @value.respond_to?(:returned_value)
-        @value.returned_value
-      else
-        @value
-      end
+      val = self.lazy_proc?(@value) ? self.coerce(@value.call) : @value
+      val.respond_to?(:returned_value) ? val.returned_value : val
     end
 
     def value=(new_value)
