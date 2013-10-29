@@ -114,6 +114,16 @@ class NsOptions::Namespace
       assert_included 'test/unit/namespace_tests.rb:', err.backtrace.first
     end
 
+    should "only raise CeorceError when StandardExceptions are raised writing values" do
+      subject.option('symbol', Symbol)
+
+      std_err_class = Class.new{ def to_sym; raise StandardError; end }
+      sig_err_class = Class.new{ def to_sym; raise SignalException, 'INT'; end }
+
+      assert_raises(NsOptions::Option::CoerceError){ subject.symbol = std_err_class.new }
+      assert_raises(SignalException){ subject.symbol = sig_err_class.new }
+    end
+
   end
 
   class NamespaceTests < BaseTests

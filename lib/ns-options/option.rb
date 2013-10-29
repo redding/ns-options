@@ -99,7 +99,7 @@ module NsOptions
         else
           self.type_class.new(value, *self.rules[:args])
         end
-      rescue Exception => err
+      rescue StandardError => err
         raise CoerceError.new(self.type_class, value, err)
       end
     end
