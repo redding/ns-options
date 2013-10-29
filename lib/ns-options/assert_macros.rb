@@ -49,7 +49,7 @@ module NsOptions::AssertMacros
 
       Assert::Macro.new(test_name) do
 
-        should test_name do
+        should test_name, called_from do
 
           # have assertions
           assert subject.has_option?(opt_name)
