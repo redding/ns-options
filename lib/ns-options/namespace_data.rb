@@ -129,7 +129,7 @@ module NsOptions
       false
     end
 
-    def ns_method_missing(bt, meth, *args, &block)
+    def ns_method_missing(meth, *args, &block)
       dslm = DslMethod.new(meth, *args, &block)
 
       if is_namespace_reader?(dslm)
@@ -138,14 +138,9 @@ module NsOptions
         get_option(dslm.name)
       elsif is_option_writer?(dslm)
         add_option(dslm.name) unless has_option?(dslm.name)
-        begin
-          set_option(dslm.name, dslm.data)
-        rescue NsOptions::Option::CoerceError => err
-          error! bt, err # reraise this exception with a sane backtrace
-        end
+        set_option(dslm.name, dslm.data)
       else # namespace writer or unknown
-        # raise a no meth err with a sane backtrace
-        error! bt, NoMethodError.new("undefined method `#{meth}' for #{@ns.inspect}")
+        raise NoMethodError.new("undefined method `#{meth}' for #{@ns.inspect}")
       end
     end
 
@@ -161,10 +156,6 @@ module NsOptions
 
     def is_option_writer?(dsl_method)
       !has_namespace?(dsl_method.name) && dsl_method.has_args?
-    end
-
-    def error!(backtrace, exception)
-      exception.set_backtrace(backtrace); raise exception
     end
 
   end

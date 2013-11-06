@@ -48,7 +48,10 @@ module NsOptions
     end
 
     def method_missing(meth, *args, &block)
-      @__data__.ns_method_missing(caller, meth, *args, &block)
+      @__data__.ns_method_missing(meth, *args, &block)
+    rescue StandardError => exception
+      exception.set_backtrace(caller)
+      raise exception
     end
 
     def ==(other_ns)
